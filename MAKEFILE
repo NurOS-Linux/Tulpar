@@ -1,0 +1,155 @@
+# Compiler and flags
+CC = gcc
+CXX = g++
+AR = ar
+INSTALL = install
+MKDIR = mkdir -p
+
+# Directories
+PREFIX = /usr
+BINDIR = $(PREFIX)/bin
+SYSCONFDIR = /etc
+LIBDIR = $(PREFIX)/lib
+INCLUDEDIR = $(PREFIX)/include
+DATAROOTDIR = $(PREFIX)/share
+
+# Project directories
+SRCDIR = src
+INCDIR = include
+OBJDIR = obj
+TESTDIR = test
+SCRIPTDIR = scripts
+
+# Compilation flags
+CFLAGS = -Wall -Wextra -I$(INCDIR) -O2
+CXXFLAGS = -Wall -Wextra -I$(INCDIR) -O2
+LDFLAGS = -L$(LIBDIR)
+TEST_LDFLAGS = -lgtest -lgtest_main -pthread
+
+# Source files
+SRCS = $(wildcard $(SRCDIR)/*.c)
+OBJS = $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
+TEST_SRCS = $(wildcard $(TESTDIR)/*.cpp)
+TEST_BINS = $(TEST_SRCS:$(TESTDIR)/%.cpp=$(TESTDIR)/%)
+
+# Target executable
+TARGET = tulpar
+STATIC_LIB = lib$(TARGET).a
+SHARED_LIB = lib$(TARGET).so
+
+# Default target
+.PHONY: all
+all: directories $(TARGET) $(STATIC_LIB) $(SHARED_LIB)
+
+# Create necessary directories
+.PHONY: directories
+directories:
+    @$(MKDIR) $(OBJDIR)
+    @$(MKDIR) $(TESTDIR)
+
+# Compile source files
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
+    @echo "Compiling $<..."
+    @$(CC) $(CFLAGS) -c $< -o $@
+
+# Link executable
+$(TARGET): $(OBJS)
+    @echo "Linking $(TARGET)..."
+    @$(CC) $(OBJS) $(LDFLAGS) -o $@
+
+# Create static library
+$(STATIC_LIB): $(OBJS)
+    @echo "Creating static library..."
+    @$(AR) rcs $@ $(OBJS)
+
+# Create shared library
+$(SHARED_LIB): $(OBJS)
+    @echo "Creating shared library..."
+    @$(CC) -shared $(OBJS) -o $@
+
+# Compile and run tests
+.PHONY: test
+test: $(TEST_BINS)
+    @for test in $(TEST_BINS); do \
+        echo "Running $$test..."; \
+        ./$$test; \
+    done
+
+$(TESTDIR)/%: $(TESTDIR)/%.cpp $(STATIC_LIB)
+    @echo "Compiling test $<..."
+    @$(CXX) $(CXXFLAGS) $< -o $@ $(STATIC_LIB) $(TEST_LDFLAGS)
+
+# Installation
+.PHONY: install
+install: all
+    @echo "Installing $(TARGET)..."
+    @$(MKDIR) $(DESTDIR)$(BINDIR)
+    @$(MKDIR) $(DESTDIR)$(LIBDIR)
+    @$(MKDIR) $(DESTDIR)$(INCLUDEDIR)
+    @$(MKDIR) $(DESTDIR)$(SYSCONFDIR)/tulpar/apg/repo
+    @$(MKDIR) $(DESTDIR)$(DATAROOTDIR)/tulpar
+    @$(INSTALL) -m 755 $(TARGET) $(DESTDIR)$(BINDIR)
+    @$(INSTALL) -m 644 $(STATIC_LIB) $(DESTDIR)$(LIBDIR)
+    @$(INSTALL) -m 755 $(SHARED_LIB) $(DESTDIR)$(LIBDIR)
+    @$(INSTALL) -m 644 $(INCDIR)/*.h $(DESTDIR)$(INCLUDEDIR)
+    @$(INSTALL) -m 755 $(SCRIPTDIR)/*.sh $(DESTDIR)$(DATAROOTDIR)/tulpar
+    @touch $(DESTDIR)$(SYSCONFDIR)/tulpar/apg/repo/notsystem
+
+# Uninstallation
+.PHONY: uninstall
+uninstall:
+    @echo "Uninstalling $(TARGET)..."
+    @rm -f $(DESTDIR)$(BINDIR)/$(TARGET)
+    @rm -f $(DESTDIR)$(LIBDIR)/$(STATIC_LIB)
+    @rm -f $(DESTDIR)$(LIBDIR)/$(SHARED_LIB)
+    @rm -f $(DESTDIR)$(INCLUDEDIR)/tulpar.h
+    @rm -rf $(DESTDIR)$(DATAROOTDIR)/tulpar
+    @rm -rf $(DESTDIR)$(SYSCONFDIR)/tulpar
+
+# Clean build files
+.PHONY: clean
+clean:
+    @echo "Cleaning..."
+    @rm -rf $(OBJDIR)
+    @rm -f $(TARGET)
+    @rm -f $(STATIC_LIB)
+    @rm -f $(SHARED_LIB)
+    @rm -f $(TEST_BINS)
+
+# Debug build
+.PHONY: debug
+debug: CFLAGS += -g -DDEBUG
+debug: CXXFLAGS += -g -DDEBUG
+debug: all
+
+# Package version
+VERSION = 0.1.0
+
+# Create distribution package
+.PHONY: dist
+dist: clean
+    @echo "Creating distribution package..."
+    @$(MKDIR) $(TARGET)-$(VERSION)
+    @cp -r $(SRCDIR) $(INCDIR) $(TESTDIR) $(SCRIPTDIR) Makefile README.md $(TARGET)-$(VERSION)
+    @tar czf $(TARGET)-$(VERSION).tar.gz $(TARGET)-$(VERSION)
+    @rm -rf $(TARGET)-$(VERSION)
+
+# Help target
+.PHONY: help
+help:
+    @echo "Available targets:"
+    @echo "  all        - Build everything (default)"
+    @echo "  clean      - Remove build files"
+    @echo "  install    - Install the program"
+    @echo "  uninstall  - Uninstall the program"
+    @echo "  test       - Run tests"
+    @echo "  debug      - Build with debug symbols"
+    @echo "  dist       - Create distribution package"
+    @echo "  help       - Show this help message"
+
+# Dependencies
+-include $(OBJS:.o=.d)
+
+# Generate dependencies
+$(OBJDIR)/%.d: $(SRCDIR)/%.c
+    @$(CC) $(CFLAGS) -MM -MP -MT $(OBJDIR)/$*.o -MF $@ $<

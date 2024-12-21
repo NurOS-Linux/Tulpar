@@ -1,0 +1,38 @@
+tulpar/
+├── include/
+│   ├── tulpar.h
+│   └── etc
+├── src/
+│   ├── main.c
+│   ├── install.c
+│   ├── remove.c
+│   ├── update.c
+│   ├── local_install.c
+│   ├── remote_install.c
+│   ├── upgrade.c
+│   ├── info.c
+│   ├── search.c
+│   ├── repo.c
+│   └── etc
+├── scripts/
+│   ├── install.sh
+│   ├── remove.sh
+│   ├── update.sh
+│   ├── local_install.sh
+│   ├── remote_install.sh
+│   ├── upgrade.sh
+│   ├── info.sh
+│   ├── search.sh
+│   └── repo.sh
+├── test/
+│   ├── test_install.cpp
+│   ├── test_remove.cpp
+│   ├── test_update.cpp
+│   ├── test_local_install.cpp
+│   ├── test_remote_install.cpp
+│   ├── test_upgrade.cpp
+│   ├── test_info.cpp
+│   ├── test_search.cpp
+│   └── test_repo.cpp
+├── Makefile
+└── README.md
