@@ -1,155 +1,155 @@
-# Compiler and flags
-CC = gcc
-CXX = g++
-AR = ar
-INSTALL = install
-MKDIR = mkdir -p
+# Tulpar Package Manager
+# Author: AnmiTaliDev
+# Date: 2024-12-21 20:38:29 UTC
 
-# Directories
-PREFIX = /usr
+# Компиляторы и флаги
+CC = gcc
+CXX = g++ 
+CFLAGS = -Wall -Wextra -O2 -fPIC
+CXXFLAGS = -Wall -Wextra -O2 -fPIC
+LDFLAGS = -lsqlite3 -lcurl -lpthread
+
+# Версии
+VERSION = 1.0.0
+SOVERSION = 1
+
+# Пути установки
+PREFIX ?= /usr
 BINDIR = $(PREFIX)/bin
-SYSCONFDIR = /etc
 LIBDIR = $(PREFIX)/lib
 INCLUDEDIR = $(PREFIX)/include
-DATAROOTDIR = $(PREFIX)/share
+MANDIR = $(PREFIX)/share/man/man1
+SERVICEDIR = /etc/systemd/system
+INITDIR = /etc/init.d
 
-# Project directories
-SRCDIR = src
-INCDIR = include
-OBJDIR = obj
-TESTDIR = test
-SCRIPTDIR = scripts
+# Исходники
+SRCS = src/tulpar.c src/cli.c
+SRCS_CPP = src/tulpar_cpp.cpp
+HEADERS = include/tulpar.h
 
-# Compilation flags
-CFLAGS = -Wall -Wextra -I$(INCDIR) -O2
-CXXFLAGS = -Wall -Wextra -I$(INCDIR) -O2
-LDFLAGS = -L$(LIBDIR)
-TEST_LDFLAGS = -lgtest -lgtest_main -pthread
+OBJS = $(SRCS:.c=.o)
+OBJS_CPP = $(SRCS_CPP:.cpp=.o)
 
-# Source files
-SRCS = $(wildcard $(SRCDIR)/*.c)
-OBJS = $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
-TEST_SRCS = $(wildcard $(TESTDIR)/*.cpp)
-TEST_BINS = $(TEST_SRCS:$(TESTDIR)/%.cpp=$(TESTDIR)/%)
+# Цели
+.PHONY: all clean install uninstall
 
-# Target executable
-TARGET = tulpar
-STATIC_LIB = lib$(TARGET).a
-SHARED_LIB = lib$(TARGET).so
+all: tulpar libtulpar.so libtulpar.a
 
-# Default target
-.PHONY: all
-all: directories $(TARGET) $(STATIC_LIB) $(SHARED_LIB)
+# Компиляция CLI утилиты
+tulpar: $(OBJS)
+    $(CC) $(OBJS) -o $@ $(LDFLAGS)
 
-# Create necessary directories
-.PHONY: directories
-directories:
-    @$(MKDIR) $(OBJDIR)
-    @$(MKDIR) $(TESTDIR)
+# Динамическая библиотека
+libtulpar.so: libtulpar.so.$(VERSION)
+    ln -sf $< $@
+    ln -sf $< $@.$(SOVERSION)
 
-# Compile source files
-$(OBJDIR)/%.o: $(SRCDIR)/%.c
-    @echo "Compiling $<..."
-    @$(CC) $(CFLAGS) -c $< -o $@
+libtulpar.so.$(VERSION): $(OBJS) $(OBJS_CPP)
+    $(CXX) -shared -Wl,-soname,libtulpar.so.$(SOVERSION) $^ -o $@ $(LDFLAGS)
 
-# Link executable
-$(TARGET): $(OBJS)
-    @echo "Linking $(TARGET)..."
-    @$(CC) $(OBJS) $(LDFLAGS) -o $@
+# Статическая библиотека
+libtulpar.a: $(OBJS) $(OBJS_CPP)
+    ar rcs $@ $^
 
-# Create static library
-$(STATIC_LIB): $(OBJS)
-    @echo "Creating static library..."
-    @$(AR) rcs $@ $(OBJS)
+# Компиляция .c файлов
+%.o: %.c $(HEADERS)
+    $(CC) $(CFLAGS) -c $< -o $@
 
-# Create shared library
-$(SHARED_LIB): $(OBJS)
-    @echo "Creating shared library..."
-    @$(CC) -shared $(OBJS) -o $@
+# Компиляция .cpp файлов
+%.o: %.cpp $(HEADERS)
+    $(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Compile and run tests
-.PHONY: test
-test: $(TEST_BINS)
-    @for test in $(TEST_BINS); do \
-        echo "Running $$test..."; \
-        ./$$test; \
-    done
-
-$(TESTDIR)/%: $(TESTDIR)/%.cpp $(STATIC_LIB)
-    @echo "Compiling test $<..."
-    @$(CXX) $(CXXFLAGS) $< -o $@ $(STATIC_LIB) $(TEST_LDFLAGS)
-
-# Installation
-.PHONY: install
+# Установка
 install: all
-    @echo "Installing $(TARGET)..."
-    @$(MKDIR) $(DESTDIR)$(BINDIR)
-    @$(MKDIR) $(DESTDIR)$(LIBDIR)
-    @$(MKDIR) $(DESTDIR)$(INCLUDEDIR)
-    @$(MKDIR) $(DESTDIR)$(SYSCONFDIR)/tulpar/apg/repo
-    @$(MKDIR) $(DESTDIR)$(DATAROOTDIR)/tulpar
-    @$(INSTALL) -m 755 $(TARGET) $(DESTDIR)$(BINDIR)
-    @$(INSTALL) -m 644 $(STATIC_LIB) $(DESTDIR)$(LIBDIR)
-    @$(INSTALL) -m 755 $(SHARED_LIB) $(DESTDIR)$(LIBDIR)
-    @$(INSTALL) -m 644 $(INCDIR)/*.h $(DESTDIR)$(INCLUDEDIR)
-    @$(INSTALL) -m 755 $(SCRIPTDIR)/*.sh $(DESTDIR)$(DATAROOTDIR)/tulpar
-    @touch $(DESTDIR)$(SYSCONFDIR)/tulpar/apg/repo/notsystem
+    # Создание директорий
+    install -d $(DESTDIR)$(BINDIR)
+    install -d $(DESTDIR)$(LIBDIR)
+    install -d $(DESTDIR)$(INCLUDEDIR)
+    install -d $(DESTDIR)$(MANDIR)
+    install -d $(DESTDIR)$(SERVICEDIR)
+    install -d $(DESTDIR)$(INITDIR)
 
-# Uninstallation
-.PHONY: uninstall
+    # Установка бинарников и библиотек
+    install -m 755 tulpar $(DESTDIR)$(BINDIR)
+    install -m 644 libtulpar.so.$(VERSION) $(DESTDIR)$(LIBDIR)
+    install -m 644 libtulpar.a $(DESTDIR)$(LIBDIR)
+    ln -sf libtulpar.so.$(VERSION) $(DESTDIR)$(LIBDIR)/libtulpar.so
+    ln -sf libtulpar.so.$(VERSION) $(DESTDIR)$(LIBDIR)/libtulpar.so.$(SOVERSION)
+
+    # Установка заголовочных файлов
+    install -m 644 $(HEADERS) $(DESTDIR)$(INCLUDEDIR)
+
+    # Установка man страницы
+    install -m 644 docs/tulpar.1 $(DESTDIR)$(MANDIR)
+    gzip -f $(DESTDIR)$(MANDIR)/tulpar.1
+
+    # Установка сервисов
+    install -m 644 service/tulpard.service $(DESTDIR)$(SERVICEDIR)
+    install -m 755 service/tulpard $(DESTDIR)$(INITDIR)
+
+    # Обновление кэша библиотек
+    -ldconfig
+
+# Удаление
 uninstall:
-    @echo "Uninstalling $(TARGET)..."
-    @rm -f $(DESTDIR)$(BINDIR)/$(TARGET)
-    @rm -f $(DESTDIR)$(LIBDIR)/$(STATIC_LIB)
-    @rm -f $(DESTDIR)$(LIBDIR)/$(SHARED_LIB)
-    @rm -f $(DESTDIR)$(INCLUDEDIR)/tulpar.h
-    @rm -rf $(DESTDIR)$(DATAROOTDIR)/tulpar
-    @rm -rf $(DESTDIR)$(SYSCONFDIR)/tulpar
+    rm -f $(DESTDIR)$(BINDIR)/tulpar
+    rm -f $(DESTDIR)$(LIBDIR)/libtulpar.so*
+    rm -f $(DESTDIR)$(LIBDIR)/libtulpar.a
+    rm -f $(DESTDIR)$(INCLUDEDIR)/tulpar.h
+    rm -f $(DESTDIR)$(MANDIR)/tulpar.1.gz
+    rm -f $(DESTDIR)$(SERVICEDIR)/tulpard.service
+    rm -f $(DESTDIR)$(INITDIR)/tulpard
+    -ldconfig
 
-# Clean build files
-.PHONY: clean
+# Очистка
 clean:
-    @echo "Cleaning..."
-    @rm -rf $(OBJDIR)
-    @rm -f $(TARGET)
-    @rm -f $(STATIC_LIB)
-    @rm -f $(SHARED_LIB)
-    @rm -f $(TEST_BINS)
+    rm -f $(OBJS) $(OBJS_CPP)
+    rm -f tulpar libtulpar.so* libtulpar.a
 
-# Debug build
-.PHONY: debug
+# Дополнительные цели
+.PHONY: debug release test
+
+# Сборка с отладочной информацией
 debug: CFLAGS += -g -DDEBUG
 debug: CXXFLAGS += -g -DDEBUG
 debug: all
 
-# Package version
-VERSION = 0.1.0
+# Сборка с оптимизацией
+release: CFLAGS += -O3 -DNDEBUG
+release: CXXFLAGS += -O3 -DNDEBUG
+release: all
 
-# Create distribution package
-.PHONY: dist
-dist: clean
-    @echo "Creating distribution package..."
-    @$(MKDIR) $(TARGET)-$(VERSION)
-    @cp -r $(SRCDIR) $(INCDIR) $(TESTDIR) $(SCRIPTDIR) Makefile README.md $(TARGET)-$(VERSION)
-    @tar czf $(TARGET)-$(VERSION).tar.gz $(TARGET)-$(VERSION)
-    @rm -rf $(TARGET)-$(VERSION)
+# Запуск тестов (если будут добавлены)
+test: all
+    @echo "Running tests..."
+    # Команды для запуска тестов
 
-# Help target
-.PHONY: help
+# Проверка зависимостей
+check-deps:
+    @echo "Checking dependencies..."
+    @which sqlite3 >/dev/null 2>&1 || echo "Error: sqlite3 not found"
+    @which curl >/dev/null 2>&1 || echo "Error: curl not found"
+    @ldconfig -p | grep -q "libsqlite3" || echo "Error: libsqlite3 not found"
+    @ldconfig -p | grep -q "libcurl" || echo "Error: libcurl not found"
+
+# Вывод информации о версии
+version:
+    @echo "Tulpar Package Manager version $(VERSION)"
+
+# Помощь
 help:
-    @echo "Available targets:"
-    @echo "  all        - Build everything (default)"
-    @echo "  clean      - Remove build files"
-    @echo "  install    - Install the program"
-    @echo "  uninstall  - Uninstall the program"
-    @echo "  test       - Run tests"
-    @echo "  debug      - Build with debug symbols"
-    @echo "  dist       - Create distribution package"
-    @echo "  help       - Show this help message"
-
-# Dependencies
--include $(OBJS:.o=.d)
-
-# Generate dependencies
-$(OBJDIR)/%.d: $(SRCDIR)/%.c
-    @$(CC) $(CFLAGS) -MM -MP -MT $(OBJDIR)/$*.o -MF $@ $<
+    @echo "Tulpar Package Manager $(VERSION)"
+    @echo "Usage:"
+    @echo "  make [target]"
+    @echo ""
+    @echo "Targets:"
+    @echo "  all        Build all targets (default)"
+    @echo "  clean      Remove all built files"
+    @echo "  install    Install to system"
+    @echo "  uninstall  Remove from system"
+    @echo "  debug      Build with debug information"
+    @echo "  release    Build with optimizations"
+    @echo "  test       Run tests"
+    @echo "  check-deps Check dependencies"
+    @echo "  version    Show version"
+    @echo "  help       Show this help"
