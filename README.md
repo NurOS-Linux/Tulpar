@@ -1,33 +1,108 @@
 # Tulpar
 
-**Tulpar** — это пакетный менеджер, созданный для проекта NurOS.
+[![License](https://img.shields.io/github/license/nuros-linux/Tulpar)](LICENSE)
+[![Version](https://img.shields.io/github/v/release/nuros-linux/Tulpar)](https://github.com/nuros-linux/Tulpar/releases)
 
-### Что включает проект?
-1. apgtool
-2. tulpar
-3. tulpar server
-4. Расширение .apg
+Tulpar is a package manager created for the NurOS project.
 
-### Как работает Tulpar:
+## Project Components
 
-Tulpar работает с репозиториями пакетов, в которых хранятся бинарные и исходные пакеты программ. Когда пользователь выполняет команду для установки или удаления, Tulpar автоматически проверяет доступные репозитории, скачивает необходимые файлы и их зависимости, а затем устанавливает их на систему. В процессе установки или удаления пакетов, все зависимые компоненты обрабатываются автоматически, чтобы обеспечить работоспособность программ.
+- **apgtool** - Package build and management tool
+- **tulpar** - Package manager CLI
+- **tulpar server** - Package repository server
+- **.apg extension** - Tulpar package format
 
-### Участники
+## How Tulpar Works
 
-- taliildar
-- GoldenVadim
-- ShwoubleTrouble
+Tulpar works with package repositories that store binary and source packages. When a user executes an installation or removal command, Tulpar automatically:
 
-### Команды
+1. Checks available repositories
+2. Downloads required files and dependencies
+3. Installs them on the system
 
-- tulpar install <название пакета> скачать пакет.
-- tulpar remove <название пакета> удаление пакета.
-- tulpar update <Название пакета> обновление.
-- tulpar -i <пакет.apg> установка из локального файла.
-- tulpar -i <URL/GIT пакета> установка из удаленного репозитория.
-- tulpar upgrade обновиться.
-- tulpar info о всех пакетах (не подробно а просто).
-- tulpar info <название пакета> узнать все о пакете.
-- tulpar search <запрос> запрос на поиск пакета.
-- apgtool repo -a <URL репозитория> добавить репо.
-- apgtool repo -r <URL репо> удалить репо.
+During package installation or removal, all dependent components are processed automatically to ensure program functionality.
+
+## Commands
+
+### Package Management
+```bash
+# Install package
+tulpar install <package-name>
+
+# Remove package
+tulpar remove <package-name>
+
+# Update specific package
+tulpar update <package-name>
+
+# Install from local .apg file
+tulpar -i <package.apg>
+
+# Install from remote repository/git
+tulpar -i <repo-url/git-url>
+
+# System upgrade
+tulpar upgrade
+
+# Package information
+tulpar info                    # Brief list of all packages
+tulpar info <package-name>     # Detailed package information
+
+# Search packages
+tulpar search <query>
+```
+
+### Repository Management
+```bash
+# Add repository
+apgtool repo -a <repository-url>
+
+# Remove repository
+apgtool repo -r <repository-url>
+```
+
+## Contributors
+
+- [taliildar](https://github.com/AnmiTaliDev)
+- [GoldenVadim](https://github.com/GoldenVadim)
+- [ShwoubleTrouble](https://github.com/ShwoubleTrouble)
+
+## Installation
+
+```bash
+# Build from source
+git clone https://github.com/AnmiTaliDev/tulpar.git
+cd tulpar
+make
+sudo make install
+```
+
+## Configuration
+
+Default configuration file is located at `/etc/tulpar/tulpar.conf`
+
+## Development
+
+Requirements:
+- C++17 compiler
+- SQLite3
+- libcurl
+- OpenSSL
+- systemd
+- libarchive
+
+## License
+
+This project is licensed under the GPL 3 License - see the [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## Support
+
+If you encounter any problems, please [open an issue](https://github.com/nuros-linux/Tulpar/issues).
