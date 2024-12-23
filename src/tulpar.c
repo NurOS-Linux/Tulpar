@@ -1,130 +1,301 @@
 /**
- * @file tulpar_errors.h
- * @brief Error codes and descriptions for Tulpar package manager
+ * @file tulpar.c
+ * @brief Tulpar Package Manager Core Implementation
  * @author AnmiTaliDev
- * @date 2024-12-21 15:30:15 UTC
+ * @date 2024-12-23 19:51:00 UTC
  */
 
-#ifndef TULPAR_ERRORS_H
-#define TULPAR_ERRORS_H
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sqlite3.h>
+#include <curl/curl.h>
+#include <pthread.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <openssl/sha.h>
+#include <archive.h>
+#include <archive_entry.h>
+#include "tulpar.h"
 
-// Error codes
-typedef enum {
-    // Success
-    TULPAR_SUCCESS = 0,
-    
-    // System errors (-1 to -99)
-    TULPAR_ERROR_INTERNAL = -1,        // Internal system error
-    TULPAR_ERROR_MEMORY = -2,          // Memory allocation failed  
-    TULPAR_ERROR_IO = -3,              // Input/output error
-    TULPAR_ERROR_PERMISSION = -4,      // Permission denied
-    TULPAR_ERROR_NOT_FOUND = -5,       // File or resource not found
-    TULPAR_ERROR_ALREADY_EXISTS = -6,  // Resource already exists
-    TULPAR_ERROR_TIMEOUT = -7,         // Operation timed out
-    TULPAR_ERROR_BUSY = -8,            // Resource busy or locked
-    
-    // Package errors (-100 to -199) 
-    TULPAR_ERROR_PACKAGE_NOT_FOUND = -100,    // Package not found
-    TULPAR_ERROR_PACKAGE_CORRUPT = -101,      // Package file corrupted
-    TULPAR_ERROR_PACKAGE_CONFLICT = -102,     // Package conflicts with installed
-    TULPAR_ERROR_PACKAGE_DEPS = -103,         // Dependency resolution failed
-    TULPAR_ERROR_PACKAGE_INSTALL = -104,      // Package installation failed
-    TULPAR_ERROR_PACKAGE_REMOVE = -105,       // Package removal failed
-    TULPAR_ERROR_PACKAGE_CONFIG = -106,       // Package configuration failed
-    TULPAR_ERROR_PACKAGE_VERIFY = -107,       // Package verification failed
-    
-    // Network errors (-200 to -299)
-    TULPAR_ERROR_NETWORK = -200,              // Generic network error
-    TULPAR_ERROR_DOWNLOAD = -201,             // Download failed
-    TULPAR_ERROR_CONNECT = -202,              // Connection failed
-    TULPAR_ERROR_DNS = -203,                  // DNS resolution failed
-    TULPAR_ERROR_PROXY = -204,                // Proxy error
-    TULPAR_ERROR_SSL = -205,                  // SSL/TLS error
-    
-    // Database errors (-300 to -399)
-    TULPAR_ERROR_DB = -300,                   // Generic database error
-    TULPAR_ERROR_DB_CORRUPT = -301,           // Database corrupted
-    TULPAR_ERROR_DB_VERSION = -302,           // Database version mismatch
-    TULPAR_ERROR_DB_LOCKED = -303,            // Database locked
-    TULPAR_ERROR_DB_QUERY = -304,             // Invalid query
-    
-    // Input validation (-400 to -499)
-    TULPAR_ERROR_INVALID_ARG = -400,          // Invalid argument
-    TULPAR_ERROR_INVALID_NAME = -401,         // Invalid package name
-    TULPAR_ERROR_INVALID_VERSION = -402,      // Invalid version format
-    TULPAR_ERROR_INVALID_CHECKSUM = -403,     // Invalid checksum
-    TULPAR_ERROR_INVALID_SIGNATURE = -404,    // Invalid signature
-    
-    // Repository errors (-500 to -599)
-    TULPAR_ERROR_REPO_ADD = -500,             // Failed to add repository
-    TULPAR_ERROR_REPO_REMOVE = -501,          // Failed to remove repository
-    TULPAR_ERROR_REPO_UPDATE = -502,          // Failed to update repository
-    TULPAR_ERROR_REPO_SYNC = -503,            // Failed to sync repository
-    TULPAR_ERROR_REPO_ACCESS = -504,          // Repository access denied
-    
-    // Configuration errors (-600 to -699)
-    TULPAR_ERROR_CONFIG_READ = -600,          // Failed to read config
-    TULPAR_ERROR_CONFIG_WRITE = -601,         // Failed to write config
-    TULPAR_ERROR_CONFIG_PARSE = -602,         // Failed to parse config
-    TULPAR_ERROR_CONFIG_INVALID = -603,       // Invalid configuration
-    
-    // Transaction errors (-700 to -799)
-    TULPAR_ERROR_TRANS_BEGIN = -700,          // Failed to begin transaction
-    TULPAR_ERROR_TRANS_COMMIT = -701,         // Failed to commit transaction
-    TULPAR_ERROR_TRANS_ROLLBACK = -702,       // Failed to rollback transaction
-    TULPAR_ERROR_TRANS_LOCK = -703,           // Transaction lock failed
-    
-    // System resource errors (-800 to -899)
-    TULPAR_ERROR_DISK_SPACE = -800,           // Insufficient disk space
-    TULPAR_ERROR_MEMORY_LOW = -801,           // Low memory condition
-    TULPAR_ERROR_CPU_LOAD = -802,             // High CPU load
-    TULPAR_ERROR_TEMP_SPACE = -803,           // No temporary space
-    
-    // Security errors (-900 to -999)
-    TULPAR_ERROR_SECURITY = -900,             // Generic security error 
-    TULPAR_ERROR_PRIVILEGE = -901,            // Insufficient privileges
-    TULPAR_ERROR_AUTH = -902,                 // Authentication failed
-    TULPAR_ERROR_CERT = -903,                 // Certificate error
-    TULPAR_ERROR_SIGNATURE = -904             // Invalid signature
-} TulparError;
+#define TULPAR_DB "/var/lib/tulpar/packages.db"
+#define TULPAR_CACHE "/var/cache/tulpar"
+#define TULPAR_LOCK "/run/tulpar.lock"
+#define TULPAR_REPO "https://repo.tulpar.org/packages"
+#define TULPAR_BUF_SIZE (32 * 1024)  // 32KB buffer
+#define TULPAR_VERSION "1.0.0"
+#define TULPAR_MAX_RETRIES 3
+#define TULPAR_TIMEOUT 30
+#define APG_MAGIC "APG\x01"
 
-// Get error description
-const char* tulpar_error_string(TulparError error) {
-    switch(error) {
-        case TULPAR_SUCCESS: return "Success";
-        
-        // System errors
-        case TULPAR_ERROR_INTERNAL: return "Internal system error";
-        case TULPAR_ERROR_MEMORY: return "Memory allocation failed";
-        case TULPAR_ERROR_IO: return "Input/output error";
-        case TULPAR_ERROR_PERMISSION: return "Permission denied";
-        case TULPAR_ERROR_NOT_FOUND: return "File or resource not found";
-        case TULPAR_ERROR_ALREADY_EXISTS: return "Resource already exists";
-        case TULPAR_ERROR_TIMEOUT: return "Operation timed out";
-        case TULPAR_ERROR_BUSY: return "Resource busy or locked";
-        
-        // Package errors
-        case TULPAR_ERROR_PACKAGE_NOT_FOUND: return "Package not found";
-        case TULPAR_ERROR_PACKAGE_CORRUPT: return "Package file corrupted";
-        case TULPAR_ERROR_PACKAGE_CONFLICT: return "Package conflicts with installed packages";
-        case TULPAR_ERROR_PACKAGE_DEPS: return "Dependency resolution failed";
-        case TULPAR_ERROR_PACKAGE_INSTALL: return "Package installation failed";
-        case TULPAR_ERROR_PACKAGE_REMOVE: return "Package removal failed";
-        case TULPAR_ERROR_PACKAGE_CONFIG: return "Package configuration failed";
-        case TULPAR_ERROR_PACKAGE_VERIFY: return "Package verification failed";
-        
-        // Network errors
-        case TULPAR_ERROR_NETWORK: return "Network error";
-        case TULPAR_ERROR_DOWNLOAD: return "Download failed";
-        case TULPAR_ERROR_CONNECT: return "Connection failed";
-        case TULPAR_ERROR_DNS: return "DNS resolution failed";
-        case TULPAR_ERROR_PROXY: return "Proxy error";
-        case TULPAR_ERROR_SSL: return "SSL/TLS error";
-        
-        // Add other error descriptions...
-        
-        default: return "Unknown error";
-    }
+typedef struct {
+    char *url;
+    char *dest; 
+    char *sha256;
+    size_t size;
+    void *data;
+} DownloadTask;
+
+typedef struct {
+    sqlite3 *db;
+    CURLM *curl;
+    pthread_mutex_t mutex;
+    pthread_cond_t cond;
+    FILE *logfp;
+    DownloadTask *tasks;
+    int task_count;
+    int running;
+    int verbose;
+} TulparContext;
+
+static TulparContext ctx = {0};
+
+// Write callback for curl
+static size_t write_cb(void *ptr, size_t size, size_t n, void *stream) {
+    FILE *fp = (FILE*)stream;
+    size_t written = fwrite(ptr, size, n, fp);
+    fflush(fp);
+    return written;
 }
 
-#endif // TULPAR_ERRORS_H
+// Calculate SHA256 of file
+static char* calc_sha256(const char *path) {
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+
+    FILE *fp = fopen(path, "rb");
+    if (!fp) return NULL;
+
+    unsigned char buf[TULPAR_BUF_SIZE];
+    size_t n;
+    while ((n = fread(buf, 1, sizeof(buf), fp)) > 0) {
+        SHA256_Update(&sha256, buf, n);
+    }
+    fclose(fp);
+
+    SHA256_Final(hash, &sha256);
+
+    char *result = malloc(SHA256_DIGEST_LENGTH * 2 + 1);
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
+        sprintf(result + i*2, "%02x", hash[i]);
+    }
+    return result;
+}
+
+// Download file with progress
+static int download_file(const char *url, const char *dest, const char *sha256) {
+    CURL *curl = curl_easy_init();
+    if (!curl) return 1;
+
+    FILE *fp = fopen(dest, "wb");
+    if (!fp) {
+        curl_easy_cleanup(curl);
+        return 1;
+    }
+
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_cb);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, TULPAR_TIMEOUT);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
+    curl_easy_setopt(curl, CURLOPT_USERAGENT, "Tulpar/" TULPAR_VERSION);
+    curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
+    
+    CURLcode res = curl_easy_perform(curl);
+    long http_code = 0;
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
+
+    fclose(fp);
+    curl_easy_cleanup(curl);
+
+    if (res != CURLE_OK || http_code != 200) {
+        unlink(dest);
+        return 1;
+    }
+
+    // Verify SHA256 if provided
+    if (sha256) {
+        char *actual = calc_sha256(dest);
+        if (!actual || strcmp(sha256, actual) != 0) {
+            free(actual);
+            unlink(dest);
+            return 1;
+        }
+        free(actual);
+    }
+
+    return 0;
+}
+
+// Initialize tulpar
+TulparError tulpar_init(void) {
+    if (geteuid() != 0) {
+        return TULPAR_ERR_PERM;
+    }
+
+    // Get lock
+    int fd = open(TULPAR_LOCK, O_RDWR|O_CREAT, 0600);
+    if (fd < 0 || flock(fd, LOCK_EX|LOCK_NB) < 0) {
+        return TULPAR_ERR_LOCK;
+    }
+
+    // Create directories
+    mkdir("/var/lib/tulpar", 0755);
+    mkdir("/var/cache/tulpar", 0755);
+    mkdir("/var/log/tulpar", 0755);
+
+    // Open log
+    ctx.logfp = fopen("/var/log/tulpar/tulpar.log", "a");
+
+    // Initialize SQLite
+    if (sqlite3_open(TULPAR_DB, &ctx.db)) {
+        close(fd);
+        return TULPAR_ERR_DB;
+    }
+
+    char *sql = 
+        "CREATE TABLE IF NOT EXISTS packages ("
+        "name TEXT PRIMARY KEY,"
+        "version TEXT NOT NULL,"
+        "size INTEGER,"
+        "sha256 TEXT,"
+        "install_date DATETIME DEFAULT CURRENT_TIMESTAMP"
+        ")";
+
+    char *err = NULL;
+    if (sqlite3_exec(ctx.db, sql, NULL, NULL, &err)) {
+        sqlite3_free(err);
+        sqlite3_close(ctx.db);
+        close(fd);
+        return TULPAR_ERR_DB;
+    }
+
+    // Initialize curl
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    ctx.curl = curl_multi_init();
+    if (!ctx.curl) {
+        sqlite3_close(ctx.db);
+        close(fd);
+        return TULPAR_ERR_INIT;
+    }
+
+    pthread_mutex_init(&ctx.mutex, NULL);
+    pthread_cond_init(&ctx.cond, NULL);
+    ctx.running = 1;
+
+    return TULPAR_OK;
+}
+
+// Clean up tulpar
+void tulpar_cleanup(void) {
+    ctx.running = 0;
+    pthread_cond_broadcast(&ctx.cond);
+
+    if (ctx.db) sqlite3_close(ctx.db);
+    if (ctx.curl) {
+        curl_multi_cleanup(ctx.curl); 
+        curl_global_cleanup();
+    }
+    if (ctx.logfp) fclose(ctx.logfp);
+
+    pthread_mutex_destroy(&ctx.mutex);
+    pthread_cond_destroy(&ctx.cond);
+
+    unlink(TULPAR_LOCK);
+}
+
+// Install package
+TulparError tulpar_install(const char *name, const TulparOptions *opts) {
+    if (!name || !opts) return TULPAR_ERR_INVALID;
+
+    pthread_mutex_lock(&ctx.mutex);
+
+    // Check if already installed
+    sqlite3_stmt *stmt;
+    const char *sql = "SELECT version FROM packages WHERE name = ?";
+    
+    if (sqlite3_prepare_v2(ctx.db, sql, -1, &stmt, NULL) != SQLITE_OK) {
+        pthread_mutex_unlock(&ctx.mutex);
+        return TULPAR_ERR_DB;
+    }
+
+    sqlite3_bind_text(stmt, 1, name, -1, SQLITE_STATIC);
+    int exists = (sqlite3_step(stmt) == SQLITE_ROW);
+    const char *curr_ver = exists ? (const char*)sqlite3_column_text(stmt, 0) : NULL;
+    sqlite3_finalize(stmt);
+
+    if (exists && !opts->force) {
+        pthread_mutex_unlock(&ctx.mutex);
+        return TULPAR_OK;
+    }
+
+    // Download package
+    char url[512], dest[256];
+    snprintf(url, sizeof(url), "%s/%s/%s.apg", TULPAR_REPO, name, name);
+    snprintf(dest, sizeof(dest), "%s/%s.apg", TULPAR_CACHE, name);
+
+    int ret = download_file(url, dest, NULL);
+    if (ret != 0) {
+        pthread_mutex_unlock(&ctx.mutex);
+        return TULPAR_ERR_NETWORK;
+    }
+
+    // Verify APG format
+    FILE *fp = fopen(dest, "rb");
+    if (!fp) {
+        pthread_mutex_unlock(&ctx.mutex);
+        return TULPAR_ERR_IO;
+    }
+
+    char magic[4];
+    if (fread(magic, 1, 4, fp) != 4 || memcmp(magic, APG_MAGIC, 4) != 0) {
+        fclose(fp);
+        unlink(dest);
+        pthread_mutex_unlock(&ctx.mutex);
+        return TULPAR_ERR_INVALID;
+    }
+    fclose(fp);
+
+    // Extract package
+    struct archive *a = archive_read_new();
+    archive_read_support_filter_all(a);
+    archive_read_support_format_all(a);
+
+    if (archive_read_open_filename(a, dest, TULPAR_BUF_SIZE) != ARCHIVE_OK) {
+        archive_read_free(a);
+        unlink(dest);
+        pthread_mutex_unlock(&ctx.mutex);
+        return TULPAR_ERR_EXTRACT;
+    }
+
+    struct archive_entry *entry;
+    while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+        archive_read_extract(a, entry, 0);
+    }
+
+    archive_read_close(a);
+    archive_read_free(a);
+
+    // Update database
+    sql = "INSERT OR REPLACE INTO packages (name, version) VALUES (?, ?)";
+    if (sqlite3_prepare_v2(ctx.db, sql, -1, &stmt, NULL) != SQLITE_OK) {
+        unlink(dest);
+        pthread_mutex_unlock(&ctx.mutex);
+        return TULPAR_ERR_DB;
+    }
+
+    sqlite3_bind_text(stmt, 1, name, -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, TULPAR_VERSION, -1, SQLITE_STATIC);
+
+    int rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+
+    unlink(dest);
+    pthread_mutex_unlock(&ctx.mutex);
+    
+    return (rc == SQLITE_DONE) ? TULPAR_OK : TULPAR_ERR_DB;
+}

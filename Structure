@@ -9,7 +9,7 @@ tulpar/
 │
 ├── service/
 │   ├── tulpard.service   # Systemd сервис
-│   └── tulpard          # Init.d скрипт
+│   └── tulpard.c         # Init.d скрипт
 │
 ├── docs/
 │   ├── tulpar.1         # Man страница

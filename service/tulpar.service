@@ -1,0 +1,78 @@
+# /etc/systemd/system/tulpar.service
+# Tulpar Package Manager Service
+# Author: AnmiTaliDev
+# Date: 2024-12-23 20:05:11 UTC
+
+[Unit]
+Description=Tulpar Package Manager Service
+Documentation=https://github.com/nuros-linux/tulpar
+After=network.target network-online.target
+Wants=network-online.target
+RequiresMountsFor=/var/cache/tulpar /var/lib/tulpar
+
+[Service]
+Type=notify
+NotifyAccess=all
+ExecStart=/usr/bin/tulpar-daemon --config /etc/tulpar/tulpar.conf
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStop=/bin/kill -TERM $MAINPID
+
+# Безопасность
+User=tulpar
+Group=tulpar
+DynamicUser=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+NoNewPrivileges=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+MemoryDenyWriteExecute=yes
+LockPersonality=yes
+
+# Ограничения ресурсов
+CPUQuota=50%
+MemoryLimit=256M
+TasksMax=64
+LimitNOFILE=65535
+LimitNPROC=64
+
+# Директории
+RuntimeDirectory=tulpar
+RuntimeDirectoryMode=0750
+StateDirectory=tulpar
+StateDirectoryMode=0750
+CacheDirectory=tulpar
+CacheDirectoryMode=0750
+LogsDirectory=tulpar
+LogsDirectoryMode=0750
+ConfigurationDirectory=tulpar
+ConfigurationDirectoryMode=0750
+
+# Рабочая директория
+WorkingDirectory=/var/lib/tulpar
+
+# Переменные окружения
+Environment=TULPAR_CONFIG=/etc/tulpar/tulpar.conf
+Environment=TULPAR_CACHE=/var/cache/tulpar
+Environment=TULPAR_DB=/var/lib/tulpar/packages.db
+Environment=TULPAR_LOG=/var/log/tulpar/tulpar.log
+
+# Перезапуск
+Restart=on-failure
+RestartSec=5s
+StartLimitInterval=1m
+StartLimitBurst=3
+
+# Таймауты
+TimeoutStartSec=1m
+TimeoutStopSec=1m
+WatchdogSec=30s
+
+[Install]
+WantedBy=multi-user.target
