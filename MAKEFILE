@@ -1,155 +1,185 @@
-# Tulpar Package Manager
+# Makefile for Tulpar Package Manager
 # Author: AnmiTaliDev
-# Date: 2024-12-21 20:38:29 UTC
+# Date: 2024-12-23 20:24:47 UTC
 
-# Компиляторы и флаги
+# Compiler settings
+CXX = g++
 CC = gcc
-CXX = g++ 
+CXXFLAGS = -Wall -Wextra -O2 -std=c++17 -fPIC
 CFLAGS = -Wall -Wextra -O2 -fPIC
-CXXFLAGS = -Wall -Wextra -O2 -fPIC
-LDFLAGS = -lsqlite3 -lcurl -lpthread
+LDFLAGS = -shared
 
-# Версии
+# Package version
 VERSION = 1.0.0
-SOVERSION = 1
 
-# Пути установки
-PREFIX ?= /usr
+# Install paths
+PREFIX = /usr
+SYSCONFDIR = /etc
+LOCALSTATEDIR = /var
+
+# Directories
 BINDIR = $(PREFIX)/bin
 LIBDIR = $(PREFIX)/lib
 INCLUDEDIR = $(PREFIX)/include
-MANDIR = $(PREFIX)/share/man/man1
-SERVICEDIR = /etc/systemd/system
-INITDIR = /etc/init.d
+CONFDIR = $(SYSCONFDIR)/tulpar
+CACHEDIR = $(LOCALSTATEDIR)/cache/tulpar
+DBDIR = $(LOCALSTATEDIR)/lib/tulpar
+LOGDIR = $(LOCALSTATEDIR)/log/tulpar
 
-# Исходники
-SRCS = src/tulpar.c src/cli.c
-SRCS_CPP = src/tulpar_cpp.cpp
-HEADERS = include/tulpar.h
+# Dependencies
+DEPS = sqlite3 libcurl openssl systemd libarchive
+PKG_CONFIG = pkg-config
+CXXFLAGS += $(shell $(PKG_CONFIG) --cflags $(DEPS))
+CFLAGS += $(shell $(PKG_CONFIG) --cflags $(DEPS))
+LIBS = $(shell $(PKG_CONFIG) --libs $(DEPS))
 
-OBJS = $(SRCS:.c=.o)
-OBJS_CPP = $(SRCS_CPP:.cpp=.o)
+# Source files
+SRCS_CXX = src/tulpar.cpp src/config.cpp
+SRCS_C = src/cli.c src/tulpard.c
+HEADERS = include/tulpar.hpp include/config.hpp
 
-# Цели
+# Object files
+OBJS_CXX = $(SRCS_CXX:.cpp=.o)
+OBJS_C = $(SRCS_C:.c=.o)
+
+# Targets
+LIB = libtulpar.so.$(VERSION)
+CLI = tulpar
+DAEMON = tulpard
+
 .PHONY: all clean install uninstall
 
-all: tulpar libtulpar.so libtulpar.a
+all: $(LIB) $(CLI) $(DAEMON)
 
-# Компиляция CLI утилиты
-tulpar: $(OBJS)
-    $(CC) $(OBJS) -o $@ $(LDFLAGS)
+# Library
+$(LIB): $(OBJS_CXX)
+    $(CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
+    ln -sf $(LIB) libtulpar.so
 
-# Динамическая библиотека
-libtulpar.so: libtulpar.so.$(VERSION)
-    ln -sf $< $@
-    ln -sf $< $@.$(SOVERSION)
+# CLI tool
+$(CLI): src/cli.o $(LIB)
+    $(CC) -o $@ $^ -L. -ltulpar $(LIBS)
 
-libtulpar.so.$(VERSION): $(OBJS) $(OBJS_CPP)
-    $(CXX) -shared -Wl,-soname,libtulpar.so.$(SOVERSION) $^ -o $@ $(LDFLAGS)
+# Daemon
+$(DAEMON): src/tulpard.o $(LIB)
+    $(CC) -o $@ $^ -L. -ltulpar $(LIBS)
 
-# Статическая библиотека
-libtulpar.a: $(OBJS) $(OBJS_CPP)
-    ar rcs $@ $^
-
-# Компиляция .c файлов
-%.o: %.c $(HEADERS)
-    $(CC) $(CFLAGS) -c $< -o $@
-
-# Компиляция .cpp файлов
+# C++ compilation
 %.o: %.cpp $(HEADERS)
-    $(CXX) $(CXXFLAGS) -c $< -o $@
+    $(CXX) $(CXXFLAGS) -I./include -c -o $@ $<
 
-# Установка
+# C compilation
+%.o: %.c $(HEADERS)
+    $(CC) $(CFLAGS) -I./include -c -o $@ $<
+
+# Installation
 install: all
-    # Создание директорий
+    # Binaries
     install -d $(DESTDIR)$(BINDIR)
+    install -m 755 $(CLI) $(DESTDIR)$(BINDIR)
+    install -m 755 $(DAEMON) $(DESTDIR)$(BINDIR)
+
+    # Library
     install -d $(DESTDIR)$(LIBDIR)
-    install -d $(DESTDIR)$(INCLUDEDIR)
-    install -d $(DESTDIR)$(MANDIR)
-    install -d $(DESTDIR)$(SERVICEDIR)
-    install -d $(DESTDIR)$(INITDIR)
+    install -m 755 $(LIB) $(DESTDIR)$(LIBDIR)
+    ln -sf $(LIB) $(DESTDIR)$(LIBDIR)/libtulpar.so
 
-    # Установка бинарников и библиотек
-    install -m 755 tulpar $(DESTDIR)$(BINDIR)
-    install -m 644 libtulpar.so.$(VERSION) $(DESTDIR)$(LIBDIR)
-    install -m 644 libtulpar.a $(DESTDIR)$(LIBDIR)
-    ln -sf libtulpar.so.$(VERSION) $(DESTDIR)$(LIBDIR)/libtulpar.so
-    ln -sf libtulpar.so.$(VERSION) $(DESTDIR)$(LIBDIR)/libtulpar.so.$(SOVERSION)
+    # Headers
+    install -d $(DESTDIR)$(INCLUDEDIR)/tulpar
+    install -m 644 $(HEADERS) $(DESTDIR)$(INCLUDEDIR)/tulpar
 
-    # Установка заголовочных файлов
-    install -m 644 $(HEADERS) $(DESTDIR)$(INCLUDEDIR)
+    # Config
+    install -d $(DESTDIR)$(CONFDIR)
+    install -m 644 config/tulpar.conf $(DESTDIR)$(CONFDIR)
 
-    # Установка man страницы
-    install -m 644 docs/tulpar.1 $(DESTDIR)$(MANDIR)
-    gzip -f $(DESTDIR)$(MANDIR)/tulpar.1
+    # systemd service
+    install -d $(DESTDIR)$(SYSCONFDIR)/systemd/system
+    install -m 644 systemd/tulpar.service $(DESTDIR)$(SYSCONFDIR)/systemd/system
 
-    # Установка сервисов
-    install -m 644 service/tulpard.service $(DESTDIR)$(SERVICEDIR)
-    install -m 755 service/tulpard $(DESTDIR)$(INITDIR)
+    # Directories
+    install -d $(DESTDIR)$(CACHEDIR)
+    install -d $(DESTDIR)$(DBDIR)
+    install -d $(DESTDIR)$(LOGDIR)
 
-    # Обновление кэша библиотек
+    # Update ldconfig
     -ldconfig
 
-# Удаление
+# Uninstallation
 uninstall:
-    rm -f $(DESTDIR)$(BINDIR)/tulpar
-    rm -f $(DESTDIR)$(LIBDIR)/libtulpar.so*
-    rm -f $(DESTDIR)$(LIBDIR)/libtulpar.a
-    rm -f $(DESTDIR)$(INCLUDEDIR)/tulpar.h
-    rm -f $(DESTDIR)$(MANDIR)/tulpar.1.gz
-    rm -f $(DESTDIR)$(SERVICEDIR)/tulpard.service
-    rm -f $(DESTDIR)$(INITDIR)/tulpard
+    # Remove binaries
+    rm -f $(DESTDIR)$(BINDIR)/$(CLI)
+    rm -f $(DESTDIR)$(BINDIR)/$(DAEMON)
+
+    # Remove library
+    rm -f $(DESTDIR)$(LIBDIR)/$(LIB)
+    rm -f $(DESTDIR)$(LIBDIR)/libtulpar.so
+
+    # Remove headers
+    rm -rf $(DESTDIR)$(INCLUDEDIR)/tulpar
+
+    # Remove config
+    rm -rf $(DESTDIR)$(CONFDIR)
+
+    # Remove service
+    rm -f $(DESTDIR)$(SYSCONFDIR)/systemd/system/tulpar.service
+
+    # Update ldconfig
     -ldconfig
 
-# Очистка
+# Cleaning
 clean:
-    rm -f $(OBJS) $(OBJS_CPP)
-    rm -f tulpar libtulpar.so* libtulpar.a
+    rm -f src/*.o
+    rm -f $(LIB) libtulpar.so
+    rm -f $(CLI) $(DAEMON)
 
-# Дополнительные цели
-.PHONY: debug release test
+# Tests
+.PHONY: test
+test:
+    $(MAKE) -C tests
 
-# Сборка с отладочной информацией
-debug: CFLAGS += -g -DDEBUG
-debug: CXXFLAGS += -g -DDEBUG
-debug: all
+# Documentation
+.PHONY: doc
+doc:
+    doxygen Doxyfile
 
-# Сборка с оптимизацией
-release: CFLAGS += -O3 -DNDEBUG
-release: CXXFLAGS += -O3 -DNDEBUG
-release: all
+# Package
+.PHONY: package
+package:
+    tar -czf tulpar-$(VERSION).tar.gz \
+        src/ include/ config/ systemd/ \
+        Makefile README.md LICENSE
 
-# Запуск тестов (если будут добавлены)
-test: all
-    @echo "Running tests..."
-    # Команды для запуска тестов
-
-# Проверка зависимостей
+# Dependencies check
+.PHONY: check-deps
 check-deps:
     @echo "Checking dependencies..."
-    @which sqlite3 >/dev/null 2>&1 || echo "Error: sqlite3 not found"
-    @which curl >/dev/null 2>&1 || echo "Error: curl not found"
-    @ldconfig -p | grep -q "libsqlite3" || echo "Error: libsqlite3 not found"
-    @ldconfig -p | grep -q "libcurl" || echo "Error: libcurl not found"
+    @for dep in $(DEPS); do \
+        if $(PKG_CONFIG) --exists $$dep; then \
+            echo "Found $$dep"; \
+        else \
+            echo "Missing $$dep"; \
+            exit 1; \
+        fi \
+    done
 
-# Вывод информации о версии
-version:
-    @echo "Tulpar Package Manager version $(VERSION)"
+# Debug build
+.PHONY: debug
+debug: CXXFLAGS += -g -DDEBUG
+debug: CFLAGS += -g -DDEBUG
+debug: all
 
-# Помощь
+# Help
+.PHONY: help
 help:
     @echo "Tulpar Package Manager $(VERSION)"
-    @echo "Usage:"
-    @echo "  make [target]"
-    @echo ""
+    @echo
     @echo "Targets:"
-    @echo "  all        Build all targets (default)"
-    @echo "  clean      Remove all built files"
-    @echo "  install    Install to system"
-    @echo "  uninstall  Remove from system"
-    @echo "  debug      Build with debug information"
-    @echo "  release    Build with optimizations"
-    @echo "  test       Run tests"
-    @echo "  check-deps Check dependencies"
-    @echo "  version    Show version"
-    @echo "  help       Show this help"
+    @echo "  all        - Build everything (default)"
+    @echo "  install    - Install to system"
+    @echo "  uninstall  - Remove from system"
+    @echo "  clean      - Remove build files"
+    @echo "  test       - Run tests"
+    @echo "  doc        - Generate documentation"
+    @echo "  package    - Create source package"
+    @echo "  debug      - Build with debug symbols"
+    @echo "  help       - Show this help"
