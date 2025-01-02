@@ -48,10 +48,10 @@ tulpar search <query>
 ### Repository Management
 ```bash
 # Add repository
-apgtool repo -a <repository-url>
+tulpar-repo -a <repository-url>
 
 # Remove repository
-apgtool repo -r <repository-url>
+tulpar-repo -r <repository-url>
 ```
 
 ## Contributors
@@ -64,7 +64,7 @@ apgtool repo -r <repository-url>
 
 ```bash
 # Build from source
-git clone https://github.com/AnmiTaliDev/tulpar.git
+git clone https://github.com/nuros-linux/tulpar.git
 cd tulpar
 make
 sudo make install
