@@ -5,13 +5,6 @@
 
 Tulpar is a package manager created for the NurOS project.
 
-## Project Components
-
-- **apgtool** - Package build and management tool
-- **tulpar** - Package manager CLI
-- **tulpar server** - Package repository server
-- **.apg extension** - Tulpar package format
-
 ## How Tulpar Works
 
 Tulpar works with package repositories that store binary and source packages. When a user executes an installation or removal command, Tulpar automatically:
