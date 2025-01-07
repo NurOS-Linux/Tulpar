@@ -73,16 +73,8 @@ sudo make install
 ## Configuration
 
 Default configuration file is located at `/etc/tulpar/tulpar.conf`
-
-## Development
-
-Requirements:
-- C++17 compiler
-- SQLite3
-- libcurl
-- OpenSSL
-- systemd
-- libarchive
+Repository list file is located at `/etc/tulpar/repolist.json`
+Decompressed packages are located at `/var/lib/tulpar/packages/`
 
 ## License
 
