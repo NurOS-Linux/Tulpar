@@ -1,49 +1,74 @@
 #!/usr/bin/python3
 
 from os import path,replace,chdir,remove,listdir,getuid
-if getuid()!=0:
-    print('You must run Tulpar as root user.')
-    exit(1)
 from tarfile import open as taropen
 from argparse import ArgumentParser
 from random import randint
 from hashlib import md5
+from time import sleep
 from json import load
 import shutil
 
 ARGPARSE=ArgumentParser()
 SUB=ARGPARSE.add_subparsers(dest='command')
-SUB.add_parser('install').add_argument('PACKAGE')
-SUB.add_parser('remove').add_argument('PACKAGE')
-ARGPARSE.add_argument('-i',required=False)
+SUB.add_parser('install',help='Install the public package').add_argument('PACKAGE')
+SUB.add_parser('remove',help='Remove the installed package').add_argument('PACKAGE')
+ARGPARSE.add_argument('-i',help='Install the local package, requires path to package file')
 ARGS=ARGPARSE.parse_args()
+
+def animprint(text:str,interval:float=0.007,end:str='\n'):
+    for char in list(text):
+        print(char,end='',flush=True)
+        sleep(interval)
+    print(end,end='')
+
+if len(ARGS._get_kwargs())==0:
+    animprint('/!\\ Type -h for help.')
+    exit(0)
+
+if getuid()!=0:
+    animprint('/!\\ You must run Tulpar as root user.')
+    exit(1)
+
+def ask():
+    try:
+        while True:
+            answer=input('[y/n]: ').lower()
+            if answer=='y':return True
+            elif answer=='n':return False
+    except:exit(0)
 
 class ProceedInstall:
     def __init__(self,file_path:str):
         self.file_path=file_path
+        self.__temp=path.abspath(f'.tulpar{randint(1,999999)}')
         if self.file_path.endswith('.apg'):
             with taropen(self.file_path,'r:xz')as __file:
-                self.file_path=path.abspath(f'.tulpar{randint(1,999999)}')
+                self.file_path=self.__temp
                 __file.extractall(self.file_path)
                 __file.close()
             chdir(self.file_path)
             self.metadata=load(open('metadata.json'))
             if path.exists(path.join('/var/lib/tulpar/packages',self.metadata['name'])):
-                print(f' & "{self.metadata["name"]}" is already installed with version {self.metadata["version"]}')
-                self.cancel(1)
+                print(f'/!\\ "{self.metadata["name"]}" is already installed. Do you want to reinstall it?')
+                if not ask():self.cancel(0)
+                shutil.rmtree(path.join('/var/lib/tulpar/packages',self.metadata['name']))
             replace(self.file_path,'/var/lib/tulpar/packages/'+self.metadata['name'])
             self.file_path='/var/lib/tulpar/packages/'+self.metadata['name']
             chdir(self.file_path)
-        print('--- Installing '+self.metadata['name'])
+        else:
+            animprint(' - This is not APG package file.')
+            self.cancel(1)
+        animprint('--- Installing '+self.metadata['name'])
         self.checksum()
         self.install()
     def cancel(self,exit_code:int):
-        remove(self.file_path)
+        shutil.rmtree(self.__temp)
         exit(exit_code)
     def checksum(self):
         print(' * Checking checksums...')
         if not path.exists('md5sums'):
-            print(" - Checksum file is not found in package.")
+            animprint(" - Checksum file is not found in package.")
             self.cancel(1)
         else:
             with open('md5sums') as f:
@@ -67,15 +92,73 @@ class ProceedInstall:
                 else:
                     print(f" - Missing file: {filename}")
                     self.cancel(1)
-    def __move_contents(self,src_dir,dest_dir):
-        for item in listdir(src_dir):
-            src_path = path.join(src_dir,item)
-            if path.isdir(src_path):shutil.copytree(src_path,dest_dir,True,dirs_exist_ok=True)
-            else:shutil.copy(src_path,dest_dir)
-            print(f"Moved: {src_path} -> {dest_dir}")
     def install(self):
-        self.__move_contents(path.abspath('data'),'/')
-        print(f'-+- Successfully installed "{self.metadata["name"]}"')
+        animprint(' ? Do you want to install this package?')
+        if ask():
+            shutil.copytree(path.abspath('data'),'/',True,dirs_exist_ok=True)
+            animprint(f'-+- Successfully installed "{self.metadata["name"]}"')
+        else:
+            self.cancel(0)
 
-if ARGS.i is not None:
-    ProceedInstall(ARGS.i)
+class ProceedRemove:
+    def __init__(self,name:str):
+        self.file_path=path.join('/var/lib/tulpar/packages',name)
+        if not path.exists(self.file_path):
+            animprint(f' - This package is not found.')
+            exit(1)
+        else:
+            self.metadata=load(open(path.join(self.file_path,'metadata.json')))
+            print('--- Removing '+self.metadata['name'])
+            self.packages_to_remove={self.metadata['name']:[self.file_path]}
+            with open(path.join(self.file_path,'md5sums'))as __file:
+                files=__file.readlines()
+                for file in files:
+                    file=file.split()[1]
+                    if not file.startswith('/'):file=path.join('/',file)
+                    self.packages_to_remove[self.metadata['name']].append(file)
+                __file.close()
+            for dependent in self.metadata['dependencies']:
+                if dependent==self.metadata['name']:
+                    animprint('/!\\ Warning! Unexpected loop in dependencies.')
+                    continue
+                dependency_file_path=path.join('/var/lib/tulpar/packages',dependent['name'])
+                if not path.exists(dependency_file_path):
+                    print(f'/!\\ Note that "{dependent['name']}" package is installed manually and package manager can`t remove it.')
+                else:
+                    self.packages_to_remove[dependent['name']]=[dependency_file_path]
+                    with open(path.join(dependency_file_path,'md5sums'))as __file:
+                        files=__file.readlines()
+                        for file in files:
+                            file=file.split()[1]
+                            if not file.startswith('/'):file=path.join('/',file)
+                            self.packages_to_remove[dependent['name']].append(file)
+                        __file.close()
+            for package in listdir('/var/lib/tulpar/packages/'):
+                if package==self.metadata['name']:continue
+                package=path.join('/var/lib/tulpar/packages',package)
+                metadata=load(open(path.join(package,'metadata.json')))
+                for dependent in metadata['dependencies']:
+                    if dependent['name']in self.packages_to_remove:del self.packages_to_remove[dependent['name']]
+            animprint(' & This operation will remove these packages:')
+            print(', '.join(self.packages_to_remove))
+            animprint(' ? Do you want to continue?')
+            if ask():
+                for package in self.packages_to_remove.items():
+                    print(' & Removing '+package[0])
+                    for file in package[1]:
+                        if path.isdir(file):shutil.rmtree(file)
+                        else:remove(file)
+                        print(' * Removed '+file)
+                animprint(f'-+- Successfully removed "{self.metadata["name"]}"')
+            else:exit(0)
+
+try:
+    if ARGS.i is not None:
+        ProceedInstall(ARGS.i)
+    if ARGS.command is not None and ARGS.PACKAGE is not None:
+        if ARGS.command=='remove':
+            ProceedRemove(ARGS.PACKAGE)
+except Exception as exception:
+    animprint(f'/!\\ An error occurred while working with package manager: {exception}\nRaise an exception for developers?',0.01)
+    if ask():raise exception
+    else:exit(1)
