@@ -48,32 +48,30 @@ tulpar search <query>
 ### Repository Management
 ```bash
 # Add repository
-tulpar-repo -a <repository-url>
+tulpar repo -a <repository-url>
 
 # Remove repository
-tulpar-repo -r <repository-url>
+tulpar repo -r <repository-url>
 ```
 
 ## Contributors
 
 - [taliildar](https://github.com/AnmiTaliDev)
 - [GoldenVadim](https://github.com/GoldenVadim)
-- [ShwoubleTrouble](https://github.com/ShwoubleTrouble)
 
 ## Installation
 
 ```bash
 # Build from source
-git clone https://github.com/nuros-linux/tulpar.git
-cd tulpar
-make
-sudo make install
+git clone https://github.com/NurOS-Linux/Tulpar.git
+cd Tulpar
+sudo bash install.sh
 ```
 
 ## Configuration
 
 Default configuration file is located at `/etc/tulpar/tulpar.conf`
-Repository list file is located at `/etc/tulpar/repolist.json`
+Repository list file is located at `/etc/tulpar/repolist`
 Decompressed packages are located at `/var/lib/tulpar/packages/`
 
 ## License
