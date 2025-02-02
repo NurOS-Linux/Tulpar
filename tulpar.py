@@ -1,11 +1,14 @@
 #!/usr/bin/python3
 
-from os import path,replace,chdir,remove,listdir,getuid
+from os import getuid
+if getuid()!=0:
+    print('/!\\ You must run Tulpar as root user.')
+    exit(1)
+from os import path,replace,chdir,remove,listdir
 from tarfile import open as taropen
 from argparse import ArgumentParser
 from random import randint
 from hashlib import md5
-from time import sleep
 from json import load
 import shutil
 
@@ -13,22 +16,13 @@ ARGPARSE=ArgumentParser()
 SUB=ARGPARSE.add_subparsers(dest='command')
 SUB.add_parser('install',help='Install the public package').add_argument('PACKAGE')
 SUB.add_parser('remove',help='Remove the installed package').add_argument('PACKAGE')
+SUB.add_parser('list',help='Lists all installed packages')
 ARGPARSE.add_argument('-i',help='Install the local package, requires path to package file')
 ARGS=ARGPARSE.parse_args()
 
-def animprint(text:str,interval:float=0.007,end:str='\n'):
-    for char in list(text):
-        print(char,end='',flush=True)
-        sleep(interval)
-    print(end,end='')
-
 if len(ARGS._get_kwargs())==0:
-    animprint('/!\\ Type -h for help.')
+    print('/!\\ Type -h for help.')
     exit(0)
-
-if getuid()!=0:
-    animprint('/!\\ You must run Tulpar as root user.')
-    exit(1)
 
 def ask():
     try:
@@ -40,6 +34,9 @@ def ask():
 
 class ProceedInstall:
     def __init__(self,file_path:str):
+        if not path.exists(file_path):
+            print(' - This package file path not found.')
+            exit(1)
         self.file_path=file_path
         self.__temp=path.abspath(f'.tulpar{randint(1,999999)}')
         if self.file_path.endswith('.apg'):
@@ -57,9 +54,9 @@ class ProceedInstall:
             self.file_path='/var/lib/tulpar/packages/'+self.metadata['name']
             chdir(self.file_path)
         else:
-            animprint(' - This is not APG package file.')
+            print(' - This is not APG package file.')
             self.cancel(1)
-        animprint('--- Installing '+self.metadata['name'])
+        print('--- Installing '+self.metadata['name'])
         self.checksum()
         self.install()
     def cancel(self,exit_code:int):
@@ -68,7 +65,7 @@ class ProceedInstall:
     def checksum(self):
         print(' * Checking checksums...')
         if not path.exists('md5sums'):
-            animprint(" - Checksum file is not found in package.")
+            print(" - Checksum file is not found in package.")
             self.cancel(1)
         else:
             with open('md5sums') as f:
@@ -93,10 +90,10 @@ class ProceedInstall:
                     print(f" - Missing file: {filename}")
                     self.cancel(1)
     def install(self):
-        animprint(' ? Do you want to install this package?')
+        print(' ? Do you want to install this package?')
         if ask():
             shutil.copytree(path.abspath('data'),'/',True,dirs_exist_ok=True)
-            animprint(f'-+- Successfully installed "{self.metadata["name"]}"')
+            print(f'-+- Successfully installed "{self.metadata["name"]}"')
         else:
             self.cancel(0)
 
@@ -104,7 +101,7 @@ class ProceedRemove:
     def __init__(self,name:str):
         self.file_path=path.join('/var/lib/tulpar/packages',name)
         if not path.exists(self.file_path):
-            animprint(f' - This package is not found.')
+            print(f' - This package is not found.')
             exit(1)
         else:
             self.metadata=load(open(path.join(self.file_path,'metadata.json')))
@@ -119,11 +116,11 @@ class ProceedRemove:
                 __file.close()
             for dependent in self.metadata['dependencies']:
                 if dependent==self.metadata['name']:
-                    animprint('/!\\ Warning! Unexpected loop in dependencies.')
+                    print('/!\\ Warning! Unexpected loop in dependencies.')
                     continue
                 dependency_file_path=path.join('/var/lib/tulpar/packages',dependent['name'])
                 if not path.exists(dependency_file_path):
-                    print(f'/!\\ Note that "{dependent['name']}" package is installed manually and package manager can`t remove it.')
+                    print(f'/!\\ Note that "{dependent["name"]}" package is installed manually and package manager can`t remove it.')
                 else:
                     self.packages_to_remove[dependent['name']]=[dependency_file_path]
                     with open(path.join(dependency_file_path,'md5sums'))as __file:
@@ -139,9 +136,9 @@ class ProceedRemove:
                 metadata=load(open(path.join(package,'metadata.json')))
                 for dependent in metadata['dependencies']:
                     if dependent['name']in self.packages_to_remove:del self.packages_to_remove[dependent['name']]
-            animprint(' & This operation will remove these packages:')
+            print(' & This operation will remove these packages:')
             print(', '.join(self.packages_to_remove))
-            animprint(' ? Do you want to continue?')
+            print(' ? Do you want to continue?')
             if ask():
                 for package in self.packages_to_remove.items():
                     print(' & Removing '+package[0])
@@ -149,16 +146,25 @@ class ProceedRemove:
                         if path.isdir(file):shutil.rmtree(file)
                         else:remove(file)
                         print(' * Removed '+file)
-                animprint(f'-+- Successfully removed "{self.metadata["name"]}"')
+                print(f'-+- Successfully removed "{self.metadata["name"]}"')
             else:exit(0)
+
+class ListPackages:
+    def __init__(self):
+        for package in listdir('/var/lib/tulpar/packages'):
+            package=path.join('/var/lib/tulpar/packages',package)
+            metadata=load(open(path.join(package,'metadata.json')))
+            print(f' * {metadata["name"]}, {metadata["version"]}')
 
 try:
     if ARGS.i is not None:
         ProceedInstall(ARGS.i)
-    if ARGS.command is not None and ARGS.PACKAGE is not None:
+    if ARGS.command is not None:
         if ARGS.command=='remove':
             ProceedRemove(ARGS.PACKAGE)
+        elif ARGS.command=='list':ListPackages()
+
 except Exception as exception:
-    animprint(f'/!\\ An error occurred while working with package manager: {exception}\nRaise an exception for developers?',0.01)
+    print(f'/!\\ An error occurred while working with package manager: {exception}\nRaise an exception for developers?')
     if ask():raise exception
     else:exit(1)
