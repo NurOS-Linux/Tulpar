@@ -54,37 +54,15 @@ tulpar repo -a <repository-url>
 tulpar repo -r <repository-url>
 ```
 
-## Contributors
-
-- [taliildar](https://github.com/AnmiTaliDev)
-- [GoldenVadim](https://github.com/GoldenVadim)
-
-## Installation
-
-```bash
-# Build from source
-git clone https://github.com/NurOS-Linux/Tulpar.git
-cd Tulpar
-sudo bash install.sh
-```
-
 ## Configuration
 
-Default configuration file is located at `/etc/tulpar/tulpar.conf`
-Repository list file is located at `/etc/tulpar/repolist`
-Decompressed packages are located at `/var/lib/tulpar/packages/`
+Default configuration file is located at `/etc/tulpar/tulpar.conf`  
+Configuration files are located at `/etc/tulpar/config`<br>
+Installed packages are located at `/var/lib/tulpar/packages/`
 
 ## License
 
 This project is licensed under the GPL 3 License - see the [LICENSE](LICENSE) file for details.
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 ## Support
 
