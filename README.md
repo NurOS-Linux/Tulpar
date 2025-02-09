@@ -19,7 +19,7 @@ During package installation or removal, all dependent components are processed a
 
 ### Package Management
 ```bash
-# Install package
+# Install package from remote repositories
 tulpar install <package-name>
 
 # Remove package
@@ -30,9 +30,6 @@ tulpar update <package-name>
 
 # Install from local .apg file
 tulpar -i <package.apg>
-
-# Install from remote repository/git
-tulpar -i <repo-url/git-url>
 
 # System upgrade
 tulpar upgrade
@@ -56,8 +53,7 @@ tulpar repo -r <repository-url>
 
 ## Configuration
 
-Default configuration file is located at `/etc/tulpar/tulpar.conf`  
-Configuration files are located at `/etc/tulpar/config`<br>
+Configuration files are located at `/etc/tulpar/config`  
 Installed packages are located at `/var/lib/tulpar/packages/`
 
 ## License
