@@ -55,6 +55,7 @@ tulpar repo -r <repository-url>
 
 Configuration files are located at `/etc/tulpar/config`  
 Installed packages are located at `/var/lib/tulpar/packages/`
+Unpacked packages at process are located at `/var/spool/tulpar/`
 
 ## License
 
