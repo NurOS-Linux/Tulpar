@@ -1,0 +1,3 @@
+#!/bin/sh
+
+echo "This is a test package by NurOS, delete it using this command: tulpar remove TestAPG"

@@ -1,0 +1,22 @@
+{
+    "name": "TestAPG",
+    "version": "0.0",
+    "release": 1,
+    "architecture": "x86_64",
+    "description": "The test package for Tulpar.",
+    "maintainer": "NurOS Developers",
+    "license": "MIT",
+    "homepage": "https://nuros.org",
+    "dependencies": [
+        "testapg2"
+    ],
+    "conflicts": [
+        "testapg3"
+    ],
+    "provides": [
+        "libtaliildar-dev"
+    ],
+    "replaces": [
+        "example-apg"
+    ]
+}
