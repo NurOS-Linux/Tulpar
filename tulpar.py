@@ -2,7 +2,7 @@
 
 from os import getuid
 if getuid()!=0:
-    print('/!\\ You must run Tulpar as root user.')
+    print('⚠ You must run Tulpar as root user.')
     exit(1)
 from os import path,replace,chdir,remove,listdir
 from tarfile import open as taropen
@@ -21,7 +21,7 @@ ARGPARSE.add_argument('-i',help='Install the local package, requires path to pac
 ARGS=ARGPARSE.parse_args()
 
 if len(ARGS._get_kwargs())==0:
-    print('/!\\ Type -h for help.')
+    print('⚠ Type -h for help.')
     exit(0)
 
 def ask():
@@ -47,7 +47,7 @@ class ProceedInstall:
             chdir(self.file_path)
             self.metadata=load(open('metadata.json'))
             if path.exists(path.join('/var/lib/tulpar/packages',self.metadata['name'])):
-                print(f'/!\\ "{self.metadata["name"]}" is already installed. Do you want to reinstall it?')
+                print(f'⚠ "{self.metadata["name"]}" is already installed. Do you want to reinstall it?')
                 if not ask():self.cancel(0)
                 shutil.rmtree(path.join('/var/lib/tulpar/packages',self.metadata['name']))
             replace(self.file_path,'/var/lib/tulpar/packages/'+self.metadata['name'])
@@ -116,11 +116,11 @@ class ProceedRemove:
                 __file.close()
             for dependent in self.metadata['dependencies']:
                 if dependent==self.metadata['name']:
-                    print('/!\\ Warning! Unexpected loop in dependencies.')
+                    print('⚠ Warning! Unexpected loop in dependencies.')
                     continue
                 dependency_file_path=path.join('/var/lib/tulpar/packages',dependent['name'])
                 if not path.exists(dependency_file_path):
-                    print(f'/!\\ Note that "{dependent["name"]}" package is installed manually and package manager can`t remove it.')
+                    print(f'⚠ Note that "{dependent["name"]}" package is installed manually and package manager can`t remove it.')
                 else:
                     self.packages_to_remove[dependent['name']]=[dependency_file_path]
                     with open(path.join(dependency_file_path,'md5sums'))as __file:
@@ -165,6 +165,6 @@ try:
         elif ARGS.command=='list':ListPackages()
 
 except Exception as exception:
-    print(f'/!\\ An error occurred while working with package manager: {exception}\nRaise an exception for developers?')
+    print(f'⚠ An error occurred while working with package manager: {exception}\nRaise an exception for developers?')
     if ask():raise exception
     else:exit(1)
