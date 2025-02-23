@@ -14,12 +14,10 @@ from json import load
 
 ARGPARSE=ArgumentParser(description="Package Manager CLI")
 SUB=ARGPARSE.add_subparsers(dest='command')
-SUB.add_parser('install',help='Install the public package').add_argument('PACKAGE',help="Name of the package to install")
+SUB.add_parser('install',help='Install the public package').add_argument('PACKAGE',help="Name or path of the package to install")
 SUB.add_parser('remove',help='Remove the installed package').add_argument('PACKAGE',help="Name of the package to remove")
 SUB.add_parser('list',help='Lists all installed packages')
-ARGPARSE.add_argument('-i',metavar="PACKAGE_PATH",help='Path to the local package (for install command)')
 ARGS=ARGPARSE.parse_args()
-#if not ARGS.command and not ARGS.i or ARGS.command is not None and ARGS.i is not None:ARGPARSE.error("Either a command or the -i option is required.")
 
 def ask():
     try:
@@ -30,7 +28,7 @@ def ask():
     except:exit(0)
 
 class ProceedInstall:
-    def __init__(self,file_path:str,local:bool):
+    def __init__(self,file_path:str):
         if not path.exists(file_path):
             print(' - This file path not found.')
             self.cancel(1)
@@ -43,9 +41,7 @@ class ProceedInstall:
                 __file.close()
             self.file_path=self.temp_path
         else:
-            if local:
-                print(' - This is not APG package file.')
-                self.cancel(1)
+            ...
         chdir(self.file_path)
         self.checksum()
         self.metadata=load(open('metadata.json'))
@@ -121,15 +117,17 @@ class ProceedRemove:
             self.packages_to_remove={self.metadata['name']:[self.file_path]}
             self.get_packages(self.file_path)
             print(' & This operation will remove these packages:')
-            print(', '.join(self.packages_to_remove))
+            print(', '.join([i[0] for i in self.packages_to_remove.items()]))
             print(' ? Do you want to continue?')
             if ask():
                 for package in self.packages_to_remove.items():
                     print(' & Removing '+package[0])
+                    system(path.join('/var/lib/tulpar/packages',package[0],'scripts/preremove'))
                     for file in package[1]:
                         if path.isdir(file):rmtree(file)
                         else:remove(file)
                         print(' * Removed '+file)
+                    system(path.join('/var/lib/tulpar/packages',package[0],'scripts/postremove'))
                 print(f'-+- Successfully removed "{self.metadata["name"]}"')
             else:exit(0)
     def get_files(self,package_path,package:list):
@@ -149,7 +147,7 @@ class ProceedRemove:
             if not path.exists(dependency_file_path):
                 print(f' /!\\ Dependency "{dependency["name"]}" is installed manually or not found.')
                 continue
-            self.packages_to_remove[dependency['name']]=[]
+            self.packages_to_remove[dependency['name']]=[dependency_file_path , ]
             self.get_files(dependency_file_path,self.packages_to_remove[dependency['name']])
         for other_package in listdir('/var/lib/tulpar/packages'):
             # Проверяем другие пакеты если они не относятся к операции
@@ -167,9 +165,7 @@ class ListPackages:
 
 try:
     if ARGS.command is not None:
-        if ARGS.command=='install':
-            if ARGS.PACKAGE is not None:ProceedInstall(ARGS.PACKAGE,False)
-            else:ProceedInstall(ARGS.i,True)
+        if ARGS.command=='install':ProceedInstall(ARGS.PACKAGE)
         elif ARGS.command=='remove':ProceedRemove(ARGS.PACKAGE)
         elif ARGS.command=='list':ListPackages()
 
