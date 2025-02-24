@@ -33,16 +33,11 @@ class ProceedInstall:
             print(' - This file path not found.')
             self.cancel(1)
         self.file_path=path.abspath(file_path)
-        self.temp_path=path.join('/var/spool/tulpar',str(randint(1,999999999)))
-        if self.file_path.endswith('.apg'):
-            print(f' * Unpacking {self.file_path}...')
-            with taropen(self.file_path,'r:xz')as __file:
-                __file.extractall(self.temp_path)
-                __file.close()
-            self.file_path=self.temp_path
+        if self.file_path.endswith('.apg'):self.file_path=self.unpack(self.file_path)
         else:
             ...
         chdir(self.file_path)
+        self.data_path=path.abspath('data')
         self.checksum()
         self.metadata=load(open('metadata.json'))
         if path.exists(path.join('/var/lib/tulpar/packages',self.metadata['name'])):
@@ -53,9 +48,10 @@ class ProceedInstall:
         self.file_path='/var/lib/tulpar/packages/'+self.metadata['name']
         chdir(self.file_path)
         self.data_path=path.abspath('data')
+        self.packages_to_install=[]
         self.install()
     def cancel(self,exit_code):
-        if path.exists(self.temp_path):
+        if self.file_path.startswith('/var/spool/tulpar/'):
             print(' * Removing cache files...')
             rmtree(self.file_path)
         print('--- Canceled operation.')
@@ -71,18 +67,15 @@ class ProceedInstall:
                 __md5sumsfile.close()
         for line in checksums:
             parts=line.strip().split()
-            print(parts)
             if len(parts)==2:
                 file,expected_checksum=parts
                 file_path=path.join(self.data_path,file)
-                print(file_path)
                 if path.exists(file_path):
                     with open(file_path,'rb') as file_content:
                         file_data = file_content.read()
                         actual_checksum=md5(file_data).hexdigest()
                         if actual_checksum != expected_checksum:
                             print(f" - Checksum mismatch for {file}")
-                            print(f' - {expected_checksum} != {actual_checksum}')
                             self.cancel(1)
                         else:
                             #print(f' + {file} == {actual_checksum}')
@@ -90,6 +83,13 @@ class ProceedInstall:
                 else:
                     print(f" - Missing file: {file}")
                     self.cancel(1)
+    def unpack(self,package_path):
+        print(f' * Unpacking {path.basename(package_path)}...')
+        with taropen(package_path,'r:xz')as __file:
+            package_path=path.join('/var/spool/tulpar',str(randint(1,999999999)))
+            __file.extractall(package_path)
+            __file.close()
+        return package_path
     def __inst_dir(self,dir:str):
         for file in listdir(dir):
             file=path.join(dir,file)
@@ -115,7 +115,7 @@ class ProceedRemove:
         else:
             self.metadata=load(open(path.join(self.file_path,'metadata.json')))
             self.packages_to_remove={self.metadata['name']:[self.file_path]}
-            self.get_packages(self.file_path)
+            self.get_packages()
             print(' & This operation will remove these packages:')
             print(', '.join([i[0] for i in self.packages_to_remove.items()]))
             print(' ? Do you want to continue?')
@@ -135,6 +135,7 @@ class ProceedRemove:
             files=__files.readlines()
             for file in files:
                 file=file.split()[0]
+                if not file.startswith('/'):file=path.join('/',file)
                 package.append(file)
             __files.close()
     def get_packages(self):
@@ -147,7 +148,7 @@ class ProceedRemove:
             if not path.exists(dependency_file_path):
                 print(f' /!\\ Dependency "{dependency["name"]}" is installed manually or not found.')
                 continue
-            self.packages_to_remove[dependency['name']]=[dependency_file_path , ]
+            self.packages_to_remove[dependency['name']]=[dependency_file_path]
             self.get_files(dependency_file_path,self.packages_to_remove[dependency['name']])
         for other_package in listdir('/var/lib/tulpar/packages'):
             # Проверяем другие пакеты если они не относятся к операции
