@@ -16,6 +16,7 @@ ARGPARSE=ArgumentParser(description="Package Manager CLI")
 SUB=ARGPARSE.add_subparsers(dest='command')
 SUB.add_parser('install',help='Install the public package').add_argument('PACKAGE',help="Name or path of the package to install")
 SUB.add_parser('remove',help='Remove the installed package').add_argument('PACKAGE',help="Name of the package to remove")
+SUB.add_parser('info',help='Display information about package').add_argument('PACKAGE',help='Name of the package to describe')
 SUB.add_parser('list',help='Lists all installed packages')
 ARGS=ARGPARSE.parse_args()
 
@@ -48,7 +49,7 @@ class ProceedInstall:
         self.file_path='/var/lib/tulpar/packages/'+self.metadata['name']
         chdir(self.file_path)
         self.data_path=path.abspath('data')
-        self.packages_to_install=[]
+        self.packages_to_install={}
         self.install()
     def cancel(self,exit_code):
         if self.file_path.startswith('/var/spool/tulpar/'):
@@ -56,7 +57,9 @@ class ProceedInstall:
             rmtree(self.file_path)
         print('--- Canceled operation.')
         exit(exit_code)
-    def checksum(self):
+    def __checksum_check_dir(self,file,checksums):
+        f
+    def checksum(self,data_path):
         print(' * Checking checksums...')
         if not path.exists('md5sums'):
             print(" - Checksum file is not found in package.")
@@ -65,6 +68,7 @@ class ProceedInstall:
             with open('md5sums') as __md5sumsfile:
                 checksums=__md5sumsfile.readlines()
                 __md5sumsfile.close()
+        self.__checksum_check_dir()
         for line in checksums:
             parts=line.strip().split()
             if len(parts)==2:
@@ -83,6 +87,8 @@ class ProceedInstall:
                 else:
                     print(f" - Missing file: {file}")
                     self.cancel(1)
+    def download(self,package_name):
+        ...
     def unpack(self,package_path):
         print(f' * Unpacking {path.basename(package_path)}...')
         with taropen(package_path,'r:xz')as __file:
@@ -96,15 +102,16 @@ class ProceedInstall:
             if path.isdir(file):self.__inst_dir(file)
             else:replace(file,file.replace(dir,'/'))
     def install(self):
-        print(' ? Do you want to install this package?')
+        print(', '.join(self.packages_to_install))
+        print(' ? Do you want to install these packages?')
         if ask():
-            system('scripts/preinstall')
-            self.__inst_dir(self.data_path)
-            rmtree(self.data_path)
-            system('scripts/postinstall')
+            for package in self.packages_to_install:
+                system(path.join('/var/lib/tulpar/packages',package,'scripts/preinstall'))
+                self.__inst_dir(self.data_path)
+                rmtree(self.data_path)
+                system(path.join('/var/lib/tulpar/packages',package,'scripts/postinstall'))
             print(f'-+- Successfully installed "{self.metadata["name"]}"')
-        else:
-            self.cancel(0)
+        else:self.cancel(0)
 
 class ProceedRemove:
     def __init__(self,name:str):
@@ -146,16 +153,30 @@ class ProceedRemove:
                 continue
             dependency_file_path=path.join('/var/lib/tulpar/packages',dependency['name'])
             if not path.exists(dependency_file_path):
-                print(f' /!\\ Dependency "{dependency["name"]}" is installed manually or not found.')
+                print(f'/!\\ Dependency "{dependency["name"]}" is installed manually or not found.')
                 continue
-            self.packages_to_remove[dependency['name']]=[dependency_file_path]
-            self.get_files(dependency_file_path,self.packages_to_remove[dependency['name']])
         for other_package in listdir('/var/lib/tulpar/packages'):
             # Проверяем другие пакеты если они не относятся к операции
             if other_package in self.packages_to_remove:continue
             other_package_metadata=load(open(path.join('/var/lib/tulpar/packages',other_package,'metadata.json')))
             for other_package_dependency in other_package_metadata['dependencies']:
-                if other_package_dependency in self.packages_to_remove:del self.packages_to_remove[other_package_dependency]
+                if other_package_dependency in self.packages_to_remove:
+                    if other_package_dependency==self.metadata['name']:
+                        if not ask('/!\\ Warning! This package is required by other package, are you sure you want to delete it?'):exit(0)
+                    del self.packages_to_remove[other_package_dependency]
+        for dependency in self.packages_to_remove:
+            self.packages_to_remove[dependency['name']].append(path.join('/var/lib/tulpar/packages',dependency['name']))
+            self.get_files(dependency_file_path,self.packages_to_remove[dependency['name']])
+
+class PackageInfo:
+    def __init__(self,package_name):
+        self.package_path=path.join('/var/lib/tulpar/packages',package_name)
+        if not path.exists(self.package_path):
+            print('/!\\ This package is not found')
+            exit(1)
+        else:
+            with open(path.join(self.package_path,'metadata.json'))as self.metadata:self.metadata=load(self.metadata)
+            print(f' & {self.metadata['name']} with version {self.metadata['version']} for {self.metadata['architecture']}\n   Made by {self.metadata['maintainer']} under license {self.metadata['license']}, {self.metadata['homepage']}\n   {self.metadata['description']}')
 
 class ListPackages:
     def __init__(self):
@@ -168,6 +189,7 @@ try:
     if ARGS.command is not None:
         if ARGS.command=='install':ProceedInstall(ARGS.PACKAGE)
         elif ARGS.command=='remove':ProceedRemove(ARGS.PACKAGE)
+        elif ARGS.command=='info':PackageInfo(ARGS.PACKAGE)
         elif ARGS.command=='list':ListPackages()
 
 except Exception as exception:
