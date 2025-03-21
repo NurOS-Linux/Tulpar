@@ -7,60 +7,99 @@ if getuid()!=0:
 from os import path,replace,chdir,remove,listdir,system
 from tarfile import open as taropen
 from argparse import ArgumentParser
+from platform import machine
+CURRENT_ARCH=machine()
+from json import load,loads
+from http import HTTPStatus
+from semver import compare
 from random import randint
+from colorama import Fore
 from shutil import rmtree
+from requests import get
 from hashlib import md5
-from json import load
 
-ARGPARSE=ArgumentParser(description="Package Manager CLI")
+ARGPARSE=ArgumentParser(description="he package manager Tulpar for NurOS (CLI)")
 SUB=ARGPARSE.add_subparsers(dest='command')
 SUB.add_parser('install',help='Install the public package').add_argument('PACKAGE',help="Name or path of the package to install")
 SUB.add_parser('remove',help='Remove the installed package').add_argument('PACKAGE',help="Name of the package to remove")
 SUB.add_parser('info',help='Display information about package').add_argument('PACKAGE',help='Name of the package to describe')
 SUB.add_parser('list',help='Lists all installed packages')
+REPO=SUB.add_parser('repo')
+REPO.add_argument('-a',help='Adds repository to list')
+REPO.add_argument('-r',help='Remove repository from list')
 ARGS=ARGPARSE.parse_args()
+
+if len(ARGS.__dict__)==1 and ARGS.command==None:
+    print(Fore.YELLOW+' ? No argument is provided, type --help.')
+    exit(1)
 
 def ask():
     try:
         while True:
-            answer=input('[y/n]: ').lower()
+            answer=input(f'{Fore.WHITE}[{Fore.GREEN}y{Fore.WHITE}/{Fore.RED}n{Fore.WHITE}]{Fore.RESET}: ').lower()
             if answer=='y':return True
             elif answer=='n':return False
     except:exit(0)
 
 class ProceedInstall:
     def __init__(self,file_path:str):
-        if not path.exists(file_path):
-            print(' - This file path not found.')
-            self.cancel(1)
-        self.file_path=path.abspath(file_path)
-        if self.file_path.endswith('.apg'):self.file_path=self.unpack(self.file_path)
+        self.packages_to_install=[]
+        if file_path.endswith('.apg'):
+            if not path.exists(file_path):
+                print(' - This file path not found.')
+                self.cancel(1)
+            self.file_path=self.unpack(self.file_path)
         else:
-            ...
-        chdir(self.file_path)
-        self.data_path=path.abspath('data')
-        self.checksum()
-        self.metadata=load(open('metadata.json'))
-        if path.exists(path.join('/var/lib/tulpar/packages',self.metadata['name'])):
-            print(f'⚠ "{self.metadata["name"]}" is already installed. Do you want to reinstall it?')
-            if not ask():self.cancel(0)
-            else:ProceedRemove(self.metadata["name"])
-        replace(self.file_path,'/var/lib/tulpar/packages/'+self.metadata['name'])
-        self.file_path='/var/lib/tulpar/packages/'+self.metadata['name']
-        chdir(self.file_path)
-        self.data_path=path.abspath('data')
-        self.packages_to_install={}
-        self.install()
+            with open('/etc/tulpar/repolist','rt')as repolist:
+                self.repositories=[i.strip()for i in repolist.readlines()]
+                repolist.close()
+            self.packages_to_install[0]=self.download(self.get_info(file_path))
     def cancel(self,exit_code):
-        if self.file_path.startswith('/var/spool/tulpar/'):
-            print(' * Removing cache files...')
-            rmtree(self.file_path)
+        ...
         print('--- Canceled operation.')
         exit(exit_code)
-    def __checksum_check_dir(self,file,checksums):
-        f
-    def checksum(self,data_path):
-        print(' * Checking checksums...')
+    def get_info(self,package):
+        print(Fore.CYAN+f' * Retrieving information about {package}...')
+        for repo in self.repositories:
+            try:
+                with get(path.join(repo,'packages',package,'info'),timeout=1.0)as request:
+                    if request.status_code!=200:raise request.status_code
+                    else:
+                        package_info=loads(request.text)
+                        if not CURRENT_ARCH in package_info['architectures']:
+                            print(' - This package is not supports machine`s architecture!')
+                            exit(1)
+                        package_info['name']=package
+                        package_info['from-repo']=repo
+                        package_info['extracted-path']=None
+                        return package_info
+            except Exception as e:print(f' - Failed to retrieve information about {package}: {e}')
+            finally:continue
+        exit(1)
+    def unpack(self,package):
+        print(f' * Unpacking {path.basename(package)}...')
+        try:
+            with taropen(package,'r:xz')as __file:
+                package=path.join(f'/var/spool/tulpar',{randint(1,9999999999)})
+                __file.extractall(package)
+                __file.close()
+                return package
+        except Exception as e:
+            print(Fore.RED+f' - Failed to unpack package: {e}')
+            exit(1)
+    def download(self,package_info):
+        try:
+            with get(path.join(package_info['from-repo'],'packages',package_info['name']+f'?arch={CURRENT_ARCH}&version={package_info["latest-version"]}'))as request:
+                if request.status_code!=200:raise request.status_code
+                else:
+                    package_path=path.join('/var/cache/tulpar',f'{randint(1,9999999999)}.apg')
+                    with open(package_path,'wb')as _:
+                        _.write(request.content)
+                        _.close()
+                    package_info['extracted-path']=package_info
+                    return package_info
+        except Exception as e:print(f' - Failed to download {package_info['name']}: {e}')
+    def __checksum_check_dir(self,file):
         if not path.exists('md5sums'):
             print(" - Checksum file is not found in package.")
             self.cancel(1)
@@ -68,11 +107,13 @@ class ProceedInstall:
             with open('md5sums') as __md5sumsfile:
                 checksums=__md5sumsfile.readlines()
                 __md5sumsfile.close()
-        self.__checksum_check_dir()
         for line in checksums:
-            parts=line.strip().split()
-            if len(parts)==2:
-                file,expected_checksum=parts
+            line=line.strip().split()
+            if len(line)==2:
+                file,expected_checksum=line
+                if file.startswith('usr/local') or file.startswith('/usr/local'):
+                    print('/!\\ Installing to /usr/local/ folders are not allowed!')
+                    self.cancel()
                 file_path=path.join(self.data_path,file)
                 if path.exists(file_path):
                     with open(file_path,'rb') as file_content:
@@ -87,15 +128,8 @@ class ProceedInstall:
                 else:
                     print(f" - Missing file: {file}")
                     self.cancel(1)
-    def download(self,package_name):
+    def checksum(self):
         ...
-    def unpack(self,package_path):
-        print(f' * Unpacking {path.basename(package_path)}...')
-        with taropen(package_path,'r:xz')as __file:
-            package_path=path.join('/var/spool/tulpar',str(randint(1,999999999)))
-            __file.extractall(package_path)
-            __file.close()
-        return package_path
     def __inst_dir(self,dir:str):
         for file in listdir(dir):
             file=path.join(dir,file)
