@@ -4,8 +4,9 @@ project('tulpar', 'cpp',
 
 executable('tulpar',
            'main.cpp',
-           'utils.cpp',
-           'utils.hpp',
+           'utils/utils.cpp',
+           'utils/utils.hpp',
            'colors.hpp',
-           'argparse.hpp',
+           'parse_json/parse_json.hpp',
+           'parse_json/parse_json.cpp',
            install : true)

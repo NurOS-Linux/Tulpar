@@ -1,7 +1,7 @@
 /* NurOS/Tulpar/main.cpp ruzen42 */
 #include <iostream>
-#include "argparse.hpp"
-#include "utils.hpp"
+#include <argparse/argparse.hpp>
+#include "utils/utils.hpp"
 #include "colors.hpp"
 
 int main(int argc, const char* argv[])
@@ -48,7 +48,6 @@ int main(int argc, const char* argv[])
   {
     auto pkg = install_command.get<std::string>("pkg");
     utils::install_package(pkg);
-    std::cout << nodeps << "\n";
   } 
   else if (program.is_subcommand_used("remove")) 
   {
