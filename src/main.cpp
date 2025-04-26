@@ -7,10 +7,14 @@
 int main(int argc, const char* argv[])
 {
   argparse::ArgumentParser program("tulpar", "0.1.0", argparse::default_arguments::all);
-  // Must be the name of binary 
+  // Must be the name of binary
+
+  argparse::ArgumentParser install_local_command("file");
+  install_local_command.add_argument("pkg")
+    .help("Package name to local install")
+    .default_value(std::string(""));
 
   argparse::ArgumentParser install_command("install");
-
   install_command.add_argument("pkg")
       .help("Package name to install")
       .default_value(std::string("")); 
@@ -34,6 +38,7 @@ int main(int argc, const char* argv[])
   program.add_subparser(remove_command);
   program.add_subparser(update_command);
   program.add_subparser(search_command);
+  program.add_subparser(install_local_command);
 
   try
   {
@@ -63,6 +68,11 @@ int main(int argc, const char* argv[])
   {
     auto pkg = search_command.get<std::string>("pkg");
     utils::search_package(pkg);
+  }
+  else if (program.is_subcommand_used("file"))
+  {
+    auto pkg = install_local_command.get<std::string>("pkg");
+    utils::install_local_package(pkg);
   }
   else
   {

@@ -8,17 +8,17 @@ Name=New Compiled Binary Launcher
 Type=Native Application
 
 [Launch][Launch Configuration 0][Data]
-Arguments=
+Arguments=file main.cpp
 Dependencies=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x00)
 Dependency Action=Nothing
 EnvironmentGroup=
-Executable=file:///home/ruzen42/src/Tulpar/src
+Executable=file:///home/ruzen42/src/Tulpar/src/tulpar
 External Terminal=konsole --noclose --workdir %workdir -e %exe
 Kill Before Executing Again=4194304
 Project Target=src,tulpar
 Use External Terminal=false
 Working Directory=
-isExecutable=false
+isExecutable=true
 
 [MesonManager]
 Current Build Directory Index=0

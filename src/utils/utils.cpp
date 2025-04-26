@@ -3,11 +3,13 @@
 #include "colors.hpp"
 
 #include <iostream>
+#include <filesystem>
 
 namespace utils 
 {
   void install_local_package(const std::string& file)
   {
+    std::cout << std::filesystem::absolute(file);
   }
 
   void install_package(const std::string& pkg) 
@@ -17,7 +19,7 @@ namespace utils
       std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "Package name cannot be empty" << "\n";
       return;
     }
-    std::cout << COLOR_GREEN << "Good" << pkg << "\n";
+    std::cout << COLOR_GREEN << "" << pkg << "\n";
   }
 
   void remove_package(const std::string& pkg) 

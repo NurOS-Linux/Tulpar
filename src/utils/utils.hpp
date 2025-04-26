@@ -25,6 +25,7 @@ namespace utils
   };
 
   void install_package(const std::string& pkg);
+  void install_local_package(const std::string& pkg);
   void remove_package(const std::string& pkg);
   void update_package(const std::string& pkg);
   void search_package(const std::string& pkg);
