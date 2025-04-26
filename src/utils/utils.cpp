@@ -7,9 +7,48 @@
 
 namespace utils 
 {
+  std::string find_name_package(std::string file)
+  {
+    std::string name;
+
+    for (unsigned int i = 0;i <= file.length(); ++i)
+    {
+      if (file[i] == '-')
+      {
+        break;
+      }
+      name += file[i];
+    }
+    std::cout << name << "\n";
+
+    return name;
+  }
+
   void install_local_package(const std::string& file)
   {
-    std::cout << std::filesystem::absolute(file);
+    const auto filename = std::filesystem::absolute(file);
+    auto name = find_name_package(file);
+    std::filesystem::create_directory("/tmp/tulpar/" + name);
+
+    if (std::filesystem::exists("/tmp/tulpar/" + file))
+    {
+      std::filesystem::remove("/tmp/tulpar/" + file);
+    }
+
+    try
+    {
+      std::filesystem::copy(filename, "/tmp/tulpar");
+    }
+    catch (const std::filesystem::filesystem_error& err)
+    {
+      std::cout << COLOR_RED << "Error: " << COLOR_RESET << err.what() << "\n";
+      return;
+    }
+
+    system(("tar xvf /tmp/tulpar/" + file + " -C /tmp/tulpar/" + name).c_str());
+
+    system(("cat /tmp/tulpar/" + name + "/metadata.json").c_str());
+
   }
 
   void install_package(const std::string& pkg) 
