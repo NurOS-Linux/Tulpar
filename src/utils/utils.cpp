@@ -6,11 +6,23 @@
 
 #include <iostream>
 #include <filesystem>
+#include <unistd.h>
 
 using namespace parse_json;
 
 namespace utils 
 {
+    void check_root()
+    {
+        std::string username = getlogin();
+
+        if (username != "root")
+        {
+            std::cout << COLOR_RED << "Error: " << COLOR_RESET << "Permission denied\n";
+            std::exit(1);
+        }
+    }
+
   std::string find_name_package(std::string file)
   {
     std::string name;
@@ -31,17 +43,24 @@ namespace utils
   {
     const auto filename = std::filesystem::absolute(file);
     auto name = find_name_package(file);
-    std::filesystem::create_directory("/tmp/tulpar/");
-    std::filesystem::create_directory("/tmp/tulpar/" + name);
+    check_root();
 
-    if (std::filesystem::exists("/tmp/tulpar/" + file))
+    if (!std::filesystem::exists("/tmp/tulpar/"))
     {
-      std::filesystem::remove("/tmp/tulpar/" + file);
+        std::filesystem::create_directory("/tmp/tulpar/");
+    }
+
+    if (!std::filesystem::exists("/tmp/tulpar/" + name))
+    {
+        std::filesystem::create_directory("/tmp/tulpar/" + name);
     }
 
     try
     {
-      std::filesystem::copy(filename, "/tmp/tulpar");
+        if (!std::filesystem::exists("/tmp/tulpar/" + file))
+        {
+            std::filesystem::copy(filename, "/tmp/tulpar");
+        }
     }
     catch (const std::filesystem::filesystem_error& err)
     {
@@ -58,6 +77,7 @@ namespace utils
 
   void install_package(const std::string& pkg) 
   {
+    check_root();
     if (pkg.empty())
     {
       std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "Package name cannot be empty" << "\n";
@@ -68,6 +88,7 @@ namespace utils
 
   void remove_package(const std::string& pkg) 
   {
+    check_root();
     if (pkg.empty())
     {
       std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "Package name cannot be empty" << "\n";
@@ -78,6 +99,7 @@ namespace utils
 
     void update_package(const std::string& pkg)
     {
+        check_root();
         if (pkg.empty())
         {
             std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "Package name cannot be empty" << "\n";
@@ -98,6 +120,7 @@ namespace utils
 
     void clean_cache()
     {
+        check_root();
         std::cout << COLOR_GREEN << "Cleaning..." << COLOR_RESET << "\n";
         if (std::filesystem::exists("/tmp/tulpar") ||  std::filesystem::exists("/var/cache/tulpar"))
         {

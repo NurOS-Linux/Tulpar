@@ -6,10 +6,10 @@
 
 int main(int argc, const char* argv[])
 {
-  argparse::ArgumentParser program("tulpar", "0.1.0", argparse::default_arguments::all);
+  argparse::ArgumentParser program("tulpar", "Tulpar @NurOS v0.1.1", argparse::default_arguments::all);
   // Must be the name of binary
 
-  argparse::ArgumentParser install_local_command("file");
+  argparse::ArgumentParser install_local_command("local");
   install_local_command.add_argument("pkg")
     .help("Package name to local install")
     .default_value(std::string(""));
@@ -85,7 +85,7 @@ int main(int argc, const char* argv[])
     auto pkg = search_command.get<std::string>("pkg");
     utils::search_package(pkg);
   }
-  else if (program.is_subcommand_used("file"))
+  else if (program.is_subcommand_used("local"))
   {
     auto pkg = install_local_command.get<std::string>("pkg");
     auto root = install_local_command.get<std::string>("root");
@@ -95,8 +95,7 @@ int main(int argc, const char* argv[])
   {
     std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "No valid command provided\n";
     std::cerr << program;
-    return 1;
+    return 2;
   }
-
   return 0;
 }
