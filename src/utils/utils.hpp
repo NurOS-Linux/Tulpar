@@ -24,6 +24,7 @@ namespace utils
     std::vector<std::string> replaces;
   };
 
+  std::string find_package_name(const std::string file);
   void install_package(const std::string& pkg);
   void install_local_package(const std::string& pkg);
   void remove_package(const std::string& pkg);

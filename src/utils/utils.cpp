@@ -1,6 +1,7 @@
 /* NurOS/Tulpar/utils.cpp ruzen42 */
 #include "utils.hpp"
 #include "colors.hpp"
+#include "parse_json/parse_json.hpp"
 
 #include <iostream>
 #include <filesystem>
@@ -19,7 +20,6 @@ namespace utils
       }
       name += file[i];
     }
-    std::cout << name << "\n";
 
     return name;
   }
@@ -28,6 +28,7 @@ namespace utils
   {
     const auto filename = std::filesystem::absolute(file);
     auto name = find_name_package(file);
+    std::filesystem::create_directory("/tmp/tulpar/");
     std::filesystem::create_directory("/tmp/tulpar/" + name);
 
     if (std::filesystem::exists("/tmp/tulpar/" + file))
@@ -48,6 +49,8 @@ namespace utils
     system(("tar xvf /tmp/tulpar/" + file + " -C /tmp/tulpar/" + name).c_str());
 
     system(("cat /tmp/tulpar/" + name + "/metadata.json").c_str());
+
+    parse_json::parse_file("/tmp/tulpar/" + name + "/metadata.json");
 
   }
 
