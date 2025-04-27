@@ -4,11 +4,11 @@
 
 #define PARSE_JSON_HPP
 
-#include "utils/utils.hpp"
+#include "../utils/utils.hpp"
 
 namespace parse_json 
 {
-  utils::package parse_file(std::string file);
+  utils::package parse_file(std::string metadata);
 }
 
 #endif

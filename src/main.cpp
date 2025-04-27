@@ -14,25 +14,33 @@ int main(int argc, const char* argv[])
     .help("Package name to local install")
     .default_value(std::string(""));
 
+  install_local_command.add_argument("--root")
+      .help("Specify the root filesystem path for installation")
+      .default_value(std::string("/"));
+
   argparse::ArgumentParser install_command("install");
   install_command.add_argument("pkg")
-      .help("Package name to install")
-      .default_value(std::string("")); 
+    .help("Package name to install")
+    .default_value(std::string(""));
+
+  install_command.add_argument("--root")
+      .help("Specify the root filesystem path for installation")
+      .default_value(std::string("/"));
 
   argparse::ArgumentParser remove_command("remove");
   remove_command.add_argument("pkg")
-      .help("Package name to remove")
-      .default_value(std::string("")); 
+    .help("Package name to remove")
+    .default_value(std::string(""));
 
   argparse::ArgumentParser update_command("update");
   update_command.add_argument("pkg")
-      .help("Package name to update")
-      .default_value(std::string("@world")); 
+    .help("Package name to update")
+    .default_value(std::string("@world"));
 
   argparse::ArgumentParser search_command("search");
   search_command.add_argument("pkg")
-      .help("Package name to searching in data base")
-      .default_value(std::string("")); 
+    .help("Package name to searching in data base")
+    .default_value(std::string(""));
   
   program.add_subparser(install_command);
   program.add_subparser(remove_command);
@@ -52,6 +60,7 @@ int main(int argc, const char* argv[])
   if (program.is_subcommand_used("install"))
   {
     auto pkg = install_command.get<std::string>("pkg");
+    auto root = install_command.get<std::string>("--root");
     utils::install_package(pkg);
   } 
   else if (program.is_subcommand_used("remove")) 
@@ -72,13 +81,14 @@ int main(int argc, const char* argv[])
   else if (program.is_subcommand_used("file"))
   {
     auto pkg = install_local_command.get<std::string>("pkg");
-    utils::install_local_package(pkg);
+    auto root = install_local_command.get<std::string>("root");
+    utils::install_local_package(pkg, root);
   }
   else
   {
-        std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "No valid command provided\n";
-        std::cerr << program;
-        return 1;
+    std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "No valid command provided\n";
+    std::cerr << program;
+    return 1;
   }
 
   return 0;

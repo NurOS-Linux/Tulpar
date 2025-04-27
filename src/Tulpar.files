@@ -1,0 +1,8 @@
+build/meson-private/sanitycheckcpp.cc
+colors.hpp
+main.cpp
+parse_json/parse_json.cpp
+parse_json/parse_json.hpp
+tarxx.h
+utils/utils.cpp
+utils/utils.hpp

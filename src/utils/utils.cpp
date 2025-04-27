@@ -1,10 +1,13 @@
 /* NurOS/Tulpar/utils.cpp ruzen42 */
 #include "utils.hpp"
-#include "colors.hpp"
-#include "parse_json/parse_json.hpp"
+#include "../colors.hpp"
+#include "../parse_json/parse_json.hpp"
+//#include "../tarxx.h"
 
 #include <iostream>
 #include <filesystem>
+
+using namespace parse_json;
 
 namespace utils 
 {
@@ -24,7 +27,7 @@ namespace utils
     return name;
   }
 
-  void install_local_package(const std::string& file)
+  void install_local_package(const std::string& file, const std::string& rootfs)
   {
     const auto filename = std::filesystem::absolute(file);
     auto name = find_name_package(file);
@@ -48,10 +51,9 @@ namespace utils
 
     system(("tar xvf /tmp/tulpar/" + file + " -C /tmp/tulpar/" + name).c_str());
 
-    system(("cat /tmp/tulpar/" + name + "/metadata.json").c_str());
+    utils::package data_package = parse_file("/tmp/tulpar/" + name + "/metadata.json");
 
-    parse_json::parse_file("/tmp/tulpar/" + name + "/metadata.json");
-
+    std::filesystem::copy("/tmp/tulpar/" + name + "/data/", rootfs, std::filesystem::copy_options::recursive);
   }
 
   void install_package(const std::string& pkg) 
