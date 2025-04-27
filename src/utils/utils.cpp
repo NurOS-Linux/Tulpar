@@ -2,7 +2,6 @@
 #include "utils.hpp"
 #include "../colors.hpp"
 #include "../parse_json/parse_json.hpp"
-//#include "../tarxx.h"
 
 #include <iostream>
 #include <filesystem>
@@ -14,12 +13,13 @@ namespace utils
 {
     void check_root()
     {
-        std::string username = getlogin();
+        auto username = geteuid();
 
-        if (username != "root")
+        if (username != 0)
         {
+            std::cout << username << "\n";
             std::cout << COLOR_RED << "Error: " << COLOR_RESET << "Permission denied\n";
-            std::exit(1);
+            std::exit(3);
         }
     }
 
@@ -39,40 +39,63 @@ namespace utils
     return name;
   }
 
-  void install_local_package(const std::string& file, const std::string& rootfs)
-  {
-    const auto filename = std::filesystem::absolute(file);
-    auto name = find_name_package(file);
-    check_root();
-
-    if (!std::filesystem::exists("/tmp/tulpar/"))
+    void install_local_package(const std::string& file, const std::string& rootfs)
     {
-        std::filesystem::create_directory("/tmp/tulpar/");
-    }
+        const auto filename = std::filesystem::absolute(file);
+        auto name = find_name_package(file);
+        check_root();
 
-    if (!std::filesystem::exists("/tmp/tulpar/" + name))
-    {
-        std::filesystem::create_directory("/tmp/tulpar/" + name);
-    }
+        char answer;
+        std::cout << "Proceed install package " + name + "? [Y/n] ";
 
-    try
-    {
-        if (!std::filesystem::exists("/tmp/tulpar/" + file))
+        std::cin >> answer;
+
+        if (std::tolower(answer) == 'n')
         {
-            std::filesystem::copy(filename, "/tmp/tulpar");
+            std::cout << "Cancel installation" << "\n";
+            return;
         }
-    }
-    catch (const std::filesystem::filesystem_error& err)
-    {
-      std::cout << COLOR_RED << "Error: " << COLOR_RESET << err.what() << "\n";
-      return;
-    }
 
-    system(("tar xvf /tmp/tulpar/" + file + " -C /tmp/tulpar/" + name).c_str());
 
-    utils::package data_package = parse_file("/tmp/tulpar/" + name + "/metadata.json");
+        if (!std::filesystem::exists("/tmp/tulpar/"))
+        {
+            std::filesystem::create_directory("/tmp/tulpar/");
+        }
 
-    std::filesystem::copy("/tmp/tulpar/" + name + "/data/", rootfs, std::filesystem::copy_options::recursive);
+        if (!std::filesystem::exists("/tmp/tulpar/" + name))
+        {
+           std::filesystem::create_directory("/tmp/tulpar/" + name);
+        }
+
+        try
+        {
+            if (!std::filesystem::exists("/tmp/tulpar/" + file))
+            {
+                std::filesystem::copy(filename, "/tmp/tulpar");
+            }
+        }
+        catch (const std::filesystem::filesystem_error& err)
+        {
+            std::cout << COLOR_RED << "Error: " << COLOR_RESET << err.what() << "\n";
+            return;
+        }
+
+        try
+        {
+            // Deprecated:
+            system(("tar xvf /tmp/tulpar/" + file + " -C /tmp/tulpar/" + name + " >> /dev/null").c_str());
+        }
+        catch (std::system_error err)
+        {
+            std::cout << COLOR_RED << "Error: " << COLOR_RESET << err.what() << "\n";
+            return;
+        }
+
+        utils::package data_package = parse_file("/tmp/tulpar/" + name + "/metadata.json");
+
+        std::filesystem::copy("/tmp/tulpar/" + name + "/data/", rootfs, std::filesystem::copy_options::recursive);
+
+        std::cout << COLOR_GREEN << "Installed with Success" << "\n";
   }
 
   void install_package(const std::string& pkg) 

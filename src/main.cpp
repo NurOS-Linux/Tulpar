@@ -14,6 +14,8 @@ int main(int argc, const char* argv[])
     .help("Package name to local install")
     .default_value(std::string(""));
 
+  argparse::ArgumentParser list_command("list");
+
   argparse::ArgumentParser clean("clean");
 
   install_local_command.add_argument("--root")
