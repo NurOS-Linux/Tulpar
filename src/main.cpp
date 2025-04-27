@@ -14,6 +14,8 @@ int main(int argc, const char* argv[])
     .help("Package name to local install")
     .default_value(std::string(""));
 
+  argparse::ArgumentParser clean("clean");
+
   install_local_command.add_argument("--root")
       .help("Specify the root filesystem path for installation")
       .default_value(std::string("/"));
@@ -43,6 +45,7 @@ int main(int argc, const char* argv[])
     .default_value(std::string(""));
   
   program.add_subparser(install_command);
+  program.add_subparser(clean);
   program.add_subparser(remove_command);
   program.add_subparser(update_command);
   program.add_subparser(search_command);
@@ -67,6 +70,10 @@ int main(int argc, const char* argv[])
   {
     auto pkg = remove_command.get<std::string>("pkg");
     utils::install_package(pkg);
+  }
+  else if (program.is_subcommand_used("clean"))
+  {
+    utils::clean_cache();
   }
   else if (program.is_subcommand_used("update")) 
   {

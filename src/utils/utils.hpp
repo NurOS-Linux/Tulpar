@@ -30,6 +30,7 @@ namespace utils
   void remove_package(const std::string& pkg);
   void update_package(const std::string& pkg);
   void search_package(const std::string& pkg);
+  void clean_cache();
 }
 
 #endif

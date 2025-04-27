@@ -76,23 +76,44 @@ namespace utils
     std::cout << COLOR_GREEN << "Good" << pkg << "\n";
   }
 
-  void update_package(const std::string& pkg) 
-  {
-    if (pkg.empty())
+    void update_package(const std::string& pkg)
     {
-      std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "Package name cannot be empty" << "\n";
-      return;
+        if (pkg.empty())
+        {
+            std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "Package name cannot be empty" << "\n";
+            return;
+        }
+        std::cout << COLOR_GREEN << "Good" << pkg << "\n";
     }
-    std::cout << COLOR_GREEN << "Good" << pkg << "\n";
-  }
 
-  void search_package(const std::string& pkg) 
-  {
-    if (pkg.empty())
+    void search_package(const std::string& pkg)
     {
-      std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "Package name cannot be empty" << "\n";
-      return;
+        if (pkg.empty())
+        {
+            std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "Package name cannot be empty" << "\n";
+            return;
+        }
+        std::cout << COLOR_GREEN << "Good" << pkg << "\n";
     }
-    std::cout << COLOR_GREEN << "Good" << pkg << "\n";
-  }
+
+    void clean_cache()
+    {
+        std::cout << COLOR_GREEN << "Cleaning..." << COLOR_RESET << "\n";
+        if (std::filesystem::exists("/tmp/tulpar") ||  std::filesystem::exists("/var/cache/tulpar"))
+        {
+            try
+            {
+                std::cout <<  "Removing /tmp/tulpar" << "\n";
+                std::filesystem::remove_all("/tmp/tulpar/");
+                std::cout <<  "Removing /var/cache/tulpar" << "\n";
+                std::filesystem::remove_all("/var/cache/tulpar/");
+            }
+            catch (std::filesystem::filesystem_error err)
+            {
+                std::cout << COLOR_RED << "Error with cleaning: " << COLOR_RESET << err.what() << "\n";
+                return;
+            }
+        }
+        std::cout << COLOR_GREEN << "All done without errors" << COLOR_RESET << "\n";
+    }
 }
