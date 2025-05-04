@@ -16,51 +16,50 @@ namespace utils
 
 void create_list()
 {
-    if (!std::filesystem::exists("/var/lib/tulpar"))
-    {
-        std::filesystem::create_directory("/var/lib/tulpar");
-    }
+  if (!std::filesystem::exists("/var/lib/tulpar"))
+  {
+    std::filesystem::create_directory("/var/lib/tulpar");
+  }
 
-    std::ofstream list("/var/lib/tulpar/list.json");
-    std::ofstream list_installed("/var/lib/tulpar/list_installed.json");
+  std::filesystem::create_file("/var/lib/tulpar/list.json");
+  std::filesystem::create_file("/var/lib/tulpar/list_installed.json");
 }
 
 void add_package_to_list(std::string& pkg)
 {
-    if (!std::filesystem::exists("/var/lib/tulpar/list.json"))
-    {
-        create_list();
-    }
+  if (!std::filesystem::exists("/var/lib/tulpar/list.json"))
+  {
+    create_list();
+  }
 
-    nlohmann::json json_array = nlohmann::json::array();
+  nlohmann::json json_array;
+  try 
+  {
     std::ofstream file("/var/lib/tulpar/list_installed.json");
-    /*try
-    {
-    }
-    catch (...)
-    {
-        cerr << COLOR_RED << "Error: " << COLOR_RESET << "error parsing /var/lib/tulpar/list_installed.json\n";
-        return;
-    } */
+  }
+  catch (...)
+  {
+    cerr << COLOR_RED << "Error: " << COLOR_RESET << "error parsing /var/lib/tulpar/list_installed.json\n";
+    return;
+  }
 
-    if (file.is_open())
-    {
-        file >> json_array;
-    }
+  if (file.is_open() && file.peek() != std::ifstream::traits_type::eof()) 
+  {
+    input_file >> json_array;
+  }
 
-    file.close();
+  file.close();
 
-    if (!json_array.is_array()) 
-    {
+  if (!json_array.is_array()) {
         json_array = nlohmann::json::array();
     }
 
-    json_array.push_back(pkg);
+  json_array.push_pack(pkg);
 
-    std::ofstream output_file("/var/lib/tulpar/list_installed.json");
-    if (output_file.is_open()) 
-    {
-        output_file << json_array.dump(4); // 4 spaces  
+   std::ofstream output_file(filename);
+    if (output_file.is_open()) {
+        // Записываем JSON в файл с форматированием
+        output_file << json_array.dump(4); // 4 - отступ для читаемости
         output_file.close();
     }
 }
@@ -98,8 +97,8 @@ void install_local_package(const std::string& file, const std::string& rootfs)
 
     if (!std::filesystem::exists(filename))
     {
-        std::cout << COLOR_RED << "Error: " << COLOR_RESET << "file not exists\n";
-        return;
+      std::cout << COLOR_RED << "Error: " << COLOR_RESET << "file not exists\n";
+      return;
     }
 
     auto name = find_name_package(file);

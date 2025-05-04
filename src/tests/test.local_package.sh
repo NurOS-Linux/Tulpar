@@ -1,8 +1,8 @@
 #!/bin/sh
 
-ROOT="test_root"
+ROOT="rootfs"
 
 mkdir -p $ROOT
 
-../tulpar local bash* --root $ROOT 
+../tulpar local bashntehnet --root $ROOT 
 #ls -R $ROOT 

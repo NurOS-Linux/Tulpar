@@ -6,9 +6,9 @@
 
 #include "../utils/utils.hpp"
 
-namespace parse_json
+namespace parse_json 
 {
-utils::package parse_file(std::string metadata);
+  utils::package parse_file(std::string metadata);
 }
 
 #endif
