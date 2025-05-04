@@ -211,47 +211,39 @@ void install_local_package(const std::string& file, const std::string& rootfs)
     std::cout << COLOR_GREEN << "Finished: " << COLOR_RESET << "Installed with Success\n";
 }
 
-void install_package(const std::string& pkg)
+void check_empty(std::string pkg)
 {
-    check_root();
     if (pkg.empty())
     {
         std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "Package name cannot be empty" << "\n";
         return;
     }
+}
+
+void install_package(const std::string& pkg)
+{
+    check_root();
+    check_empty(pkg);
     std::cout << COLOR_GREEN << "" << pkg << "\n";
 }
 
 void remove_package(const std::string& pkg)
 {
     check_root();
-    if (pkg.empty())
-    {
-        std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "Package name cannot be empty" << "\n";
-        return;
-    }
+    check_empty(pkg);
     std::cout << COLOR_GREEN << "Good" << pkg << "\n";
 }
 
 void update_package(const std::string& pkg)
 {
     check_root();
-    if (pkg.empty())
-    {
-        std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "Package name cannot be empty" << "\n";
-        return;
-    }
+    check_empty(pkg);
     std::cout << COLOR_GREEN << "Good" << pkg << "\n";
 }
 
 void search_package(const std::string& pkg)
 {
-    if (pkg.empty())
-    {
-        std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "Package name cannot be empty" << "\n";
-        return;
-    }
-    std::cout << COLOR_GREEN << "Good" << pkg << "\n";
+    check_empty(pkg);
 }
 
 void clean_cache()
@@ -273,6 +265,6 @@ void clean_cache()
             return;
         }
     }
-    std::cout << COLOR_GREEN << "All done without errors" << COLOR_RESET << "\n";
+    std::cout << COLOR_GREEN << "Finished: " << COLOR_RESET << "All done without errors\n";
 }
 }
