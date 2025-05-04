@@ -4,62 +4,104 @@
 #include "../parse_json/parse_json.hpp"
 
 #include <iostream>
+#include <iomanip>
 #include <filesystem>
 #include <unistd.h>
 #include <nlohmann/json.hpp>
 #include <fstream>
+#include <openssl/md5.h>
 
 using namespace parse_json;
 
 namespace utils
 {
 
+std::string compute_MD5_from_file(const std::string &filePath)
+ {
+ifstream file(filePath, ios::in | ios::binary | ios::ate);
+   
+   if (!file.is_open())
+   {
+   std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "Cannot open file: " << filePath << "\n";
+   return;
+   }
+   
+   long fileSize = file.tellg();
+   
+   char *memBlock = new char[fileSize];
+   
+   file.seekg(0, ios::beg);
+   file.read(memBlock, fileSize);
+   file.close();
+   
+   unsigned char result[MD5_DIGEST_LENGTH];
+   MD5((unsigned char *)memBlock, fileSize, result);
+   
+   delete[] memBlock;
+   
+   std::string output;
+   
+   for (int i = 0; i < size; i++)
+   {
+   output += std::hex + std::setw(2) + std::setfill('0') + (int)md[i];
+   }
+   
+   return output;
+   }
+
+
 void create_list()
 {
-  if (!std::filesystem::exists("/var/lib/tulpar"))
-  {
-    std::filesystem::create_directory("/var/lib/tulpar");
-  }
+    if (!std::filesystem::exists("/var/lib/tulpar"))
+    {
+        std::filesystem::create_directory("/var/lib/tulpar");
+    }
 
-  std::filesystem::create_file("/var/lib/tulpar/list.json");
-  std::filesystem::create_file("/var/lib/tulpar/list_installed.json");
+    try 
+    {
+      std::ofstream list("/var/lib/tulpar/list.json");
+      std::ofstream list_installed("/var/lib/tulpar/list_installed.json");
+    }
+    catch (std::filesystem::filesystem_error err)
+    {
+      std::cout << COLOR_RED << "Error: " << COLOR_RESET << err.what() << "\n";
+      return;
+    }
+
+    std::cout << COLOR_GREEN << "Finished: " << COLOR_RESET << "lists created\n";
 }
 
 void add_package_to_list(std::string& pkg)
 {
-  if (!std::filesystem::exists("/var/lib/tulpar/list.json"))
-  {
-    create_list();
-  }
+    if (!std::filesystem::exists("/var/lib/tulpar/list.json"))
+    {
+        create_list();
+    }
 
-  nlohmann::json json_array;
-  try 
-  {
+    nlohmann::json json_array = nlohmann::json::array();
     std::ofstream file("/var/lib/tulpar/list_installed.json");
-  }
-  catch (...)
-  {
-    cerr << COLOR_RED << "Error: " << COLOR_RESET << "error parsing /var/lib/tulpar/list_installed.json\n";
-    return;
-  }
 
-  if (file.is_open() && file.peek() != std::ifstream::traits_type::eof()) 
-  {
-    input_file >> json_array;
-  }
+    if (!file.is_open())
+    {
+      std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "error with opening file\n";
+      return;
+    }
 
-  file.close();
+    file << json_array;
 
-  if (!json_array.is_array()) {
+    file.close();
+
+    if (!json_array.is_array()) 
+    {
         json_array = nlohmann::json::array();
     }
 
-  json_array.push_pack(pkg);
+    json_array.push_back(pkg);
 
-   std::ofstream output_file(filename);
-    if (output_file.is_open()) {
-        // Записываем JSON в файл с форматированием
-        output_file << json_array.dump(4); // 4 - отступ для читаемости
+    std::ofstream output_file("/var/lib/tulpar/list_installed.json");
+    if (output_file.is_open()) 
+    {
+        output_file << json_array.dump(4); // 4 spaces  
         output_file.close();
     }
 }
@@ -94,25 +136,11 @@ std::string find_name_package(std::string file)
 void install_local_package(const std::string& file, const std::string& rootfs)
 {
     const auto filename = std::filesystem::absolute(file);
+    auto name = find_name_package(file);
 
     if (!std::filesystem::exists(filename))
     {
-      std::cout << COLOR_RED << "Error: " << COLOR_RESET << "file not exists\n";
-      return;
-    }
-
-    auto name = find_name_package(file);
-    check_root();
-    std::cout << "Package to be installed: " << COLOR_GREEN << name + " " << COLOR_RESET << " \n";
-
-    char answer;
-    std::cout << "Proceed install package " + name + "? [Y/n] ";
-
-    std::cin >> answer;
-
-    if (std::tolower(answer) == 'n')
-    {
-        std::cout << "Cancel installation" << "\n";
+        std::cout << COLOR_RED << "Error: " << COLOR_RESET << "file not exists\n";
         return;
     }
 
@@ -142,8 +170,9 @@ void install_local_package(const std::string& file, const std::string& rootfs)
 
     try
     {
-        // Deprecated:
-        system(("tar xvf /tmp/tulpar/" + file + " -C /tmp/tulpar/" + name + " >> /dev/null").c_str());
+      // Deprecated:
+      std::cout << "Extracting tar archive to /tmp/tulpar/ + name 
+      system(("tar xvf /tmp/tulpar/" + file + " -C /tmp/tulpar/" + name + " >> /dev/null").c_str());
     }
     catch (std::system_error err)
     {
@@ -152,10 +181,35 @@ void install_local_package(const std::string& file, const std::string& rootfs)
     }
 
     utils::package data_package = parse_file("/tmp/tulpar/" + name + "/metadata.json");
+    auto pkg_name = data_package.name; 
 
-    std::filesystem::copy("/tmp/tulpar/" + name + "/data/", rootfs, std::filesystem::copy_options::recursive);
+    std::cout << COLOR_GREEN << "Finished: " << COLOR_RESET << "Extracting tar archive\n";
 
-    std::cout << COLOR_GREEN << "Installed with Success" << "\n";
+    check_root();
+    std::cout << "Package to be installed: " << COLOR_GREEN << pkg_name + " " << COLOR_RESET << " \n";
+
+    char answer;
+    std::cout << "Proceed install package " + name + "? [" 
+      << COLOR_GREEN << "Y" << COLOR_RESET << "/" << COLOR_RED << "n" << COLOR_RESET << "] ";
+
+    std::cin >> answer;
+  
+    if (std::tolower(answer) == 'n')
+    {
+        std::cout << "Cancel installation" << "\n";
+        return;
+    }
+    try 
+    {
+      std::cout << "Installing package\n";
+      std::filesystem::copy("/tmp/tulpar/" + name + "/data/", rootfs, std::filesystem::copy_options::recursive);
+    }
+    catch (std::filesystem::filesystem_error err)
+    {
+        std::cout << COLOR_RED << "Error: " << COLOR_RESET << err.what() << "\n";
+    }
+
+    std::cout << COLOR_GREEN << "Finished: " << COLOR_RESET << "Installed with Success\n";
 }
 
 void install_package(const std::string& pkg)

@@ -23,8 +23,11 @@ struct package
     std::vector<std::string> provides;
     std::vector<std::string> replaces;
 };
-
-std::string find_package_name(const std::string file);
+std::string find_name_package(const std::string file);
+std::string compute_MD5_from_file(const std::string& file);
+void create_list();
+void add_package_to_list(std::string& pkg);
+void check_root();
 void install_package(const std::string& pkg);
 void install_local_package(const std::string& pkg, const std::string& rootfs);
 void remove_package(const std::string& pkg);
