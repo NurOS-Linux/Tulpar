@@ -28,10 +28,9 @@ std::string compute_MD5_from_file(const std::string& file);
 void create_list();
 void add_package_to_list(std::string& pkg);
 void check_root();
-void install_package(const std::string& pkg);
-void install_local_package(const std::string& pkg, const std::string& rootfs);
-void remove_package(const std::string& pkg);
-void update_package(const std::string& pkg);
+void install_package(const std::string& pkg, const std::string& root);
+void remove_package(const std::string& pkg, const std::string& root);
+void update_database();
 void search_package(const std::string& pkg);
 void clean_cache();
 }

@@ -9,32 +9,26 @@ int main(int argc, const char* argv[])
     argparse::ArgumentParser program("tulpar", "Tulpar @NurOS v0.1.1", argparse::default_arguments::all);
     // Must be the name of binary
 
-    argparse::ArgumentParser install_local_command("local");
-    install_local_command.add_argument("pkg")
-                         .help("Package name to local install")
-                         .default_value(std::string(""));
-
     argparse::ArgumentParser list_command("list");
 
     argparse::ArgumentParser clean("clean");
 
-    install_local_command.add_argument("--root")
-                         .help("Specify the root filesystem path for installation")
-                         .default_value(std::string("/"));
 
     argparse::ArgumentParser install_command("install");
     install_command.add_argument("pkg")
                    .help("Package name to install")
                    .default_value(std::string(""));
-
-    install_command.add_argument("--root")
-                   .help("Specify the root filesystem path for installation")
-                   .default_value(std::string("/"));
+                   install_command.add_argument("--root")
+                         .help("Specify the root filesystem path for installation")
+                         .default_value(std::string("/"));
 
     argparse::ArgumentParser remove_command("remove");
     remove_command.add_argument("pkg")
                   .help("Package name to remove")
                   .default_value(std::string(""));
+                  install_command.add_argument("--root")
+                         .help("Specify the root filesystem path for installation")
+                         .default_value(std::string("/"));
 
     argparse::ArgumentParser update_command("update");
     update_command.add_argument("pkg")
@@ -51,7 +45,6 @@ int main(int argc, const char* argv[])
     program.add_subparser(remove_command);
     program.add_subparser(update_command);
     program.add_subparser(search_command);
-    program.add_subparser(install_local_command);
 
     try
     {
@@ -66,12 +59,13 @@ int main(int argc, const char* argv[])
     {
         auto pkg = install_command.get<std::string>("pkg");
         auto root = install_command.get<std::string>("--root");
-        utils::install_package(pkg);
+        utils::install_package(pkg, root);
     }
     else if (program.is_subcommand_used("remove"))
     {
         auto pkg = remove_command.get<std::string>("pkg");
-        utils::install_package(pkg);
+        auto root = remove_command.get<std::string>("--root");
+        utils::install_package(pkg, root);
     }
     else if (program.is_subcommand_used("clean"))
     {
@@ -80,18 +74,12 @@ int main(int argc, const char* argv[])
     else if (program.is_subcommand_used("update"))
     {
         auto pkg = update_command.get<std::string>("pkg");
-        utils::install_package(pkg);
+        utils::update_database();
     }
     else if (program.is_subcommand_used("search"))
     {
         auto pkg = search_command.get<std::string>("pkg");
         utils::search_package(pkg);
-    }
-    else if (program.is_subcommand_used("local"))
-    {
-        auto pkg = install_local_command.get<std::string>("pkg");
-        auto root = install_local_command.get<std::string>("root");
-        utils::install_local_package(pkg, root);
     }
     else
     {

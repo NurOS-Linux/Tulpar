@@ -16,6 +16,8 @@ using namespace parse_json;
 namespace utils
 {
 
+auto directory_pkgs = "/var/log/tulpar/pkgs/";
+
 std::string compute_MD5_from_file(const std::string &filePath)
 {
     std::ifstream file(filePath, std::ios::in | std::ios::binary | std::ios::ate);
@@ -54,67 +56,23 @@ std::string compute_MD5_from_file(const std::string &filePath)
 
 void create_list()
 {
-    if (!std::filesystem::exists("/var/lib/tulpar"))
+    if (!std::filesystem::exists(directory_pkgs))
     {
-        std::filesystem::create_directory("/var/lib/tulpar");
+        std::filesystem::create_directory(directory_pkgs);
     }
-
-    std::ofstream list("/var/lib/tulpar/list.json");
-    std::ofstream list_installed("/var/lib/tulpar/list_installed.json");
-
-    if (!list.is_open() || !list_installed.is_open())
-    {
-        std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "Failed to create list files\n";
-        return;
-    }
-
-    list << nlohmann::json::object().dump(4);
-    list_installed << nlohmann::json::array().dump(4);
-
-    list.close();
-    list_installed.close();
 
     std::cout << COLOR_GREEN << "Finished: " << COLOR_RESET << "lists created\n";
 }
 
-void add_package_to_list(std::string& pkg)
+void add_package_to_list(std::string& pkg, std::string version)
 {
-    if (!std::filesystem::exists("/var/lib/tulpar/list.json"))
+    if (!std::filesystem::exists(directory_pkgs))
     {
         create_list();
     }
 
-    nlohmann::json json_array;
-    std::ifstream input_file("/var/lib/tulpar/list_installed.json");
-    if (input_file.is_open())
-    {
-        try
-        {
-            input_file >> json_array;
-        }
-        catch (const nlohmann::json::parse_error& e)
-        {
-            std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "Invalid JSON in list_installed.json: " << e.what() << "\n";
-        }
-        input_file.close();
-    }
 
-    if (!json_array.is_array())
-    {
-        json_array = nlohmann::json::array();
-    }
 
-    json_array.push_back(pkg);
-
-    std::ofstream output_file("/var/lib/tulpar/list_installed.json");
-    if (!output_file.is_open())
-    {
-        std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "Cannot open list_installed.json for writing\n";
-        return;
-    }
-
-    output_file << json_array.dump(4);
-    output_file.close();
 }
 
 void check_root()
@@ -208,7 +166,7 @@ void install_local_package(const std::string& file, const std::string& rootfs)
         return;
     }
 
-    std::cout << COLOR_GREEN << "Finished: " << COLOR_RESET << "Installed with Success\n";
+    std::cout << COLOR_GREEN << "Finished: " << COLOR_RESET << "Installed without any errors\n";
 }
 
 void check_empty(std::string pkg)
@@ -220,24 +178,30 @@ void check_empty(std::string pkg)
     }
 }
 
-void install_package(const std::string& pkg)
+void install_package(const std::string& pkg, const std::string& rootfs)
 {
     check_root();
     check_empty(pkg);
+    if (pkg.substr(0, 2) == "./") 
+    {
+      install_local_package(pkg, rootfs);
+      return;
+    }
+
     std::cout << COLOR_GREEN << "" << pkg << "\n";
 }
 
-void remove_package(const std::string& pkg)
+void remove_package(const std::string& pkg, const std::string& rootfs)
 {
     check_root();
     check_empty(pkg);
     std::cout << COLOR_GREEN << "Good" << pkg << "\n";
 }
 
-void update_package(const std::string& pkg)
+void update_database()
 {
     check_root();
-    check_empty(pkg);
+    
     std::cout << COLOR_GREEN << "Good" << pkg << "\n";
 }
 
