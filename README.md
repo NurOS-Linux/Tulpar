@@ -1,6 +1,6 @@
 Tulpar
 
-![Alt text](./tulpar.png)
+![Alt text](./Tulpar.png)
 
 Tulpar is a lightweight and flexible package manager designed for NurOS, a Linux distribution. It provides a simple command-line interface to manage software packages, including installation, removal, updating, and searching. Tulpar is built with C++ and utilizes the argparse library for handling command-line arguments.
 Features

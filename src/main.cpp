@@ -20,8 +20,7 @@ int main(int argc, const char* argv[])
                    .default_value(std::string(""));
                    install_command.add_argument("--root")
                          .help("Specify the root filesystem path for installation")
-                         .default_value(std::string("/"))
-                         .required(false);
+                         .default_value(std::string("/"));
 
 
     argparse::ArgumentParser remove_command("remove");
@@ -31,7 +30,6 @@ int main(int argc, const char* argv[])
                   install_command.add_argument("--root")
                          .help("Specify the root filesystem path for installation")
                          .default_value(std::string("/"));
-                         .required(false);
 
     argparse::ArgumentParser update_command("update");
     update_command.add_argument("pkg")
@@ -42,7 +40,6 @@ int main(int argc, const char* argv[])
     search_command.add_argument("pkg")
                   .help("Package name to searching in data base")
                   .default_value(std::string(""));
-                  .required(false);
 
     program.add_subparser(install_command);
     program.add_subparser(clean);
@@ -69,7 +66,7 @@ int main(int argc, const char* argv[])
     {
         auto pkg = remove_command.get<std::string>("pkg");
         auto root = remove_command.get<std::string>("--root");
-        utils::install_package(pkg, root);
+        utils::remove_package(pkg, root);
     }
     else if (program.is_subcommand_used("clean"))
     {
@@ -87,8 +84,8 @@ int main(int argc, const char* argv[])
     }
     else
     {
-        std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "No valid command provided\n";
-        std::cerr << program;
+        std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "No valid command provided, use tulpar --help\n";
+        //std::cerr << program;
         return 2;
     }
     return 0;

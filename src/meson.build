@@ -1,6 +1,6 @@
 project('tulpar', 'cpp',
-  version: '0.1.2',
-  default_options: ['warning_level=3', 'cpp_std=c++17'])
+  version: '0.1.0',
+  default_options: ['warning_level=1', 'cpp_std=c++17'])
 
 openssl_dep = dependency('libcrypto', required: true)  
 json_dep = dependency('nlohmann_json', required: true)
@@ -15,4 +15,9 @@ executable('tulpar',
            ],
            include_directories: inc_dirs,
            dependencies: [openssl_dep, json_dep],
-           install: true)
+           install: true,
+           cpp_args: [
+                      '-O0',  
+                      '-D_GLIBCXX_ASSERTIONS=1',
+                      '-D_FILE_OFFSET_BITS=64',
+                     ],)
