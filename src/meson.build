@@ -10,6 +10,7 @@ inc_dirs = include_directories('utils', 'parse_json')
 executable('tulpar',
            sources: [
              'main.cpp',
+             'mirror/mirror.cpp',
              'utils/utils.cpp',
              'parse_json/parse_json.cpp'
            ],

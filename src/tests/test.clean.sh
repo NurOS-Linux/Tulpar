@@ -1,3 +1,0 @@
-#!/bin/bash 
-
-../tulpar clean 

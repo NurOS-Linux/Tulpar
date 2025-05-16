@@ -59,8 +59,9 @@ void create_list()
     if (!std::filesystem::exists(directory_pkgs))
     {
         std::filesystem::create_directory(directory_pkgs);
-        std::cout << COLOR_GREEN << "Finished: " << COLOR_RESET << "lists created\n";
     }
+
+    std::cout << COLOR_GREEN << "Finished: " << COLOR_RESET << "lists created\n";
 }
 
 void add_package_to_list(std::string& pkg, std::string version)
@@ -70,7 +71,7 @@ void add_package_to_list(std::string& pkg, std::string version)
         create_list();
     }
 
-    try
+    try 
     {
         std::filesystem::create_directory(directory_pkgs + pkg + "-" + version);
     }
@@ -107,32 +108,16 @@ std::string find_name_package(std::string file)
     return name;
 }
 
-bool ask_yn(const std::string& ask)
-{
-    char answer;
-    std::cout << ask + "? [Y/n] ";
-    std::cin >> answer;
-
-    auto value = true;
-    
-    if (std::tolower(answer) == 'n')
-    {
-        std::cout << "Cancel\n";
-        value = false;
-    }
-    return value;
-}
-
 void install_local_package(const std::string& file, const std::string& rootfs)
 {
-    if (!std::filesystem::exists(file))
-    {
-        std::cout << COLOR_RED << "Error: " << COLOR_RESET << "File does not exist: " << file << "\n";
-        return;
-    }
-
     const auto filename = std::filesystem::absolute(file);
     auto name = find_name_package(filename.filename().string());
+
+    if (!std::filesystem::exists(filename))
+    {
+        std::cout << COLOR_RED << "Error: " << COLOR_RESET << "File does not exist: " << filename << "\n";
+        return;
+    }
 
     std::filesystem::create_directories("/tmp/tulpar/" + name);
 
@@ -142,34 +127,32 @@ void install_local_package(const std::string& file, const std::string& rootfs)
     }
     catch (const std::filesystem::filesystem_error& err)
     {
-        std::cerr << COLOR_RED << "Error: " << COLOR_RESET << err.what() << "\n";
+        std::cout << COLOR_RED << "Error: " << COLOR_RESET << err.what() << "\n";
         return;
     }
 
-    std::cout << "Packages to be installed: \n";
-    std::vector<std::string> pkgs;
-    pkgs.insert(pkgs.begin(), name);
-
-    for (int i = 0; i < pkgs.size(); ++i)
-    {
-      std::cout << COLOR_GREEN << pkgs[i] << COLOR_RESET << "\n";
-    }
-    
+    std::cout << "Extracting tar archive to /tmp/tulpar/" + name + "\n";
     // Note: Replace with libarchive or safer alternative
     system(("tar xvf /tmp/tulpar/" + filename.filename().string() + " -C /tmp/tulpar/" + name + " >> /dev/null").c_str());
 
-    std::string metadata = "/tmp/tulpar/" + name + "/metadata.json";
-
-    if (!std::filesystem::exists(metadata))
-    {
-      std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "Package are corrupted, metadata.json not found" << "\n";
-      return;
-    }
     utils::package data_package = parse_file("/tmp/tulpar/" + name + "/metadata.json");
     auto pkg_name = data_package.name;
     auto pkg_ver = data_package.version;
 
+    std::cout << COLOR_GREEN << "Finished: " << COLOR_RESET << "Extracting tar archive\n";
 
+    check_root();
+    std::cout << "Package to be installed: " << COLOR_GREEN << pkg_name + " " + pkg_ver << COLOR_RESET << "\n";
+
+    char answer;
+    std::cout << "Proceed install package " + name + "? [" << COLOR_GREEN << "Y" << COLOR_RESET << "/" << COLOR_RED << "n" << COLOR_RESET << "] ";
+    std::cin >> answer;
+
+    if (std::tolower(answer) == 'n')
+    {
+        std::cout << "Cancel installation\n";
+        return;
+    }
 
     try
     {
@@ -204,27 +187,28 @@ void check_empty(std::string pkg)
 
 void install_package(const std::string& pkg, const std::string& rootfs)
 {
+    check_root();
     check_empty(pkg);
-    if (pkg.substr(0, 2) == "./")
+    if (pkg.substr(0, 2) == "./") 
     {
-        install_local_package(pkg, rootfs);
-        return;
+      install_local_package(pkg, rootfs);
+      return;
     }
-
-
 
     std::cout << COLOR_GREEN << "" << pkg << "\n";
 }
 
 void remove_package(const std::string& pkg, const std::string& rootfs)
 {
+    check_root();
     check_empty(pkg);
     std::cout << COLOR_GREEN << "Good" << pkg << "\n";
 }
 
 void update_database()
 {
-    //not
+    check_root();
+    //not    
 }
 
 void search_package(const std::string& pkg)
@@ -234,6 +218,8 @@ void search_package(const std::string& pkg)
 
 void clean_cache()
 {
+    check_root();
+    std::cout << COLOR_GREEN << "Cleaning..." << COLOR_RESET << "\n";
     if (std::filesystem::exists("/tmp/tulpar") ||  std::filesystem::exists("/var/cache/tulpar"))
     {
         try
@@ -254,22 +240,21 @@ void clean_cache()
 
 void get_list(const std::string& what)
 {
-    std::string path;
+  std::string path;
 
-    if (what == "installed")
-    {
-        path = directory_pkgs;
-    }
-    else if (what == "available")
-    {
-        path = directory_pkgs;
-    }
+  if (what == "installed")
+  {
+    path = directory_pkgs;  
+  }
+  else if (what == "available")
+  {
+    path = directory_pkgs;  
+  }
 
-    create_list();
-
-    for (const auto& entry : std::filesystem::directory_iterator(path))
-    {
-        std::cout << entry.path().filename() << "\n";
-    }
+   for (const auto& entry : fs::directory_iterator(path)) 
+   {
+            std::cout << entry.path().filename() << " ("
+                      << (fs::is_directory(entry) ? "directory" : "file") << ")\n";
+   }
 }
 }

@@ -9,6 +9,8 @@ int main(int argc, const char* argv[])
     argparse::ArgumentParser program("tulpar", "Tulpar @NurOS v0.1.1", argparse::default_arguments::all);
     // Must be the name of binary
 
+    argparse::ArgumentParser list_command("list");
+
     argparse::ArgumentParser clean("clean");
 
 
@@ -16,18 +18,18 @@ int main(int argc, const char* argv[])
     install_command.add_argument("pkg")
                    .help("Package name to install")
                    .default_value(std::string(""));
-    install_command.add_argument("--root")
-                   .help("Specify the root filesystem path for installation")
-                   .default_value(std::string("/"));
+                   install_command.add_argument("--root")
+                         .help("Specify the root filesystem path for installation")
+                         .default_value(std::string("/"));
 
 
     argparse::ArgumentParser remove_command("remove");
     remove_command.add_argument("pkg")
                   .help("Package name to remove")
                   .default_value(std::string(""));
-    install_command.add_argument("--root")
-                   .help("Specify the root filesystem path for installation")
-                   .default_value(std::string("/"));
+                  install_command.add_argument("--root")
+                         .help("Specify the root filesystem path for installation")
+                         .default_value(std::string("/"));
 
     argparse::ArgumentParser update_command("update");
     update_command.add_argument("pkg")
@@ -40,7 +42,7 @@ int main(int argc, const char* argv[])
                   .default_value(std::string(""));
 
     argparse::ArgumentParser list_command("list");
-    list_command.add_argument("what")
+    search_command.add_argument("what")
                   .help("Get list of packages")
                   .default_value(std::string("installed"));
 
@@ -86,9 +88,9 @@ int main(int argc, const char* argv[])
         auto pkg = search_command.get<std::string>("pkg");
         utils::search_package(pkg);
     }
-    else if (program.is_subcommand_used("list"))
+    else if (program.is_subcommand_used("search"))
     {
-        auto what = list_command.get<std::string>("what");
+        auto what = search_command.get<std::string>("what");
         utils::get_list(what);
     }
     else

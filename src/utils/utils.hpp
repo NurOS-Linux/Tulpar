@@ -33,6 +33,7 @@ void remove_package(const std::string& pkg, const std::string& root);
 void update_database();
 void search_package(const std::string& pkg);
 void clean_cache();
+void get_list(const std::string& what);
 }
 
 #endif

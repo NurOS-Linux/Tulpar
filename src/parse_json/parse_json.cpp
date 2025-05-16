@@ -37,7 +37,7 @@ utils::package parse_file(std::string metadata)
 
     for (int i {0}; i < data_package.dependencies.size(); ++i)
       deps = deps + ", " + data_package.dependencies[i];
-
+    /*
     std::cout << "Data of package: \n";
     std::cout << "\tName: " << data_package.name << "\n";
     std::cout << "\tVersion: " << data_package.version << "\n";
@@ -46,6 +46,7 @@ utils::package parse_file(std::string metadata)
     std::cout << "\tArch: " << data_package.architecture << "\n";
     std::cout << "\tDeps: " << deps << "\n";
     std::cout << "\tMaintainer: " << data_package.maintainer << "\n";
+    */
     return data_package;
 }
 }
