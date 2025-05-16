@@ -71,8 +71,14 @@ void add_package_to_list(std::string& pkg, std::string version)
         create_list();
     }
 
-
-
+    try 
+    {
+        std::filesystem::create_directory(directory_pkgs + pkg + "-" + version);
+    }
+    catch (...)
+    {
+        std::cout << COLOR_RED << "Error: " << COLOR_RESET << "with making directory for " + pkg + "\n";
+    }
 }
 
 void check_root()
@@ -131,11 +137,12 @@ void install_local_package(const std::string& file, const std::string& rootfs)
 
     utils::package data_package = parse_file("/tmp/tulpar/" + name + "/metadata.json");
     auto pkg_name = data_package.name;
+    auto pkg_ver = data_package.version;
 
     std::cout << COLOR_GREEN << "Finished: " << COLOR_RESET << "Extracting tar archive\n";
 
     check_root();
-    std::cout << "Package to be installed: " << COLOR_GREEN << pkg_name << COLOR_RESET << "\n";
+    std::cout << "Package to be installed: " << COLOR_GREEN << pkg_name + " " + pkg_ver << COLOR_RESET << "\n";
 
     char answer;
     std::cout << "Proceed install package " + name + "? [" << COLOR_GREEN << "Y" << COLOR_RESET << "/" << COLOR_RED << "n" << COLOR_RESET << "] ";
@@ -201,8 +208,7 @@ void remove_package(const std::string& pkg, const std::string& rootfs)
 void update_database()
 {
     check_root();
-    
-    std::cout << COLOR_GREEN << "Good" << pkg << "\n";
+    //not    
 }
 
 void search_package(const std::string& pkg)

@@ -20,7 +20,9 @@ int main(int argc, const char* argv[])
                    .default_value(std::string(""));
                    install_command.add_argument("--root")
                          .help("Specify the root filesystem path for installation")
-                         .default_value(std::string("/"));
+                         .default_value(std::string("/"))
+                         .required(false);
+
 
     argparse::ArgumentParser remove_command("remove");
     remove_command.add_argument("pkg")
@@ -29,6 +31,7 @@ int main(int argc, const char* argv[])
                   install_command.add_argument("--root")
                          .help("Specify the root filesystem path for installation")
                          .default_value(std::string("/"));
+                         .required(false);
 
     argparse::ArgumentParser update_command("update");
     update_command.add_argument("pkg")
@@ -39,6 +42,7 @@ int main(int argc, const char* argv[])
     search_command.add_argument("pkg")
                   .help("Package name to searching in data base")
                   .default_value(std::string(""));
+                  .required(false);
 
     program.add_subparser(install_command);
     program.add_subparser(clean);
