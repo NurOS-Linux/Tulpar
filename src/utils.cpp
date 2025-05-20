@@ -1,7 +1,7 @@
 /* NurOS/Tulpar/utils.cpp ruzen42 */
-#include "utils.hpp"
-#include "../colors.hpp"
-#include "../parse_json/parse_json.hpp"
+#include "include/utils.hpp"
+#include "include/colors.hpp"
+#include "include/parse_json.hpp"
 
 #include <iostream>
 #include <iomanip>

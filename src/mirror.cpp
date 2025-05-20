@@ -1,5 +1,5 @@
 /* NurOS/Tulpar/mirror.cpp ruzen42 */
-#include "mirror.hpp"
+#include "include/mirror.hpp"
 
 #include <iostream>
 #include <vector>

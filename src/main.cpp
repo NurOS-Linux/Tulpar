@@ -1,8 +1,8 @@
 /* NurOS/Tulpar/main.cpp ruzen42 */
 #include <iostream>
 #include <argparse/argparse.hpp>
-#include "utils/utils.hpp"
-#include "colors.hpp"
+#include "include/utils.hpp"
+#include "include/colors.hpp"
 
 int main(int argc, const char* argv[])
 {

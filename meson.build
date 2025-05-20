@@ -5,14 +5,14 @@ project('tulpar', 'cpp',
 openssl_dep = dependency('libcrypto', required: true)  
 json_dep = dependency('nlohmann_json', required: true)
 
-inc_dirs = include_directories('utils', 'parse_json')
+inc_dirs = include_directories('src')
 
 executable('tulpar',
            sources: [
-             'main.cpp',
-             'mirror/mirror.cpp',
-             'utils/utils.cpp',
-             'parse_json/parse_json.cpp'
+             'src/main.cpp',
+             'src/mirror.cpp',
+             'src/utils.cpp',
+             'src/parse_json.cpp'
            ],
            include_directories: inc_dirs,
            dependencies: [openssl_dep, json_dep],

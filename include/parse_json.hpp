@@ -4,7 +4,7 @@
 
 #define PARSE_JSON_HPP
 
-#include "../utils/utils.hpp"
+#include "utils.hpp"
 
 namespace parse_json
 {

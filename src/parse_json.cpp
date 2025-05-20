@@ -3,8 +3,8 @@
 #include <fstream>
 #include <iostream>
 
-#include "../utils/utils.hpp"
-#include "../colors.hpp"
+#include "include/utils.hpp"
+#include "include/colors.hpp"
 
 namespace parse_json
 {
