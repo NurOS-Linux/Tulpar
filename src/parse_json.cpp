@@ -6,12 +6,15 @@
 #include "include/utils.hpp"
 #include "include/colors.hpp"
 
+using namespace std;
+using namespace utils;
+
 namespace parse_json
 {
-utils::package parse_file(std::string metadata)
+package parse_file(const string& metadata)
 {
-    std::fstream input(metadata);
-    utils::package data_package;
+    fstream input(metadata);
+    package data_package;
     nlohmann::json json;
     input >> json;
     try
@@ -28,26 +31,31 @@ utils::package parse_file(std::string metadata)
         data_package.provides = json["provides"].get<std::vector<std::string>>();
         data_package.replaces = json["replaces"].get<std::vector<std::string>>();
     }
-    catch (std::string err)
+    catch (string err)
     {
-        std::cout << COLOR_RED << "Error with parsing metadata: " << COLOR_RESET << err << "\n";
+        cout << COLOR_RED << "Error with parsing metadata: " << COLOR_RESET << err << "\n";
     }
 
     std::string deps = "";
 
     for (int i {0}; i < data_package.dependencies.size(); ++i)
       deps = deps + ", " + data_package.dependencies[i];
-    /*
-    std::cout << "Data of package: \n";
-    std::cout << "\tName: " << data_package.name << "\n";
-    std::cout << "\tVersion: " << data_package.version << "\n";
-    std::cout << "\tDescription: " << data_package.description << "\n";
-    std::cout << "\tLicense: " << data_package.license << "\n";
-    std::cout << "\tArch: " << data_package.architecture << "\n";
-    std::cout << "\tDeps: " << deps << "\n";
-    std::cout << "\tMaintainer: " << data_package.maintainer << "\n";
-    */
+
+    show_metadata(data_package);
+
     return data_package;
+}
+
+void show_metadata(const package& data_package)
+{
+    cout << "Data of package: \n";
+    cout << "\tName: " << data_package.name << "\n";
+    cout << "\tVersion: " << data_package.version << "\n";
+    cout << "\tDescription: " << data_package.description << "\n";
+    cout << "\tLicense: " << data_package.license << "\n";
+    cout << "\tArch: " << data_package.architecture << "\n";
+    cout << "\tDeps: " << deps << "\n";
+    cout << "\tMaintainer: " << data_package.maintainer << "\n";
 }
 }
 

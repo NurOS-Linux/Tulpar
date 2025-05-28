@@ -6,7 +6,7 @@
 
 int main(int argc, const char* argv[])
 {
-    argparse::ArgumentParser program("tulpar", "Tulpar @NurOS v0.1.1", argparse::default_arguments::all);
+    argparse::ArgumentParser program("tulpar", "Tulpar @NurOS v0.1.0", argparse::default_arguments::all);
     // Must be the name of binary
 
     argparse::ArgumentParser clean("clean");
@@ -93,8 +93,8 @@ int main(int argc, const char* argv[])
     }
     else
     {
-        std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "No valid command provided, use tulpar --help\n";
-        //std::cerr << program;
+        std::cerr << COLOR_RED << "Error: " << COLOR_RESET << "No valid command provided\n";
+        std::cerr << program;
         return 2;
     }
     return 0;
