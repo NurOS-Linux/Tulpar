@@ -11,6 +11,23 @@ using namespace utils;
 
 namespace parse_json
 {
+void show_metadata(const package& data_package)
+{
+    std::string deps = "";
+
+    for (int i {0}; i < data_package.dependencies.size(); ++i)
+      deps = deps + ", " + data_package.dependencies[i];
+
+    cout << "Data of package: \n";
+    cout << "\tName: " << data_package.name << "\n";
+    cout << "\tVersion: " << data_package.version << "\n";
+    cout << "\tDescription: " << data_package.description << "\n";
+    cout << "\tLicense: " << data_package.license << "\n";
+    cout << "\tArch: " << data_package.architecture << "\n";
+    cout << "\tDeps: " << deps << "\n";
+    cout << "\tMaintainer: " << data_package.maintainer << "\n";
+}
+
 package parse_file(const string& metadata)
 {
     fstream input(metadata);
@@ -46,16 +63,5 @@ package parse_file(const string& metadata)
     return data_package;
 }
 
-void show_metadata(const package& data_package)
-{
-    cout << "Data of package: \n";
-    cout << "\tName: " << data_package.name << "\n";
-    cout << "\tVersion: " << data_package.version << "\n";
-    cout << "\tDescription: " << data_package.description << "\n";
-    cout << "\tLicense: " << data_package.license << "\n";
-    cout << "\tArch: " << data_package.architecture << "\n";
-    cout << "\tDeps: " << deps << "\n";
-    cout << "\tMaintainer: " << data_package.maintainer << "\n";
-}
 }
 

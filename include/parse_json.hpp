@@ -11,8 +11,8 @@ using namespace utils;
 
 namespace parse_json
 {
+void parse_file(const package& data_package);
 package parse_file(const string& metadata);
-void parse_file(const utils& data_package);
 }
 
 #endif
