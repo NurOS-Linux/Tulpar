@@ -1,1 +1,1 @@
-![Alt text](./Tulpar.png)
+git.nuros.org/nuroa/tulpar.git
