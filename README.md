@@ -1,1 +1,1 @@
-git.nuros.org/nuroa/tulpar.git
+git.nuros.org/nuros/tulpar.git
