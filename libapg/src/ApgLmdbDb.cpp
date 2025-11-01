@@ -1,7 +1,7 @@
 // NurOS Ruzen42 2025
 #include <utility>
 
-#include "apg/ApgLmdbDb.hpp"
+#include "Apg/ApgLmdbDb.hpp"
 
 LmdbDb::LmdbDb(std::string path, const std::size_t mapSize, const unsigned int maxDbs, const int envFlags)
     : m_path(std::move(path)), m_mapSize(mapSize), m_maxDbs(maxDbs), m_envFlags(envFlags)

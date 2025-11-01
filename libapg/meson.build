@@ -13,23 +13,28 @@ cpp = meson.get_compiler('cpp')
 
 nlohmann_json_dep = dependency('nlohmann_json', required: true)
 lmdb_dep = dependency('lmdb', required: true)
+libarchive_dep = dependency('libarchive', required: true)
 
 include_dirs = include_directories('include')
 
 sources = files([
                     'src/ApgPackage.cpp',
-                    'src/ApgLmdbDb.cpp'
+                    'src/ApgLmdbDb.cpp',
+                    'src/ApgArchiver.cpp',
+                    'src/Logger.cpp'
                 ])
 
 headers = files([
-                    'include/apg_package/ApgPackage.hpp',
-                    'include/apg_package/ApgLmdbDb.hpp'
+                    'include/Apg/ApgPackage.hpp',
+                    'include/Apg/Logger.hpp',
+                    'include/Apg/ApgArchiver.hpp',
+                    'include/Apg/ApgLmdbDb.hpp'
                 ])
 
 apg_package_lib = library('apg',
                           sources: [sources, headers],
                           include_directories: include_dirs,
-                          dependencies: [nlohmann_json_dep, lmdb_dep],
+                          dependencies: [nlohmann_json_dep, lmdb_dep, libarchive_dep],
                           install: true,
                           version: meson.project_version()
 )

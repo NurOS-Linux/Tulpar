@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <nlohmann/json.hpp>
-#include "apg/ApgLmdbDb.hpp"
+#include "Apg/ApgLmdbDb.hpp"
 
 struct PackageMetadata
 {
@@ -75,13 +75,13 @@ public:
     void setLicense(const std::string& newLic);
     void setHomepage(const std::string& newHome);
 
-    bool WriteToDb(const LmdbDb& db) const;
+    [[nodiscard]] bool WriteToDb(const LmdbDb& db) const;
     static std::vector<ApgPackage> LoadAllFromDb(const LmdbDb& db);
     static std::optional<ApgPackage> LoadFromDb(const LmdbDb& db, const std::string& name);
-    bool RemoveFromDb(const LmdbDb &db) const;
+    [[nodiscard]] bool RemoveFromDb(const LmdbDb &db) const;
     [[nodiscard]] bool Install() const;
 
-    [[nodiscard]] bool Remove() const;
+    [[nodiscard]] static bool Remove(std::string packageName);
 };
 
 #endif // APG_PACKAGE_HPP

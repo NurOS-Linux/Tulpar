@@ -1,9 +1,13 @@
 // NurOS Ruzen42 2025
-#include "apg/ApgPackage.hpp"
+#include "Apg/ApgPackage.hpp"
+
+#include <fstream>
 #include <sstream>
 #include <utility>
 
-#include "apg/ApgLmdbDb.hpp"
+#include "Apg/ApgArchiver.hpp"
+#include "Apg/ApgLmdbDb.hpp"
+#include "Apg/Logger.hpp"
 
 using nlohmann::json;
 
@@ -19,8 +23,8 @@ ApgPackage::ApgPackage(
     std::vector<std::string> conflicts,
     std::vector<std::string> provides,
     std::vector<std::string> replaces,
-    const bool installedByHand,
-    std::filesystem::path path
+    std::filesystem::path path,
+    bool installedByHand
 )
     : metadata
     {
@@ -38,6 +42,29 @@ ApgPackage::ApgPackage(
     },
     installedByHand(installedByHand),
     path(std::move(path))
+{
+}
+
+ApgPackage::ApgPackage(std::string name, std::string version, std::string architecture, std::string description,
+    std::string maintainer, std::string license, std::string homepage, std::vector<std::string> dependencies,
+    std::vector<std::string> conflicts, std::vector<std::string> provides, std::vector<std::string> replaces,
+    const bool installedByHand, std::filesystem::path path)
+: metadata
+{
+    std::move(name),
+    std::move(version),
+    std::move(architecture),
+    std::move(description),
+    std::move(maintainer),
+    std::move(license),
+    std::move(homepage),
+    std::move(dependencies),
+    std::move(conflicts),
+    std::move(provides),
+    std::move(replaces)
+},
+installedByHand(installedByHand),
+path(std::move(path))
 {
 }
 
@@ -149,13 +176,26 @@ bool ApgPackage::RemoveFromDb(const LmdbDb& db) const
 
 bool ApgPackage::Install() const
 {
+    try
+    {
+        Logger::LogInfo("Installing " + path.string());
+        auto pathToPkg = "/tmp/apg/" + path.filename().string();
+        ApgArchiver::Extract(path, pathToPkg);
+        std::ifstream file(pathToPkg + "metadata.json");
+        auto jsonData = json::parse(file);
 
+    }
+    catch (...)
+    {
+        return false;
+    }
     return true;
 }
 
-bool ApgPackage::Remove() const
+bool ApgPackage::Remove(std::string packageName)
 {
-
+    // TODO
+    return true;
 }
 
 

@@ -1,7 +1,8 @@
 // NurOS Ruzen42 2025
-#include "apg/ApgArchiver.hpp"
-#include "archive.h"
-#include "archive_entry.h"
+#include <archive.h>
+#include <archive_entry.h>
+
+#include "Apg/ApgArchiver.hpp"
 
 bool ApgArchiver::Extract(const std::string &path, const std::string &destDir)
 {
