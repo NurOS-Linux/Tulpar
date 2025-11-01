@@ -6,7 +6,7 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 
-class ApgPackage
+struct PackageMetadata
 {
     std::string name;
     std::string version;
@@ -19,6 +19,12 @@ class ApgPackage
     std::vector<std::string> conflicts;
     std::vector<std::string> provides;
     std::vector<std::string> replaces;
+};
+
+class ApgPackage
+{
+    PackageMetadata metadata;
+    bool installedByHand{};
 
 public:
     ApgPackage() = default;
@@ -34,24 +40,25 @@ public:
         std::vector<std::string> dependencies = {},
         std::vector<std::string> conflicts = {},
         std::vector<std::string> provides = {},
-        std::vector<std::string> replaces = {}
+        std::vector<std::string> replaces = {},
+        bool installedByHand = true
     );
 
     void fromJson(const nlohmann::json &j);
-    nlohmann::json toJson() const;
-    std::string toString() const;
+    [[nodiscard]] nlohmann::json toJson() const;
+    [[nodiscard]] std::string toString() const;
 
-    const std::string& getName() const;
-    const std::string& getVersion() const;
-    const std::string& getArchitecture() const;
-    const std::string& getDescription() const;
-    const std::string& getMaintainer() const;
-    const std::string& getLicense() const;
-    const std::string& getHomepage() const;
-    const std::vector<std::string>& getDependencies() const;
-    const std::vector<std::string>& getConflicts() const;
-    const std::vector<std::string>& getProvides() const;
-    const std::vector<std::string>& getReplaces() const;
+    // Metadata accessors
+    [[nodiscard]] const PackageMetadata& getMetadata() const;
+    void setMetadata(const PackageMetadata& newMetadata);
+
+    [[nodiscard]] const std::string& getName() const;
+    [[nodiscard]] const std::string& getVersion() const;
+    [[nodiscard]] const std::string& getArchitecture() const;
+    [[nodiscard]] const std::string& getDescription() const;
+    [[nodiscard]] const std::string& getMaintainer() const;
+    [[nodiscard]] const std::string& getLicense() const;
+    [[nodiscard]] const std::string& getHomepage() const;
 
     void setName(const std::string& newName);
     void setVersion(const std::string& newVersion);
@@ -60,6 +67,12 @@ public:
     void setMaintainer(const std::string& newMaintainer);
     void setLicense(const std::string& newLicense);
     void setHomepage(const std::string& newHomepage);
+
+    [[nodiscard]] const std::vector<std::string>& getDependencies() const;
+    [[nodiscard]] const std::vector<std::string>& getConflicts() const;
+    [[nodiscard]] const std::vector<std::string>& getProvides() const;
+    [[nodiscard]] const std::vector<std::string>& getReplaces() const;
+
     void setDependencies(const std::vector<std::string>& newDeps);
     void setConflicts(const std::vector<std::string>& newConflicts);
     void setProvides(const std::vector<std::string>& newProvides);
@@ -70,15 +83,18 @@ public:
     void addProvide(const std::string& provide);
     void addReplace(const std::string& replace);
 
-    bool hasDependencies() const;
-    bool hasConflicts() const;
-    bool hasProvides() const;
-    bool hasReplaces() const;
+    [[nodiscard]] bool hasDependencies() const;
+    [[nodiscard]] bool hasConflicts() const;
+    [[nodiscard]] bool hasProvides() const;
+    [[nodiscard]] bool hasReplaces() const;
 
     void clearDependencies();
     void clearConflicts();
     void clearProvides();
     void clearReplaces();
+
+    [[nodiscard]] bool isInstalledByHand() const;
+    void setInstalledByHand(bool installed);
 
 private:
     static std::string vectorToString(const std::vector<std::string>& vec);
