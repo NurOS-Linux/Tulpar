@@ -11,7 +11,7 @@
 class LmdbDb
 {
 public:
-    explicit LmdbDb(const std::string &path,
+    explicit LmdbDb(std::string path,
                     std::size_t mapSize = 10485760,
                     unsigned int maxDbs = 1,
                     int envFlags = 0);

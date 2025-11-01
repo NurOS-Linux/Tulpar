@@ -1,8 +1,10 @@
 // NurOS Ruzen42 2025
-#include "apg_package/ApgLmdbDb.hpp"
+#include <utility>
 
-LmdbDb::LmdbDb(const std::string &path, std::size_t mapSize, unsigned int maxDbs, int envFlags)
-    : m_path(path), m_mapSize(mapSize), m_maxDbs(maxDbs), m_envFlags(envFlags)
+#include "apg/ApgLmdbDb.hpp"
+
+LmdbDb::LmdbDb(std::string path, const std::size_t mapSize, const unsigned int maxDbs, const int envFlags)
+    : m_path(std::move(path)), m_mapSize(mapSize), m_maxDbs(maxDbs), m_envFlags(envFlags)
 {
     m_env = std::make_unique<lmdb::env>(lmdb::env::create());
     m_env->set_mapsize(m_mapSize);
@@ -35,8 +37,7 @@ bool LmdbDb::put(const std::string &key, const std::string &value, const bool ov
         }
         else
         {
-            std::string_view val;
-            if (!m_dbi->get(txn, key, val))
+            if (std::string_view val; !m_dbi->get(txn, key, val))
             {
                 m_dbi->put(txn, key, value);
             }

@@ -1,9 +1,9 @@
 // NurOS Ruzen42 2025
-#include "apg_package/ApgPackage.hpp"
+#include "apg/ApgPackage.hpp"
 #include <sstream>
 #include <utility>
 
-#include "apg_package/ApgLmdbDb.hpp"
+#include "apg/ApgLmdbDb.hpp"
 
 using nlohmann::json;
 
@@ -102,7 +102,7 @@ void ApgPackage::setMaintainer(const std::string& newMain) { metadata.maintainer
 void ApgPackage::setLicense(const std::string& newLic) { metadata.license = newLic; }
 void ApgPackage::setHomepage(const std::string& newHome) { metadata.homepage = newHome; }
 
-bool ApgPackage::WriteToDb(LmdbDb& db) const
+bool ApgPackage::WriteToDb(const LmdbDb& db) const
 {
     const std::string key = metadata.name;
     const std::string value = toJson().dump();
@@ -126,7 +126,7 @@ std::vector<ApgPackage> ApgPackage::LoadAllFromDb(const LmdbDb& db)
     return result;
 }
 
-std::optional<ApgPackage> ApgPackage::LoadFromDb(LmdbDb& db, const std::string& name)
+std::optional<ApgPackage> ApgPackage::LoadFromDb(const LmdbDb& db, const std::string& name)
 {
     auto value = db.get(name);
     if (!value.has_value()) return std::nullopt;
@@ -136,20 +136,26 @@ std::optional<ApgPackage> ApgPackage::LoadFromDb(LmdbDb& db, const std::string& 
         ApgPackage pkg;
         pkg.fromJson(j);
         return pkg;
-    } catch (...) {
+    } catch (...)
+    {
         return std::nullopt;
     }
 }
 
-bool ApgPackage::RemoveFromDb(LmdbDb& db) const
+bool ApgPackage::RemoveFromDb(const LmdbDb& db) const
 {
     return db.del(metadata.name);
 }
 
-bool ApgPackage::Install() const {
+bool ApgPackage::Install() const
+{
+
     return true;
 }
 
-bool ApgPackage::Remove() const {
-    return true;
+bool ApgPackage::Remove() const
+{
+
 }
+
+
