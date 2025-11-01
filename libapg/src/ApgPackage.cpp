@@ -95,7 +95,6 @@ json ApgPackage::toJson() const
 {
     return
 {
-        {"name", metadata.name},
         {"version", metadata.version},
         {"architecture", metadata.architecture},
         {"description", metadata.description},
@@ -265,7 +264,11 @@ bool ApgPackage::Install(LmdbDb db, const std::string& root = "/")
         std::ifstream file(pathToPkg + "/metadata.json");
         auto jsonData = json::parse(file);
         fromJson(jsonData);
-        Md5Hash::VerifyPackageIntegrity(pathToPkg + "/md5sums", pathToPkg + "/data");
+        if (!Md5Hash::VerifyPackageIntegrity(pathToPkg + "/md5sums", pathToPkg + "/data"))
+        {
+            Logger::LogError("Files are corrupted");
+            return false;
+        }
         AddFilesFromDirectory(files, pathToPkg + "/data");
         CopyPackageFilesToRoot(pathToPkg + "/data", root);
         WriteToDb(db);
