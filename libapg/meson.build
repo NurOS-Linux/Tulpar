@@ -14,6 +14,7 @@ cpp = meson.get_compiler('cpp')
 nlohmann_json_dep = dependency('nlohmann_json', required: true)
 lmdb_dep = dependency('lmdb', required: true)
 libarchive_dep = dependency('libarchive', required: true)
+openssl_dep = dependency('openssl', required: true)
 
 include_dirs = include_directories('include')
 
@@ -34,7 +35,7 @@ headers = files([
 apg_package_lib = library('apg',
                           sources: [sources, headers],
                           include_directories: include_dirs,
-                          dependencies: [nlohmann_json_dep, lmdb_dep, libarchive_dep],
+                          dependencies: [nlohmann_json_dep, lmdb_dep, libarchive_dep, openssl_dep],
                           install: true,
                           version: meson.project_version()
 )

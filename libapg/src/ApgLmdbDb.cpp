@@ -3,43 +3,46 @@
 
 #include "Apg/ApgLmdbDb.hpp"
 
-LmdbDb::LmdbDb(std::string path, const std::size_t mapSize, const unsigned int maxDbs, const int envFlags)
-    : m_path(std::move(path)), m_mapSize(mapSize), m_maxDbs(maxDbs), m_envFlags(envFlags)
-{
-    m_env = std::make_unique<lmdb::env>(lmdb::env::create());
-    m_env->set_mapsize(m_mapSize);
-    m_env->set_max_dbs(m_maxDbs);
-    m_env->open(m_path.c_str(), m_envFlags, 0664);
+#include "Apg/Logger.hpp"
 
-    auto txn = lmdb::txn::begin(*m_env);
-    m_dbi = std::make_unique<lmdb::dbi>(lmdb::dbi::open(txn, nullptr, MDB_CREATE));
+LmdbDb::LmdbDb(std::string path, const std::size_t mapSize, const unsigned int maxDbs, const int envFlags)
+    : MPath(std::move(path)), MMapSize(mapSize), MMaxDbs(maxDbs), MEnvFlags(envFlags)
+{
+    MEnv = std::make_unique<lmdb::env>(lmdb::env::create());
+    MEnv->set_mapsize(MMapSize);
+    MEnv->set_max_dbs(MMaxDbs);
+    MEnv->open(MPath.c_str(), MEnvFlags, 0664);
+
+    auto txn = lmdb::txn::begin(*MEnv);
+    MDbi = std::make_unique<lmdb::dbi>(lmdb::dbi::open(txn, nullptr, MDB_CREATE));
     txn.commit();
 }
 
-void LmdbDb::close()
+void LmdbDb::Close()
 {
-    if (m_env)
+    if (MEnv)
     {
-        m_env->close();
-        m_env.reset();
-        m_dbi.reset();
+        MEnv->close();
+        MEnv.reset();
+        MDbi.reset();
     }
+    Logger::LogDebug("Database closed");
 }
 
-bool LmdbDb::put(const std::string &key, const std::string &value, const bool overwrite) const
+bool LmdbDb::Put(const std::string &key, const std::string &value, const bool overwrite) const
 {
-    auto txn = lmdb::txn::begin(*m_env);
+    auto txn = lmdb::txn::begin(*MEnv);
     try
     {
         if (overwrite)
         {
-            m_dbi->put(txn, key, value);
+            MDbi->put(txn, key, value);
         }
         else
         {
-            if (std::string_view val; !m_dbi->get(txn, key, val))
+            if (std::string_view val; !MDbi->get(txn, key, val))
             {
-                m_dbi->put(txn, key, value);
+                MDbi->put(txn, key, value);
             }
         }
         txn.commit();
@@ -52,11 +55,11 @@ bool LmdbDb::put(const std::string &key, const std::string &value, const bool ov
     }
 }
 
-std::optional<std::string> LmdbDb::get(const std::string &key) const
+std::optional<std::string> LmdbDb::Get(const std::string &key) const
 {
-    auto txn = lmdb::txn::begin(*m_env, nullptr, MDB_RDONLY);
+    auto txn = lmdb::txn::begin(*MEnv, nullptr, MDB_RDONLY);
     std::string_view value;
-    const bool found = m_dbi->get(txn, key, value);
+    const bool found = MDbi->get(txn, key, value);
     txn.abort();
 
     if (!found)
@@ -67,13 +70,13 @@ std::optional<std::string> LmdbDb::get(const std::string &key) const
     return std::string(value);
 }
 
-bool LmdbDb::del(const std::string &key) const
+bool LmdbDb::Delete(const std::string &key) const
 {
-    auto txn = lmdb::txn::begin(*m_env);
+    auto txn = lmdb::txn::begin(*MEnv);
     bool success = false;
     try
     {
-        success = m_dbi->del(txn, key);
+        success = MDbi->del(txn, key);
         txn.commit();
     }
     catch (...)
@@ -87,8 +90,8 @@ bool LmdbDb::del(const std::string &key) const
 std::vector<std::string> LmdbDb::keys() const
 {
     std::vector<std::string> result;
-    auto txn = lmdb::txn::begin(*m_env, nullptr, MDB_RDONLY);
-    auto cursor = lmdb::cursor::open(txn, *m_dbi);
+    auto txn = lmdb::txn::begin(*MEnv, nullptr, MDB_RDONLY);
+    auto cursor = lmdb::cursor::open(txn, *MDbi);
 
     std::string_view key, value;
     while (cursor.get(key, value, MDB_NEXT))
@@ -104,8 +107,8 @@ std::vector<std::string> LmdbDb::keys() const
 std::vector<std::pair<std::string, std::string>> LmdbDb::entries() const
 {
     std::vector<std::pair<std::string, std::string>> result;
-    auto txn = lmdb::txn::begin(*m_env, nullptr, MDB_RDONLY);
-    auto cursor = lmdb::cursor::open(txn, *m_dbi);
+    auto txn = lmdb::txn::begin(*MEnv, nullptr, MDB_RDONLY);
+    auto cursor = lmdb::cursor::open(txn, *MDbi);
 
     std::string_view key, value;
     while (cursor.get(key, value, MDB_NEXT))

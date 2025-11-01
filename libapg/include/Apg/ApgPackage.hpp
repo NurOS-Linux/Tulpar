@@ -27,6 +27,7 @@ class ApgPackage
     PackageMetadata metadata;
     bool installedByHand{};
     std::filesystem::path path;
+    std::vector<std::filesystem::path> files;
 
 public:
     ApgPackage() = default;
@@ -51,7 +52,7 @@ public:
                std::string maintainer, std::string license, std::string homepage, std::vector<std::string> dependencies,
                std::vector<std::string> conflicts, std::vector<std::string> provides, std::vector<std::string> replaces,
                bool installedByHand, std::filesystem::path path);
-
+    ApgPackage(const std::filesystem::path &path, bool installedByHand);
     void fromJson(const nlohmann::json &j);
     [[nodiscard]] nlohmann::json toJson() const;
     [[nodiscard]] std::string toString() const;
@@ -75,13 +76,13 @@ public:
     void setLicense(const std::string& newLic);
     void setHomepage(const std::string& newHome);
 
-    [[nodiscard]] bool WriteToDb(const LmdbDb& db) const;
+    void WriteToDb(const LmdbDb &db) const;
     static std::vector<ApgPackage> LoadAllFromDb(const LmdbDb& db);
     static std::optional<ApgPackage> LoadFromDb(const LmdbDb& db, const std::string& name);
-    [[nodiscard]] bool RemoveFromDb(const LmdbDb &db) const;
-    [[nodiscard]] bool Install() const;
+    bool RemoveFromDb(const LmdbDb &db) const;
+    bool Install(LmdbDb db, const std::string &root);
 
-    [[nodiscard]] static bool Remove(std::string packageName);
+    static bool Remove(std::string packageName);
 };
 
 #endif // APG_PACKAGE_HPP

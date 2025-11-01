@@ -11,27 +11,27 @@
 class LmdbDb
 {
 public:
-    explicit LmdbDb(std::string path,
+    LmdbDb(std::string path,
                     std::size_t mapSize = 10485760,
                     unsigned int maxDbs = 1,
                     int envFlags = 0);
 
-    void close();
+    void Close();
 
-    [[nodiscard]] bool put(const std::string &key, const std::string &value, bool overwrite = true) const;
-    [[nodiscard]] std::optional<std::string> get(const std::string &key) const;
-    [[nodiscard]] bool del(const std::string &key) const;
+    bool Put(const std::string &key, const std::string &value, bool overwrite = true) const;
+    std::optional<std::string> Get(const std::string &key) const;
+    bool Delete(const std::string &key) const;
 
     [[nodiscard]] std::vector<std::string> keys() const;
     [[nodiscard]] std::vector<std::pair<std::string, std::string>> entries() const;
 
 private:
-    std::string m_path;
-    std::size_t m_mapSize;
-    unsigned int m_maxDbs;
-    int m_envFlags;
+    std::string MPath;
+    std::size_t MMapSize;
+    unsigned int MMaxDbs;
+    int MEnvFlags;
 
-    std::unique_ptr<lmdb::env> m_env;
-    std::unique_ptr<lmdb::dbi> m_dbi;
+    std::unique_ptr<lmdb::env> MEnv;
+    std::unique_ptr<lmdb::dbi> MDbi;
 };
 #endif // APG_LMDB_DB_HPP

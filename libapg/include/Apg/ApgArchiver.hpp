@@ -3,7 +3,6 @@
 #define LIBAPG_APGARCHIVER_HPP
 
 #pragma once
-#include <filesystem>
 #include <string>
 
 class ApgArchiver

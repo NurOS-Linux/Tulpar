@@ -10,6 +10,7 @@
 #include "Apg/Logger.hpp"
 
 using nlohmann::json;
+namespace fs = std::filesystem;
 
 ApgPackage::ApgPackage(
     std::string name,
@@ -68,7 +69,13 @@ path(std::move(path))
 {
 }
 
-void ApgPackage::fromJson(const json& j)
+ApgPackage::ApgPackage(const std::filesystem::path &path, const bool installedByHand)
+{
+    this->path = path;
+    this->installedByHand = installedByHand;
+}
+
+void ApgPackage::fromJson(const json &j)
 {
     metadata.name          = j.value("name", "");
     metadata.version       = j.value("version", "");
@@ -97,7 +104,8 @@ json ApgPackage::toJson() const
         {"dependencies", metadata.dependencies},
         {"conflicts", metadata.conflicts},
         {"provides", metadata.provides},
-        {"replaces", metadata.replaces}
+        {"replaces", metadata.replaces},
+        {"files", files}
     };
 }
 
@@ -129,11 +137,11 @@ void ApgPackage::setMaintainer(const std::string& newMain) { metadata.maintainer
 void ApgPackage::setLicense(const std::string& newLic) { metadata.license = newLic; }
 void ApgPackage::setHomepage(const std::string& newHome) { metadata.homepage = newHome; }
 
-bool ApgPackage::WriteToDb(const LmdbDb& db) const
+void ApgPackage::WriteToDb(const LmdbDb &db) const
 {
     const std::string key = metadata.name;
     const std::string value = toJson().dump();
-    return db.put(key, value, true);
+    db.Put(key, value, true);
 }
 
 std::vector<ApgPackage> ApgPackage::LoadAllFromDb(const LmdbDb& db)
@@ -155,15 +163,17 @@ std::vector<ApgPackage> ApgPackage::LoadAllFromDb(const LmdbDb& db)
 
 std::optional<ApgPackage> ApgPackage::LoadFromDb(const LmdbDb& db, const std::string& name)
 {
-    auto value = db.get(name);
+    auto value = db.Get(name);
     if (!value.has_value()) return std::nullopt;
 
-    try {
+    try
+    {
         const json j = json::parse(value.value());
         ApgPackage pkg;
         pkg.fromJson(j);
         return pkg;
-    } catch (...)
+    }
+    catch (...)
     {
         return std::nullopt;
     }
@@ -171,31 +181,108 @@ std::optional<ApgPackage> ApgPackage::LoadFromDb(const LmdbDb& db, const std::st
 
 bool ApgPackage::RemoveFromDb(const LmdbDb& db) const
 {
-    return db.del(metadata.name);
+    return db.Delete(metadata.name);
 }
 
-bool ApgPackage::Install() const
+bool AddFilesFromDirectory(std::vector<fs::path> &files, const fs::path &directory)
 {
     try
     {
-        Logger::LogInfo("Installing " + path.string());
-        auto pathToPkg = "/tmp/apg/" + path.filename().string();
-        ApgArchiver::Extract(path, pathToPkg);
-        std::ifstream file(pathToPkg + "metadata.json");
-        auto jsonData = json::parse(file);
+        if (!fs::exists(directory) || !fs::is_directory(directory))
+        {
+            return false;
+        }
 
+        for ( const auto& entry : fs::recursive_directory_iterator(directory))
+        {
+            if (entry.is_regular_file())
+            {
+                fs::path relativePath = fs::relative(entry.path(), directory);
+                files.push_back(relativePath);
+            }
+        }
+        return true;
+
+    }
+    catch (const fs::filesystem_error&)
+    {
+        return false;
+    }
+}
+
+bool CopyPackageFilesToRoot(const fs::path& sourceDir, const fs::path& destRoot = "/")
+{
+    try
+    {
+        const fs::path dataDir = sourceDir / "data";
+
+        if (!fs::exists(dataDir) || !fs::is_directory(dataDir))
+        {
+            Logger::LogError("Data directory not found: " + dataDir.string());
+            return false;
+        }
+
+        unsigned int copiedCount = 0;
+
+        for (const auto& entry : fs::recursive_directory_iterator(dataDir))
+        {
+            if (entry.is_regular_file())
+            {
+                const fs::path& sourceFile = entry.path();
+                const fs::path relativePath = fs::relative(sourceFile, dataDir);
+                const fs::path destFile = destRoot / relativePath;
+
+                if (const fs::path destParent = destFile.parent_path(); !fs::exists(destParent))
+                {
+                    fs::create_directories(destParent);
+                }
+
+                fs::copy_file(sourceFile, destFile, fs::copy_options::overwrite_existing);
+                copiedCount++;
+
+                Logger::LogDebug("Copied: " + relativePath.string());
+            }
+        }
+
+        Logger::LogInfo("Successfully copied " + std::to_string(copiedCount) + " files to root");
+        return true;
+
+    } catch (const fs::filesystem_error& e) {
+        Logger::LogError("Failed to copy package files: " + std::string(e.what()));
+        return false;
+    }
+}
+
+bool ApgPackage::Install(LmdbDb db, const std::string& root = "/")
+{
+    try
+    {
+        Logger::LogInfo("Installing: " + path.string());
+        const auto pathToPkg = "/tmp/apg/" + path.filename().string();
+        Logger::LogDebug("Extracting apg: " + path.string());
+        ApgArchiver::Extract(path, pathToPkg);
+        std::ifstream file(pathToPkg + "/metadata.json");
+        auto jsonData = json::parse(file);
+        fromJson(jsonData);
+        AddFilesFromDirectory(files, pathToPkg + "/data");
+        CopyPackageFilesToRoot(pathToPkg + "/data", root);
+        WriteToDb(db);
+        return true;
     }
     catch (...)
     {
         return false;
     }
-    return true;
 }
+
+
 
 bool ApgPackage::Remove(std::string packageName)
 {
     // TODO
     return true;
 }
+
+
 
 
