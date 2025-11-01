@@ -1,4 +1,4 @@
-project('apginstall', 'cpp',
+project('apglist', 'cpp',
         version : '0.1.0',
         default_options : [
             'warning_level=3',
@@ -8,8 +8,7 @@ project('apginstall', 'cpp',
 )
 
 apg_dep = dependency('libapg', required: true)
-nlohmann_json_dep = dependency('nlohmann_json', required: true)
 
-exe = executable('apginstall', 'main.cpp',
-                 dependencies: [apg_dep, nlohmann_json_dep],
+exe = executable('apglist', 'src/main.cpp',
+                 dependencies: [apg_dep],
                  install : true)
