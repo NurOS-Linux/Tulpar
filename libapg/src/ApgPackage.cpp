@@ -1,7 +1,8 @@
 // NurOS Ruzen42 2025
 #include "apg_package/ApgPackage.hpp"
-
 #include <sstream>
+
+#include "apg_package/ApgLmdbDb.hpp"
 
 using nlohmann::json;
 
@@ -19,7 +20,8 @@ ApgPackage::ApgPackage(
     std::vector<std::string> replaces,
     bool installedByHand
 )
-    : metadata{
+    : metadata
+    {
         std::move(name),
         std::move(version),
         std::move(architecture),
@@ -53,7 +55,8 @@ void ApgPackage::fromJson(const json& j)
 
 json ApgPackage::toJson() const
 {
-    return {
+    return
+{
         {"name", metadata.name},
         {"version", metadata.version},
         {"architecture", metadata.architecture},
@@ -77,15 +80,8 @@ std::string ApgPackage::toString() const
     return out.str();
 }
 
-const PackageMetadata& ApgPackage::getMetadata() const
-{
-    return metadata;
-}
-
-void ApgPackage::setMetadata(const PackageMetadata& newMetadata)
-{
-    metadata = newMetadata;
-}
+const PackageMetadata& ApgPackage::getMetadata() const { return metadata; }
+void ApgPackage::setMetadata(const PackageMetadata& newMetadata) { metadata = newMetadata; }
 
 const std::string& ApgPackage::getName() const { return metadata.name; }
 const std::string& ApgPackage::getVersion() const { return metadata.version; }
@@ -99,6 +95,30 @@ void ApgPackage::setName(const std::string& newName) { metadata.name = newName; 
 void ApgPackage::setVersion(const std::string& newVersion) { metadata.version = newVersion; }
 void ApgPackage::setArchitecture(const std::string& newArch) { metadata.architecture = newArch; }
 void ApgPackage::setDescription(const std::string& newDesc) { metadata.description = newDesc; }
-void ApgPackage::setMaintainer(const std::string& newMaint) { metadata.maintainer = newMaint; }
+void ApgPackage::setMaintainer(const std::string& newMain) { metadata.maintainer = newMain; }
 void ApgPackage::setLicense(const std::string& newLic) { metadata.license = newLic; }
 void ApgPackage::setHomepage(const std::string& newHome) { metadata.homepage = newHome; }
+
+bool ApgPackage::WriteToDb(LmdbDb& db) const
+{
+    const std::string key = metadata.name;
+    const std::string value = toJson().dump();
+    return db.put(key, value, true);
+}
+
+std::vector<ApgPackage> ApgPackage::LoadAllFromDb(const LmdbDb& db)
+{
+    std::vector<ApgPackage> result;
+    for (const auto& [key, value] : db.entries())
+    {
+        try
+        {
+            json j = json::parse(value);
+            ApgPackage pkg;
+            pkg.fromJson(j);
+            result.push_back(std::move(pkg));
+        }
+        catch (...) { /* ignore */ }
+    }
+    return result;
+}

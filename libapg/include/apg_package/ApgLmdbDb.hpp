@@ -14,33 +14,33 @@ public:
     using WriteTxnFn = std::function<void(lmdb::txn&, const lmdb::dbi&)>;
 
     LmdbDb() = delete;
-    LmdbDb(const std::string& path, std::size_t mapSize = 1ULL << 30, unsigned int maxDbs = 16, int envFlags = 0);
+    explicit LmdbDb(const std::string& path, std::size_t mapSize = 1ULL << 30, unsigned int maxDbs = 16, int envFlags = 0);
     ~LmdbDb();
 
     void open();
     void close();
 
-    void createDatabase(const std::string& name, unsigned int dbFlags = 0);
+    void createDatabase(const std::string& name, unsigned int dbFlags = 0) const;
     bool openDatabase(const std::string& name);
-    void removeDatabase(const std::string& name);
+    void removeDatabase(const std::string& name) const;
 
     bool put(const std::string& key, const std::string& value, bool overwrite = true);
-    std::optional<std::string> get(const std::string& key) const;
+    [[nodiscard]] std::optional<std::string> get(const std::string& key) const;
     bool del(const std::string& key);
 
-    bool contains(const std::string& key) const;
-    std::vector<std::string> keys() const;
-    std::vector<std::pair<std::string, std::string>> entries() const;
+    [[nodiscard]] bool contains(const std::string& key) const;
+    [[nodiscard]] std::vector<std::string> keys() const;
+    [[nodiscard]] std::vector<std::pair<std::string, std::string>> entries() const;
 
     void withReadTxn(const ReadTxnFn& fn) const;
-    void withWriteTxn(const WriteTxnFn& fn);
+    void withWriteTxn(const WriteTxnFn& fn) const;
 
     void sync(bool force = false);
 
-    const std::string& path() const noexcept;
-    std::size_t mapSize() const noexcept;
-    unsigned int maxDbs() const noexcept;
-    bool isOpen() const noexcept;
+    [[nodiscard]] const std::string& path() const noexcept;
+    [[nodiscard]] std::size_t mapSize() const noexcept;
+    [[nodiscard]] unsigned int maxDbs() const noexcept;
+    [[nodiscard]] bool isOpen() const noexcept;
 
 private:
     void ensureOpen() const;

@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <nlohmann/json.hpp>
+#include "apg_package/ApgLmdbDb.hpp"
 
 struct PackageMetadata
 {
@@ -48,7 +49,6 @@ public:
     [[nodiscard]] nlohmann::json toJson() const;
     [[nodiscard]] std::string toString() const;
 
-    // Metadata accessors
     [[nodiscard]] const PackageMetadata& getMetadata() const;
     void setMetadata(const PackageMetadata& newMetadata);
 
@@ -64,40 +64,12 @@ public:
     void setVersion(const std::string& newVersion);
     void setArchitecture(const std::string& newArch);
     void setDescription(const std::string& newDesc);
-    void setMaintainer(const std::string& newMaintainer);
-    void setLicense(const std::string& newLicense);
-    void setHomepage(const std::string& newHomepage);
+    void setMaintainer(const std::string& newMain);
+    void setLicense(const std::string& newLic);
+    void setHomepage(const std::string& newHome);
 
-    [[nodiscard]] const std::vector<std::string>& getDependencies() const;
-    [[nodiscard]] const std::vector<std::string>& getConflicts() const;
-    [[nodiscard]] const std::vector<std::string>& getProvides() const;
-    [[nodiscard]] const std::vector<std::string>& getReplaces() const;
-
-    void setDependencies(const std::vector<std::string>& newDeps);
-    void setConflicts(const std::vector<std::string>& newConflicts);
-    void setProvides(const std::vector<std::string>& newProvides);
-    void setReplaces(const std::vector<std::string>& newReplaces);
-
-    void addDependency(const std::string& dep);
-    void addConflict(const std::string& conflict);
-    void addProvide(const std::string& provide);
-    void addReplace(const std::string& replace);
-
-    [[nodiscard]] bool hasDependencies() const;
-    [[nodiscard]] bool hasConflicts() const;
-    [[nodiscard]] bool hasProvides() const;
-    [[nodiscard]] bool hasReplaces() const;
-
-    void clearDependencies();
-    void clearConflicts();
-    void clearProvides();
-    void clearReplaces();
-
-    [[nodiscard]] bool isInstalledByHand() const;
-    void setInstalledByHand(bool installed);
-
-private:
-    static std::string vectorToString(const std::vector<std::string>& vec);
+    bool WriteToDb(LmdbDb& db) const;
+    static std::vector<ApgPackage> LoadAllFromDb(const LmdbDb& db);
 };
 
-#endif
+#endif // APG_PACKAGE_HPP

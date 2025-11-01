@@ -1,3 +1,4 @@
+# NurOS Ruzen42 2025
 project('libapg', 'cpp',
         version: '0.1.0',
         default_options: [
