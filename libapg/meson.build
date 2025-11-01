@@ -11,10 +11,7 @@ project('libapg', 'cpp',
 cpp = meson.get_compiler('cpp')
 
 nlohmann_json_dep = dependency('nlohmann_json', required: true)
-
-if not nlohmann_json_dep.found()
-    nlohmann_json_dep = cpp.find_library('nlohmann_json', required: true)
-endif
+lmdb_dep = dependency('nlohmann_json', required: true)
 
 include_dirs = include_directories('include')
 
@@ -29,7 +26,7 @@ headers = files([
 apg_package_lib = library('apg',
                           sources: [sources, headers],
                           include_directories: include_dirs,
-                          dependencies: [nlohmann_json_dep],
+                          dependencies: [nlohmann_json_dep, lmdb_dep],
                           install: true,
                           version: meson.project_version()
 )
