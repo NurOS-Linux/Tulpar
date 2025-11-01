@@ -22,6 +22,7 @@ sources = files([
                     'src/ApgPackage.cpp',
                     'src/ApgLmdbDb.cpp',
                     'src/ApgArchiver.cpp',
+                    'src/Md5Hash.cpp',
                     'src/Logger.cpp'
                 ])
 
@@ -29,6 +30,7 @@ headers = files([
                     'include/Apg/ApgPackage.hpp',
                     'include/Apg/Logger.hpp',
                     'include/Apg/ApgArchiver.hpp',
+                    'include/Apg/Md5Hash.hpp',
                     'include/Apg/ApgLmdbDb.hpp'
                 ])
 

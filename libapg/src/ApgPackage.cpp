@@ -8,6 +8,7 @@
 #include "Apg/ApgArchiver.hpp"
 #include "Apg/ApgLmdbDb.hpp"
 #include "Apg/Logger.hpp"
+#include "Apg/Md5Hash.hpp"
 
 using nlohmann::json;
 namespace fs = std::filesystem;
@@ -264,6 +265,7 @@ bool ApgPackage::Install(LmdbDb db, const std::string& root = "/")
         std::ifstream file(pathToPkg + "/metadata.json");
         auto jsonData = json::parse(file);
         fromJson(jsonData);
+        Md5Hash::VerifyPackageIntegrity(pathToPkg + "/md5sums", pathToPkg + "/data");
         AddFilesFromDirectory(files, pathToPkg + "/data");
         CopyPackageFilesToRoot(pathToPkg + "/data", root);
         WriteToDb(db);
