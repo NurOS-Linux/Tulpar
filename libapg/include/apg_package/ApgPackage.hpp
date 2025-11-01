@@ -26,6 +26,7 @@ class ApgPackage
 {
     PackageMetadata metadata;
     bool installedByHand{};
+    std::filesystem::path path;
 
 public:
     ApgPackage() = default;
@@ -42,8 +43,14 @@ public:
         std::vector<std::string> conflicts = {},
         std::vector<std::string> provides = {},
         std::vector<std::string> replaces = {},
+        std::filesystem::path path = {},
         bool installedByHand = true
     );
+
+    ApgPackage(std::string name, std::string version, std::string architecture, std::string description,
+               std::string maintainer, std::string license, std::string homepage, std::vector<std::string> dependencies,
+               std::vector<std::string> conflicts, std::vector<std::string> provides, std::vector<std::string> replaces,
+               bool installedByHand, std::filesystem::path path);
 
     void fromJson(const nlohmann::json &j);
     [[nodiscard]] nlohmann::json toJson() const;
@@ -70,6 +77,10 @@ public:
 
     bool WriteToDb(LmdbDb& db) const;
     static std::vector<ApgPackage> LoadAllFromDb(const LmdbDb& db);
+    static std::optional<ApgPackage> LoadFromDb(LmdbDb& db, const std::string& name);
+    bool RemoveFromDb(LmdbDb &db) const;
+    [[nodiscard]] bool Install() const;
+    [[nodiscard]] bool Remove() const;
 };
 
 #endif // APG_PACKAGE_HPP

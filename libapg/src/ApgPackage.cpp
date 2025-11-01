@@ -1,6 +1,7 @@
 // NurOS Ruzen42 2025
 #include "apg_package/ApgPackage.hpp"
 #include <sstream>
+#include <utility>
 
 #include "apg_package/ApgLmdbDb.hpp"
 
@@ -18,7 +19,8 @@ ApgPackage::ApgPackage(
     std::vector<std::string> conflicts,
     std::vector<std::string> provides,
     std::vector<std::string> replaces,
-    bool installedByHand
+    const bool installedByHand,
+    std::filesystem::path path
 )
     : metadata
     {
@@ -34,7 +36,8 @@ ApgPackage::ApgPackage(
         std::move(provides),
         std::move(replaces)
     },
-    installedByHand(installedByHand)
+    installedByHand(installedByHand),
+    path(std::move(path))
 {
 }
 
@@ -121,4 +124,32 @@ std::vector<ApgPackage> ApgPackage::LoadAllFromDb(const LmdbDb& db)
         catch (...) { /* ignore */ }
     }
     return result;
+}
+
+std::optional<ApgPackage> ApgPackage::LoadFromDb(LmdbDb& db, const std::string& name)
+{
+    auto value = db.get(name);
+    if (!value.has_value()) return std::nullopt;
+
+    try {
+        const json j = json::parse(value.value());
+        ApgPackage pkg;
+        pkg.fromJson(j);
+        return pkg;
+    } catch (...) {
+        return std::nullopt;
+    }
+}
+
+bool ApgPackage::RemoveFromDb(LmdbDb& db) const
+{
+    return db.del(metadata.name);
+}
+
+bool ApgPackage::Install() const {
+    return true;
+}
+
+bool ApgPackage::Remove() const {
+    return true;
 }
