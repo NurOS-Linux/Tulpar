@@ -11,19 +11,19 @@ void Logger::Log(const LogLevel level, const std::string &log)
 	switch (level)
 	{
 		case Info:
-			std::cout << R"(e[1;32mINFO:e[0m )" << log << "\n";
+			std::cout << R"(\e[1;32mINFO:e[0m )" << log << "\n";
 			break;
 		case Debug:
-			std::cout << R"(e[1;35mDEBUG:e[0m )" << log << "\n";
+			std::cout << R"(\e[1;35mDEBUG:e[0m )" << log << "\n";
 			break;
 		case Warn:
-			std::cout << R"(e[1;33mWARN:e[0m )" << log << "\n";
+			std::cout << R"(\e[1;33mWARN:e[0m )" << log << "\n";
 			break;
 		case Error:
-			std::cout << R"(e[1;31mERROR:e[0m )" << log << "\n";
+			std::cout << R"(\e[1;31mERROR:e[0m )" << log << "\n";
 			break;
 		case Fatal:
-			std::cout << R"(e[1;31mFATAL:e[0m )" << log << "\n";
+			std::cout << R"(\e[1;31mFATAL:e[0m )" << log << "\n";
 			break;
 	}
 }
