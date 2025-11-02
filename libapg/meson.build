@@ -48,4 +48,4 @@ apg_package_dep = declare_dependency(
     dependencies: [nlohmann_json_dep]
 )
 
-install_headers(headers, subdir: 'apg_package')
+install_headers(headers, subdir: 'Apg')

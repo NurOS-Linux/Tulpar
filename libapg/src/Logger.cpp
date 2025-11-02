@@ -4,26 +4,24 @@
 
 #include "Apg/Logger.hpp"
 
-// Убрать повторное объявление класса - определяем только методы
-
 void Logger::Log(const LogLevel level, const std::string &log)
 {
 	switch (level)
 	{
 		case Info:
-			std::cout << R"(\e[1;32mINFO:e[0m )" << log << "\n";
+			std::cout << "\033[1;32mINFO:\033[0m " << log << "\n";
 			break;
 		case Debug:
-			std::cout << R"(\e[1;35mDEBUG:e[0m )" << log << "\n";
+			std::cout << "\033[1;35mDEBUG:\033[0m " << log << "\n";
 			break;
 		case Warn:
-			std::cout << R"(\e[1;33mWARN:e[0m )" << log << "\n";
+			std::cout << "\033[1;33mWARN:\033[0m " << log << "\n";
 			break;
 		case Error:
-			std::cout << R"(\e[1;31mERROR:e[0m )" << log << "\n";
+			std::cout << "\033[1;31mERROR:\033[0m " << log << "\n";
 			break;
 		case Fatal:
-			std::cout << R"(\e[1;31mFATAL:e[0m )" << log << "\n";
+			std::cout << "\033[1;31mFATAL:\033[0m " << log << "\n";
 			break;
 	}
 }

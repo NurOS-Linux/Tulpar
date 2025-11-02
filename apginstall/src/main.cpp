@@ -54,10 +54,17 @@ int main(const int argc, char **argv)
     std::vector<ApgPackage> pkgs;
     fs::path path = pkgsFilenames[0];
     pkgs.emplace_back(path, true);
-    const fs::path dbPath = "/var/lib/tulpar/local.db";
-    fs::create_directory(dbPath);
-    auto db = LmdbDb(dbPath.string());
-    pkgs[0].Install(std::move(db), root);
+    const fs::path dbPath = "/var/lib/tulpar/";
+    try
+    {
+        fs::create_directory(dbPath);
+        auto db = LmdbDb(dbPath.string() + "local.db");
+        pkgs[0].Install(std::move(db), root);
+    }
+    catch (const std::exception &err)
+    {
+        Logger::LogError("Can't create db: " + static_cast<std::string>(err.what()));
+    }
 
     return 0;
 }
