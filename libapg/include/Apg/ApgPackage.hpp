@@ -76,13 +76,13 @@ public:
     void setLicense(const std::string& newLic);
     void setHomepage(const std::string& newHome);
 
-    void WriteToDb(const LmdbDb &db) const;
-    static std::vector<ApgPackage> LoadAllFromDb(const LmdbDb& db);
-    static std::optional<ApgPackage> LoadFromDb(const LmdbDb& db, const std::string& name);
-    bool RemoveFromDb(const LmdbDb &db) const;
-    bool Install(LmdbDb db, bool checkSums, const std::string &root);
+    void WriteToDb(const ApgDb &db) const;
+    static std::vector<ApgPackage> LoadAllFromDb(const ApgDb& db);
+    static std::optional<ApgPackage> LoadFromDb(const ApgDb& db, const std::string& name);
+    bool RemoveFromDb(const ApgDb &db) const;
+    bool Install(ApgDb db, bool checkSums, const std::string &root);
 
-    static bool Remove(std::string packageName);
+    bool Remove(const ApgDb &db, const fs::path &root) const;
 };
 
 #endif // APG_PACKAGE_HPP

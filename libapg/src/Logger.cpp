@@ -1,5 +1,5 @@
 // NurOS Ruzen42 2025
-
+#define DEBUG
 #include <iostream>
 
 #include "Apg/Logger.hpp"
@@ -45,10 +45,10 @@ void Logger::Log(const LogLevel level, const std::string &log)
 			std::cout << "\033[1;33mWARN:\033[0m " << log << "\n";
 			break;
 		case Error:
-			std::cout << "\033[1;31mERROR:\033[0m " << log << "\n";
+			std::cerr << "\033[1;31mERROR:\033[0m " << log << "\n";
 			break;
 		case Fatal:
-			std::cout << "\033[1;31mFATAL:\033[0m " << log << "\n";
+			std::cerr << "\033[1;31mFATAL:\033[0m " << log << "\n";
 			break;
 	}
 }

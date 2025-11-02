@@ -6,12 +6,14 @@
 #include "Apg/ApgLmdbDb.hpp"
 #include "Apg/Logger.hpp"
 
-LmdbDb::LmdbDb(std::string path, const std::size_t mapSize, const unsigned int maxDbs, const int envFlags)
+namespace fs = std::filesystem;
+
+ApgDb::ApgDb(std::string path, const std::size_t mapSize, const unsigned int maxDbs, const int envFlags)
     : MPath(std::move(path)), MMapSize(mapSize), MMaxDbs(maxDbs), MEnvFlags(envFlags)
 {
-    if (const std::filesystem::path dbPath(MPath); !std::filesystem::exists(dbPath))
+    if (const fs::path dbPath(MPath); !fs::exists(dbPath))
     {
-        if (std::error_code ec; !std::filesystem::create_directories(dbPath, ec))
+        if (std::error_code ec; !fs::create_directories(dbPath, ec))
         {
             Logger::LogError("Failed to create database directory: " + MPath + " - " + ec.message());
             throw std::runtime_error("Failed to create database directory: " + ec.message());
@@ -29,9 +31,9 @@ LmdbDb::LmdbDb(std::string path, const std::size_t mapSize, const unsigned int m
     txn.commit();
 }
 
-LmdbDb::LmdbDb() {}
+ApgDb::ApgDb() = default;
 
-void LmdbDb::Close()
+void ApgDb::Close()
 {
     if (MEnv)
     {
@@ -42,7 +44,7 @@ void LmdbDb::Close()
     Logger::LogDebug("Database closed");
 }
 
-bool LmdbDb::Put(const std::string &key, const std::string &value, const bool overwrite) const
+bool ApgDb::Put(const std::string &key, const std::string &value, const bool overwrite) const
 {
     auto txn = lmdb::txn::begin(*MEnv);
     try
@@ -68,7 +70,7 @@ bool LmdbDb::Put(const std::string &key, const std::string &value, const bool ov
     }
 }
 
-std::optional<std::string> LmdbDb::Get(const std::string &key) const
+std::optional<std::string> ApgDb::Get(const std::string &key) const
 {
     auto txn = lmdb::txn::begin(*MEnv, nullptr, MDB_RDONLY);
     std::string_view value;
@@ -83,7 +85,7 @@ std::optional<std::string> LmdbDb::Get(const std::string &key) const
     return std::string(value);
 }
 
-bool LmdbDb::Delete(const std::string &key) const
+bool ApgDb::Delete(const std::string &key) const
 {
     auto txn = lmdb::txn::begin(*MEnv);
     bool success = false;
@@ -100,7 +102,41 @@ bool LmdbDb::Delete(const std::string &key) const
     return success;
 }
 
-std::vector<std::string> LmdbDb::Keys() const
+bool ApgDb::CreateDatabaseDirectories(const fs::path &root)
+{
+    try
+    {
+        const fs::path dbDir = root / "/var/lib/tulpar/";
+
+        if (!fs::exists(dbDir))
+        {
+            fs::create_directories(dbDir);
+        }
+
+        const fs::path localDb = dbDir / "local.db";
+        const fs::path remoteDb = dbDir / "remote.db";
+
+        if (!fs::exists(localDb))
+        {
+            fs::create_directory(localDb);
+        }
+
+        if (!fs::exists(remoteDb))
+        {
+            fs::create_directory(remoteDb);
+        }
+
+        Logger::LogInfo("Database directories initialized: " + localDb.string() + ", " + remoteDb.string());
+        return true;
+    }
+    catch (const std::exception& e)
+    {
+        Logger::LogError("Database directories initialization failed: " + std::string(e.what()));
+        return false;
+    }
+}
+
+std::vector<std::string> ApgDb::Keys() const
 {
     std::vector<std::string> result;
     auto txn = lmdb::txn::begin(*MEnv, nullptr, MDB_RDONLY);
@@ -117,7 +153,7 @@ std::vector<std::string> LmdbDb::Keys() const
     return result;
 }
 
-std::vector<std::pair<std::string, std::string>> LmdbDb::Entries() const
+std::vector<std::pair<std::string, std::string>> ApgDb::Entries() const
 {
     std::vector<std::pair<std::string, std::string>> result;
     auto txn = lmdb::txn::begin(*MEnv, nullptr, MDB_RDONLY);

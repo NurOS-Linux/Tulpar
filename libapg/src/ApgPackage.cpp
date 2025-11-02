@@ -137,14 +137,14 @@ void ApgPackage::setMaintainer(const std::string& newMain) { metadata.maintainer
 void ApgPackage::setLicense(const std::string& newLic) { metadata.license = newLic; }
 void ApgPackage::setHomepage(const std::string& newHome) { metadata.homepage = newHome; }
 
-void ApgPackage::WriteToDb(const LmdbDb &db) const
+void ApgPackage::WriteToDb(const ApgDb &db) const
 {
     const std::string key = metadata.name;
     const std::string value = toJson().dump();
     db.Put(key, value, true);
 }
 
-std::vector<ApgPackage> ApgPackage::LoadAllFromDb(const LmdbDb& db)
+std::vector<ApgPackage> ApgPackage::LoadAllFromDb(const ApgDb& db)
 {
     std::vector<ApgPackage> result;
     for (const auto& [key, value] : db.Entries())
@@ -161,7 +161,7 @@ std::vector<ApgPackage> ApgPackage::LoadAllFromDb(const LmdbDb& db)
     return result;
 }
 
-std::optional<ApgPackage> ApgPackage::LoadFromDb(const LmdbDb& db, const std::string& name)
+std::optional<ApgPackage> ApgPackage::LoadFromDb(const ApgDb& db, const std::string& name)
 {
     auto value = db.Get(name);
     if (!value.has_value()) return std::nullopt;
@@ -179,7 +179,7 @@ std::optional<ApgPackage> ApgPackage::LoadFromDb(const LmdbDb& db, const std::st
     }
 }
 
-bool ApgPackage::RemoveFromDb(const LmdbDb& db) const
+bool ApgPackage::RemoveFromDb(const ApgDb& db) const
 {
     return db.Delete(metadata.name);
 }
@@ -244,20 +244,77 @@ bool CopyPackageFilesToRoot(const fs::path& sourceDir, const fs::path& destRoot 
             }
         }
 
-        Logger::LogInfo("Successfully copied " + std::to_string(copiedCount) + " files to " + destRoot.string());
+        Logger::LogDebug("Successfully copied " + std::to_string(copiedCount) + " files to " + destRoot.string());
         return true;
 
-    } catch (const fs::filesystem_error& e) {
+    }
+    catch (const fs::filesystem_error& e)
+    {
         Logger::LogError("Failed to copy package files: " + std::string(e.what()));
         return false;
     }
 }
 
-bool ApgPackage::Install(LmdbDb db, bool checkSums = true, const std::string& root = "/")
+bool CopyScriptsFilesToRoot(const fs::path& sourceDir, const std::string& pkgname, const fs::path& destRoot = "/")
 {
     try
     {
-        Logger::LogInfo("Installing: " + path.string());
+        const fs::path scriptsDir = sourceDir / "scripts";
+
+        if (!fs::exists(scriptsDir) || !fs::is_directory(scriptsDir))
+        {
+            Logger::LogWarn("scripts directory not found: " + scriptsDir.string());
+            return false;
+        }
+
+        const fs::path targetBaseDir = destRoot / "var" / "lib" / "tulpar" / pkgname / "scripts";
+
+        if (!fs::exists(targetBaseDir))
+        {
+            fs::create_directories(targetBaseDir);
+        }
+
+        unsigned int copiedCount = 0;
+        const std::vector<std::string> allowedFiles = {"preremove", "postremove"};
+
+        for (const auto& entry : fs::directory_iterator(scriptsDir))
+        {
+            if (entry.is_regular_file())
+            {
+                const fs::path& sourceFile = entry.path();
+
+                if (const std::string filename = sourceFile.filename().string(); std::find(allowedFiles.begin(), allowedFiles.end(), filename) != allowedFiles.end())
+                {
+                    const fs::path destFile = targetBaseDir / filename;
+
+                    fs::copy_file(sourceFile, destFile, fs::copy_options::overwrite_existing);
+                    copiedCount++;
+
+                    Logger::LogDebug("Copied: " + filename + " to " + destFile.string());
+                }
+                else
+                {
+                    Logger::LogDebug("Skipped: " + filename + " (not in allowed list)");
+                }
+            }
+        }
+
+        Logger::LogDebug("Successfully copied " + std::to_string(copiedCount) +
+                       " script files to " + targetBaseDir.string());
+        return true;
+    }
+    catch (const fs::filesystem_error& e)
+    {
+        Logger::LogError("Failed to copy package files: " + std::string(e.what()));
+        return false;
+    }
+}
+
+bool ApgPackage::Install(ApgDb db, bool checkSums = true, const std::string& root = "/")
+{
+    try
+    {
+        Logger::LogDebug("Installing: " + path.string());
         const auto pathToPkg = "/tmp/apg/" + path.filename().string();
         Logger::LogDebug("Extracting apg: " + path.string());
         ApgArchiver::Extract(path, pathToPkg);
@@ -285,10 +342,25 @@ bool ApgPackage::Install(LmdbDb db, bool checkSums = true, const std::string& ro
 
 
 
-bool ApgPackage::Remove(std::string packageName)
+bool ApgPackage::Remove(const ApgDb &db, const fs::path &root) const
 {
-    // TODO
-    return true;
+    for (const auto& file : files)
+    {
+        try
+        {
+            if (fs::exists(file) && fs::is_regular_file(file))
+            {
+                fs::path removePath = root / file;
+                fs::remove(removePath);
+                Logger::LogDebug("Removed file: " + removePath.string());
+            }
+        }
+        catch (const fs::filesystem_error& e)
+        {
+            Logger::LogWarn("Could not remove " + file.string() + ": " + e.what());
+        }
+    }
+    return RemoveFromDb(db);
 }
 
 

@@ -11,9 +11,8 @@ namespace fs = std::filesystem;
 
 int main(const int argc, char **argv)
 {
-    ArgumentParser program("apginstall", "0.1.0",  default_arguments::all);
+    ArgumentParser program("apgremove", "0.1.0",  default_arguments::all);
 
-    bool checkSums;
     bool force = false;
 
     program.add_argument("-f", "--force")
@@ -21,22 +20,12 @@ int main(const int argc, char **argv)
         .implicit_value(true)
         .help("force install");
 
-    program.add_argument("--no-check-md5sums")
-        .default_value(false)
-        .implicit_value(true)
-        .help("skip checking md5sums (RISK)");
-
-    program.add_argument("--create-database")
-        .default_value(false)
-        .implicit_value(true)
-        .help("create database");
-
     program.add_argument("-r", "--root")
         .help("specify root directory")
         .default_value(std::string("/"));
 
-    program.add_argument("FILES")
-        .help("pkg.apg to install")
+    program.add_argument("PKGS")
+        .help("pkg name to remove")
         .remaining();
 
     std::vector<std::string> pkgsFilenames;
@@ -55,22 +44,13 @@ int main(const int argc, char **argv)
 
     try
     {
-        if (program.get<bool>("create-database"))
-        {
-            ApgDb::CreateDatabaseDirectories(root);
-            auto localdb = ApgDb(root.string() + "local.db");
-            auto remotedb = ApgDb(root.string() + "remote.db");
-            return 0;
-        }
-        pkgsFilenames = program.get<std::vector<std::string>>("FILES");
+        pkgsFilenames = program.get<std::vector<std::string>>("PKGS");
         root = program.get<std::string>("root");
-        checkSums = !program.get<bool>("no-check-md5sums");
         force = program.get<bool>("force");
-        if (force) checkSums = false;
     }
-    catch (...)
+    catch (const std::exception &ex)
     {
-        Logger::LogError("Specify a *.apg");
+        Logger::LogError("Specify a pkg");
         std::cerr << program << "\n";
         return 1;
     }
@@ -80,8 +60,8 @@ int main(const int argc, char **argv)
     {
         fs::path path = pkg;
         pkgs.emplace_back(path, true);
-
     }
+
     auto db = ApgDb();
     try
     {
@@ -97,10 +77,10 @@ int main(const int argc, char **argv)
 
     for (auto &pkg : pkgs)
     {
-        Logger::LogInfo("Installing Package in " + root.string());
+        Logger::LogInfo("Remove Package in " + root.string());
         try
         {
-            pkg.Install(std::move(db), checkSums, root);
+            pkg.Remove(db, root);
         }
         catch (const std::exception &err)
         {
