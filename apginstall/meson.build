@@ -8,8 +8,8 @@ project('apginstall', 'cpp',
 )
 
 apg_dep = dependency('libapg', required: true)
-nlohmann_json_dep = dependency('nlohmann_json', required: true)
+lmdb_dep = dependency('lmdb', required: true)
 
-exe = executable('apginstall', 'main.cpp',
-                 dependencies: [apg_dep, nlohmann_json_dep],
+exe = executable('apginstall', 'src/main.cpp',
+                 dependencies: [apg_dep, lmdb_dep],
                  install : true)
