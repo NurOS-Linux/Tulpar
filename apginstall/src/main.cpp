@@ -12,10 +12,18 @@ int main(const int argc, char **argv)
 {
     ArgumentParser program("apginstall", "0.1.0",  default_arguments::all);
 
+    bool checkSums;
+    bool force = false;
+
     program.add_argument("-f", "--force")
         .default_value(false)
         .implicit_value(true)
         .help("force install");
+
+    program.add_argument("--no-check-md5sums")
+        .default_value(false)
+        .implicit_value(true)
+        .help("skip checking md5sums (RISK)");
 
     program.add_argument("-r", "--root")
         .help("specify root directory")
@@ -43,6 +51,9 @@ int main(const int argc, char **argv)
     {
         pkgsFilenames = program.get<std::vector<std::string>>("FILES");
         root = program.get<std::string>("root");
+        checkSums = !program.get<bool>("no-check-md5sums");
+        force = program.get<bool>("force");
+        if (force) checkSums = false;
     }
     catch (...)
     {
@@ -52,19 +63,38 @@ int main(const int argc, char **argv)
     }
 
     std::vector<ApgPackage> pkgs;
-    fs::path path = pkgsFilenames[0];
-    pkgs.emplace_back(path, true);
-    const fs::path dbPath = "/var/lib/tulpar/";
+    for (const auto &pkg : pkgsFilenames)
+    {
+        fs::path path = pkg;
+        pkgs.emplace_back(path, true);
+
+    }
+    auto db = LmdbDb();
     try
     {
+        const fs::path dbPath = root.string() + "/" + "var/lib/tulpar/";\
         fs::create_directory(dbPath);
-        auto db = LmdbDb(dbPath.string() + "local.db");
-        pkgs[0].Install(std::move(db), root);
+        db = LmdbDb(dbPath.string() + "local.db");
     }
-    catch (const std::exception &err)
+    catch (const std::exception& err)
     {
-        Logger::LogError("Can't create db: " + static_cast<std::string>(err.what()));
+       Logger::LogError("Error while opening db: " + static_cast<std::string>(err.what()));
     }
+
+    for (auto &pkg : pkgs)
+    {
+        Logger::LogInfo("Installing Package in " + root.string());
+        try
+        {
+            pkg.Install(std::move(db), checkSums, root);
+        }
+        catch (const std::exception &err)
+        {
+            Logger::LogError("Can't install package: " + static_cast<std::string>(err.what()));
+        }
+    }
+
+    db.Close();
 
     return 0;
 }

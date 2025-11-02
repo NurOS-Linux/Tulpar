@@ -1,13 +1,24 @@
 // NurOS Ruzen42 2025
+#include <filesystem>
+#include <system_error>
 #include <utility>
 
 #include "Apg/ApgLmdbDb.hpp"
-
 #include "Apg/Logger.hpp"
 
 LmdbDb::LmdbDb(std::string path, const std::size_t mapSize, const unsigned int maxDbs, const int envFlags)
     : MPath(std::move(path)), MMapSize(mapSize), MMaxDbs(maxDbs), MEnvFlags(envFlags)
 {
+    if (const std::filesystem::path dbPath(MPath); !std::filesystem::exists(dbPath))
+    {
+        if (std::error_code ec; !std::filesystem::create_directories(dbPath, ec))
+        {
+            Logger::LogError("Failed to create database directory: " + MPath + " - " + ec.message());
+            throw std::runtime_error("Failed to create database directory: " + ec.message());
+        }
+        Logger::LogDebug("Created database directory: " + MPath);
+    }
+
     MEnv = std::make_unique<lmdb::env>(lmdb::env::create());
     MEnv->set_mapsize(MMapSize);
     MEnv->set_max_dbs(MMaxDbs);
@@ -17,6 +28,8 @@ LmdbDb::LmdbDb(std::string path, const std::size_t mapSize, const unsigned int m
     MDbi = std::make_unique<lmdb::dbi>(lmdb::dbi::open(txn, nullptr, MDB_CREATE));
     txn.commit();
 }
+
+LmdbDb::LmdbDb() {}
 
 void LmdbDb::Close()
 {
@@ -87,7 +100,7 @@ bool LmdbDb::Delete(const std::string &key) const
     return success;
 }
 
-std::vector<std::string> LmdbDb::keys() const
+std::vector<std::string> LmdbDb::Keys() const
 {
     std::vector<std::string> result;
     auto txn = lmdb::txn::begin(*MEnv, nullptr, MDB_RDONLY);
@@ -104,7 +117,7 @@ std::vector<std::string> LmdbDb::keys() const
     return result;
 }
 
-std::vector<std::pair<std::string, std::string>> LmdbDb::entries() const
+std::vector<std::pair<std::string, std::string>> LmdbDb::Entries() const
 {
     std::vector<std::pair<std::string, std::string>> result;
     auto txn = lmdb::txn::begin(*MEnv, nullptr, MDB_RDONLY);

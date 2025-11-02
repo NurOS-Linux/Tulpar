@@ -147,7 +147,7 @@ void ApgPackage::WriteToDb(const LmdbDb &db) const
 std::vector<ApgPackage> ApgPackage::LoadAllFromDb(const LmdbDb& db)
 {
     std::vector<ApgPackage> result;
-    for (const auto& [key, value] : db.entries())
+    for (const auto& [key, value] : db.Entries())
     {
         try
         {
@@ -218,7 +218,7 @@ bool CopyPackageFilesToRoot(const fs::path& sourceDir, const fs::path& destRoot 
 
         if (!fs::exists(dataDir) || !fs::is_directory(dataDir))
         {
-            Logger::LogError("Data directory not found: " + dataDir.string());
+            Logger::LogWarn("Data directory not found: " + dataDir.string());
             return false;
         }
 
@@ -244,7 +244,7 @@ bool CopyPackageFilesToRoot(const fs::path& sourceDir, const fs::path& destRoot 
             }
         }
 
-        Logger::LogInfo("Successfully copied " + std::to_string(copiedCount) + " files to root");
+        Logger::LogInfo("Successfully copied " + std::to_string(copiedCount) + " files to " + destRoot.string());
         return true;
 
     } catch (const fs::filesystem_error& e) {
@@ -253,7 +253,7 @@ bool CopyPackageFilesToRoot(const fs::path& sourceDir, const fs::path& destRoot 
     }
 }
 
-bool ApgPackage::Install(LmdbDb db, const std::string& root = "/")
+bool ApgPackage::Install(LmdbDb db, bool checkSums = true, const std::string& root = "/")
 {
     try
     {
@@ -264,13 +264,16 @@ bool ApgPackage::Install(LmdbDb db, const std::string& root = "/")
         std::ifstream file(pathToPkg + "/metadata.json");
         auto jsonData = json::parse(file);
         fromJson(jsonData);
-        if (!Md5Hash::VerifyPackageIntegrity(pathToPkg + "/md5sums", pathToPkg + "/data"))
+        if (checkSums)
         {
-            Logger::LogError("Files are corrupted");
-            return false;
+            if (!Md5Hash::VerifyPackageIntegrity(pathToPkg + "/md5sums", pathToPkg + "/data"))
+            {
+                Logger::LogError("Files are corrupted");
+                return false;
+            }
         }
         AddFilesFromDirectory(files, pathToPkg + "/data");
-        CopyPackageFilesToRoot(pathToPkg + "/data", root);
+        CopyPackageFilesToRoot(pathToPkg, root);
         WriteToDb(db);
         return true;
     }

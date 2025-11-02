@@ -1,12 +1,11 @@
 // NurOS Ruzen42 2025
-
-#include "Apg/Md5Hash.hpp"
-#include "Apg/Logger.hpp"
-
 #include <fstream>
 #include <iomanip>
 #include <sstream>
 #include <openssl/evp.h>
+
+#include "Apg/Md5Hash.hpp"
+#include "Apg/Logger.hpp"
 
 bool Md5Hash::VerifyPackageIntegrity(const fs::path& md5sumsFile, const fs::path& dataDirectory)
 {
@@ -33,16 +32,22 @@ bool Md5Hash::VerifyPackageIntegrity(const fs::path& md5sumsFile, const fs::path
 
         Logger::LogInfo("Verifying " + std::to_string(md5Map.size()) + " files from: " + md5sumsFile.string());
 
-        size_t verifiedCount = 0;
-        size_t failedCount = 0;
+        unsigned int verifiedCount = 0;
+        unsigned int failedCount = 0;
 
         for (const auto& [relativePath, expectedHash] : md5Map)
         {
-            fs::path fullPath = dataDirectory / relativePath;
+            std::string pathWithoutPrefix = relativePath;
+            if (pathWithoutPrefix.compare(0, 5, "data/") == 0)
+            {
+                pathWithoutPrefix = pathWithoutPrefix.substr(5);
+            }
+
+            fs::path fullPath = dataDirectory / pathWithoutPrefix;
 
             if (!fs::exists(fullPath) || !fs::is_regular_file(fullPath))
             {
-                Logger::LogWarn("File not found: " + relativePath);
+                Logger::LogWarn("File not found: " + fullPath.string());
                 failedCount++;
                 continue;
             }
@@ -50,18 +55,17 @@ bool Md5Hash::VerifyPackageIntegrity(const fs::path& md5sumsFile, const fs::path
             if (VerifyFileIntegrity(fullPath, expectedHash))
             {
                 verifiedCount++;
-                Logger::LogDebug("Verified: " + relativePath);
+                Logger::LogDebug("Verified: " + fullPath.string());
             }
             else
             {
                 failedCount++;
-                Logger::LogError("Integrity check failed for: " + relativePath);
+                Logger::LogError("Integrity check failed for: " + fullPath.string());
             }
         }
 
         Logger::LogInfo("Verification complete: " + std::to_string(verifiedCount) +
                        " passed, " + std::to_string(failedCount) + " failed");
-
         return failedCount == 0;
     }
     catch (const std::exception& e)
@@ -85,7 +89,7 @@ std::unordered_map<std::string, std::string> Md5Hash::LoadMd5Sums(const fs::path
         }
 
         std::string line;
-        size_t lineNumber = 0;
+        unsigned int lineNumber = 0;
 
         while (std::getline(file, line))
         {
@@ -106,7 +110,7 @@ std::unordered_map<std::string, std::string> Md5Hash::LoadMd5Sums(const fs::path
             }
         }
 
-        Logger::LogInfo("Loaded " + std::to_string(md5Map.size()) + " MD5 entries");
+        Logger::LogDebug("Loaded " + std::to_string(md5Map.size()) + " MD5 entries");
     }
     catch (const std::exception& e)
     {
@@ -180,7 +184,7 @@ std::optional<std::string> Md5Hash::CalculateFileMd5(const fs::path& filepath)
 
 bool Md5Hash::VerifyFileIntegrity(const fs::path& filepath, const std::string& expectedHash)
 {
-    auto calculatedHash = CalculateFileMd5(filepath);
+    const auto calculatedHash = CalculateFileMd5(filepath);
 
     if (!calculatedHash.has_value())
     {
@@ -220,12 +224,9 @@ std::pair<std::string, std::string> Md5Hash::ParseMd5Line(const std::string& lin
         }
     }
 
-    char separator;
-    iss >> separator;
+    iss >> std::ws;
 
     std::getline(iss, filepath);
-
-    filepath.erase(0, filepath.find_first_not_of(" \t"));
 
     if (filepath.empty())
     {

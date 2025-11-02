@@ -15,6 +15,7 @@ public:
                     std::size_t mapSize = 10485760,
                     unsigned int maxDbs = 1,
                     int envFlags = 0);
+	LmdbDb();
 
     void Close();
 
@@ -22,14 +23,14 @@ public:
     std::optional<std::string> Get(const std::string &key) const;
     bool Delete(const std::string &key) const;
 
-    [[nodiscard]] std::vector<std::string> keys() const;
-    [[nodiscard]] std::vector<std::pair<std::string, std::string>> entries() const;
+    [[nodiscard]] std::vector<std::string> Keys() const;
+    [[nodiscard]] std::vector<std::pair<std::string, std::string>> Entries() const;
 
 private:
     std::string MPath;
-    std::size_t MMapSize;
-    unsigned int MMaxDbs;
-    int MEnvFlags;
+    unsigned int MMapSize{};
+    unsigned int MMaxDbs{};
+    int MEnvFlags{};
 
     std::unique_ptr<lmdb::env> MEnv;
     std::unique_ptr<lmdb::dbi> MDbi;

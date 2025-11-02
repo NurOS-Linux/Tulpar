@@ -80,7 +80,7 @@ public:
     static std::vector<ApgPackage> LoadAllFromDb(const LmdbDb& db);
     static std::optional<ApgPackage> LoadFromDb(const LmdbDb& db, const std::string& name);
     bool RemoveFromDb(const LmdbDb &db) const;
-    bool Install(LmdbDb db, const std::string &root);
+    bool Install(LmdbDb db, bool checkSums, const std::string &root);
 
     static bool Remove(std::string packageName);
 };
