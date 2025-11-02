@@ -8,7 +8,8 @@ project('apglist', 'cpp',
 )
 
 apg_dep = dependency('libapg', required: true)
+lmdb_dep = dependency('lmdb', required: true)
 
 exe = executable('apglist', 'src/main.cpp',
-                 dependencies: [apg_dep],
+                 dependencies: [apg_dep, lmdb_dep],
                  install : true)

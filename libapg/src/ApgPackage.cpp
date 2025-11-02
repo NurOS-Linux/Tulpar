@@ -95,6 +95,7 @@ json ApgPackage::toJson() const
 {
     return
 {
+        {"name", metadata.name},
         {"version", metadata.version},
         {"architecture", metadata.architecture},
         {"description", metadata.description},

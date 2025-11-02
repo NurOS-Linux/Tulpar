@@ -56,10 +56,11 @@ int main(const int argc, char **argv)
     }
 
     std::vector<ApgPackage> pkgs;
-    for (const auto &pkg : pkgsFilenames)
+    for (const auto &name : pkgsFilenames)
     {
-        fs::path path = pkg;
-        pkgs.emplace_back(path, true);
+       auto pkg = ApgPackage();
+       pkg.setName(name);
+       pkgs.push_back(pkg);
     }
 
     auto db = ApgDb();
@@ -75,16 +76,16 @@ int main(const int argc, char **argv)
        Logger::LogError("Error while opening db: " + static_cast<std::string>(err.what()));
     }
 
-    for (auto &pkg : pkgs)
+    for (const auto& pkg : pkgs)
     {
-        Logger::LogInfo("Remove Package in " + root.string());
+        Logger::LogInfo("Remove " + pkg.getName() + " in " + root.string());
         try
         {
             pkg.Remove(db, root);
         }
         catch (const std::exception &err)
         {
-            Logger::LogError("Can't install package: " + static_cast<std::string>(err.what()));
+            Logger::LogError("Can't uninstall package: " + static_cast<std::string>(err.what()));
         }
     }
 

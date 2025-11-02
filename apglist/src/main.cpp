@@ -1,10 +1,9 @@
+// NurOS Ruzen42 2025
 #include <iostream>
 #include <vector>
+#include <Apg/ApgPackage.hpp>
+#include <Apg/Logger.hpp>
 #include <argparse/argparse.hpp>
-#include <apg_package/ApgPackage.hpp>
-
-#define RED "\e[31m"
-#define DEFAULT "\e[0m"
 
 using namespace argparse;
 
@@ -22,33 +21,41 @@ int main(const int argc, char **argv)
         .implicit_value(true)
         .help("show packages installed in your system");
 
+    program.add_argument("-r", "--root")
+        .help("specify root directory")
+        .default_value(std::string("/"));
+
     program.add_argument("-n", "--only-number")
         .default_value(false)
         .implicit_value(true)
         .help("show only number of packages");
 
 
-    std::vector<ApgPackage> packages;
+    fs::path root;
 
     try
     {
         program.parse_args(argc, argv);
+        root = program.get<std::string>("root");
     }
-    catch (const std::runtime_error& err)
+    catch (...)
     {
-        std::cerr << RED <<  "Error" << DEFAULT << err.what() << "\n";
-        std::cerr << program << "\n";
+        Logger::LogError("error while parsing args");
         return 1;
     }
 
     try
     {
-        packages.clear();
+        const fs::path path = root / "/var/lib/tulpar/local.db";
+        const auto db = ApgDb(path);
+        for (const auto pkgs = ApgPackage::LoadAllFromDb(db); const auto& package : pkgs)
+        {
+           std::cout << package.toString() << " " << package.getDescription() << "\n";
+        }
     }
     catch (const std::exception& err)
     {
-        std::cerr << RED << "Error: " << DEFAULT << err.what() << "\n";
-        std::cerr << program << "\n";
+        Logger::LogError(err.what());
         return 1;
     }
 
