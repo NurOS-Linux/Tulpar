@@ -1,51 +1,33 @@
 # NurOS Ruzen42 2025
-project('libapg', 'cpp',
-        version: '0.1.0',
-        default_options: [
-            'cpp_std=c++17',
-            'warning_level=3',
-            'buildtype=debugoptimized',
-            'default_library=both'
-        ]
+
+libapg_sources = files(
+  'src/ApgArchiver.cpp',
+  'src/ApgLmdbDb.cpp',
+  'src/ApgPackage.cpp',
+  'src/Logger.cpp',
+  'src/Md5Hash.cpp',
 )
 
-cpp = meson.get_compiler('cpp')
+libapg_inc = include_directories('include')
 
-nlohmann_json_dep = dependency('nlohmann_json', required: true)
-lmdb_dep = dependency('lmdb', required: true)
 libarchive_dep = dependency('libarchive', required: true)
-openssl_dep = dependency('openssl', required: true)
+if not libarchive_dep.found()
+  cpp = meson.get_compiler('cpp')
+  libarchive_dep = cpp.find_library('archive', required: true)
+endif
 
-include_dirs = include_directories('include')
-
-sources = files([
-                    'src/ApgPackage.cpp',
-                    'src/ApgLmdbDb.cpp',
-                    'src/ApgArchiver.cpp',
-                    'src/Md5Hash.cpp',
-                    'src/Logger.cpp'
-                ])
-
-headers = files([
-                    'include/Apg/ApgPackage.hpp',
-                    'include/Apg/Logger.hpp',
-                    'include/Apg/ApgArchiver.hpp',
-                    'include/Apg/Md5Hash.hpp',
-                    'include/Apg/ApgLmdbDb.hpp'
-                ])
-
-apg_package_lib = library('apg',
-                          sources: [sources, headers],
-                          include_directories: include_dirs,
-                          dependencies: [nlohmann_json_dep, lmdb_dep, libarchive_dep, openssl_dep],
-                          install: true,
-                          version: meson.project_version()
+libapg = library('apg', libapg_sources,
+  include_directories: libapg_inc,
+  dependencies: [
+    dependency('openssl'),
+    dependency('lmdb', required: true),
+    dependency('nlohmann_json', required: true),
+    libarchive_dep,
+  ],
+  install: true,
 )
 
-apg_package_dep = declare_dependency(
-    include_directories: include_dirs,
-    link_with: apg_package_lib,
-    dependencies: [nlohmann_json_dep]
+libapg_dep = declare_dependency(
+  link_with: libapg,
+  include_directories: libapg_inc,
 )
-
-install_headers(headers, subdir: 'Apg')

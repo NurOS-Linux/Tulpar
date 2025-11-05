@@ -1,15 +1,4 @@
-project('apginstall', 'cpp',
-        version : '0.1.0',
-        default_options : [
-            'warning_level=3',
-            'cpp_std=c++23',
-            'buildtype=release'
-        ]
-)
-
-apg_dep = dependency('libapg', required: true)
-lmdb_dep = dependency('lmdb', required: true)
-
+# NurOS Ruzen42 2025
 exe = executable('apginstall', 'src/main.cpp',
-                 dependencies: [apg_dep, lmdb_dep],
+                 dependencies: [libapg_dep, lmdb_dep, argparse_dep],
                  install : true)
