@@ -42,6 +42,11 @@
           cp -r apg*/apg* $out/bin
           cp -r libapg/libapg.so $out/lib
         '';
+        shellHook = ''
+            export TULPAR_ROOT=$PWD/testroot
+            mkdir -p "$TULPAR_ROOT/var/lib/tulpar/local.db"
+            echo "Tulpar root: $TULPAR_ROOT"
+        '';
       };
     };
 }

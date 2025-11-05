@@ -26,7 +26,7 @@ int main(const int argc, char **argv)
         .implicit_value(true)
         .help("skip checking md5sums (RISK)");
 
-    program.add_argument("--create-database")
+    program.add_argument("--init-db")
         .default_value(false)
         .implicit_value(true)
         .help("create database");
@@ -55,15 +55,14 @@ int main(const int argc, char **argv)
 
     try
     {
-        if (program.get<bool>("create-database"))
+        root = program.get<std::string>("root");
+        if (program.get<bool>("init-db"))
         {
             ApgDb::CreateDatabaseDirectories(root);
             auto localdb = ApgDb(root.string() + "local.db");
-            auto remotedb = ApgDb(root.string() + "remote.db");
             return 0;
         }
         pkgsFilenames = program.get<std::vector<std::string>>("FILES");
-        root = program.get<std::string>("root");
         checkSums = !program.get<bool>("no-check-md5sums");
         force = program.get<bool>("force");
         if (force) checkSums = false;
@@ -86,7 +85,7 @@ int main(const int argc, char **argv)
     try
     {
         fs::path dbPath = "/var/lib/tulpar/";
-        if (root != "/") dbPath = root / dbPath;
+        dbPath = root / dbPath;
         fs::create_directory(dbPath);
         db = ApgDb(dbPath.string() + "local.db");
     }
