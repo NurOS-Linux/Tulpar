@@ -39,7 +39,9 @@
 
         installPhase = ''
           mkdir -p $out/bin $out/lib
-          cp -r apg*/apg* $out/bin
+          cp -r apginstall/apginstall $out/bin
+          cp -r apgremove/apgremove $out/bin
+          cp -r apglist/apglist $out/bin
           cp -r libapg/libapg.so $out/lib
         '';
         shellHook = ''

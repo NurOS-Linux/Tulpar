@@ -59,7 +59,7 @@ int main(const int argc, char **argv)
         if (program.get<bool>("init-db"))
         {
             ApgDb::CreateDatabaseDirectories(root);
-            auto localdb = ApgDb(root.string() + "local.db");
+            auto localdb = ApgDb(fs::absolute(root).string() + "/var/lib/tulpar/local.db");
             return 0;
         }
         pkgsFilenames = program.get<std::vector<std::string>>("FILES");
