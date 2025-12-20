@@ -1,5 +1,5 @@
 {
-  description = "Tulpar C++ project";
+  description = "Tulpar C/Go project";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -27,10 +27,9 @@
           pkgs.gcc
           pkgs.openssl
           pkgs.lmdb
-          pkgs.lmdbxx
           pkgs.libarchive
-          pkgs.argparse
-          pkgs.nlohmann_json
+          pkgs.go
+          pkgs.cjson
         ];
 
         mesonFlags = [

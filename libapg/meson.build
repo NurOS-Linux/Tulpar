@@ -1,11 +1,7 @@
 # NurOS Ruzen42 2025
 
 libapg_sources = files(
-  'src/ApgArchiver.cpp',
-  'src/ApgLmdbDb.cpp',
-  'src/ApgPackage.cpp',
-  'src/Logger.cpp',
-  'src/Md5Hash.cpp',
+  'src/package.c'
 )
 
 libapg_inc = include_directories('include')
@@ -19,9 +15,6 @@ endif
 libapg = library('apg', libapg_sources,
   include_directories: libapg_inc,
   dependencies: [
-    dependency('openssl'),
-    dependency('lmdb', required: true),
-    dependency('nlohmann_json', required: true),
     libarchive_dep,
   ],
   install: true,
