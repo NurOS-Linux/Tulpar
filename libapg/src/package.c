@@ -1,3 +1,5 @@
+// NurOS Ruzen42 2025 apg/package.h
+// Last change: Dec 21
 #include <stdlib.h>
 
 package_metadata *
@@ -48,7 +50,7 @@ package_metadata_free(package_metadata *meta)
     free(meta->name);
     free(meta->version);
     free(meta->architecture);
-    free(meta->description);
+
     free(meta->maintainer);
     free(meta->license);
     free(meta->homepage);
@@ -74,4 +76,10 @@ package_free(package *pkg)
     str_list_free(&pkg->package_files);
 
     free(pkg);
+}
+
+void
+install_package(package *pkg)
+{
+
 }

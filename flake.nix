@@ -1,14 +1,16 @@
 {
-  description = "Tulpar C/Go project";
+  description = "Tulpar C project";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    iron-log.url = "github:ruzen42/iron-log";
   };
 
-  outputs = { self, nixpkgs }:
+  outputs = { self, nixpkgs, iron-log }:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
+      libiron = iron-log.packages.${system}.default;
     in
     {
       packages.${system}.default = pkgs.stdenv.mkDerivation {
@@ -28,8 +30,8 @@
           pkgs.openssl
           pkgs.lmdb
           pkgs.libarchive
-          pkgs.go
           pkgs.cjson
+          libiron
         ];
 
         mesonFlags = [
@@ -37,11 +39,13 @@
         ];
 
         installPhase = ''
-          mkdir -p $out/bin $out/lib
+          mkdir -p $out/bin $out/lib $out/include/pkg-config
           cp -r apginstall/apginstall $out/bin
           cp -r apgremove/apgremove $out/bin
           cp -r apglist/apglist $out/bin
           cp -r libapg/libapg.so $out/lib
+          cp -r libapg/libapg.pc $out/include/pkg-config
+          cp -r include/* $out/include/
         '';
         shellHook = ''
             export TULPAR_ROOT=$PWD/testroot

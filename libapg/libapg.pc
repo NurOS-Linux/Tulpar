@@ -8,4 +8,4 @@ Description: APG package management library for NurOS
 Version: 0.1.0
 Libs: -L${libdir} -lapg
 Cflags: -I${includedir}
-Requires: nlohmann_json
+Requires: iron-log, libarchive, lmdb

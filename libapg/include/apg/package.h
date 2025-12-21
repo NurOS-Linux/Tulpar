@@ -1,4 +1,8 @@
 // NurOS Ruzen42 2025 apg/package.h
+// Last change: Dec 21
+#ifndef APG_PACKAGE_H
+#define APG_PACKAGE_H
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -42,3 +46,5 @@ void package_free(struct package *);
 
 package *package_new(void);
 package_metadata *package_metadata_new(void);
+
+#endif
