@@ -1,2 +1,27 @@
+# Build artifacts
 *.apg
-src/build
+*.o
+*.a
+*.so
+*.out
+build/
+builddir/
+src/build/
+
+# Meson
+compile_commands.json
+
+# Nix
+result
+result-*
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
