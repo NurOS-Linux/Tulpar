@@ -8,6 +8,3 @@ project('tulpar', 'c',
 )
 
 subdir('libapg')
-#subdir('apginstall')
-#subdir('apgremove')
-#subdir('apglist')
