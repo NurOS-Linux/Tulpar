@@ -1,7 +1,5 @@
 # Tulpar
 
-[English](README.md) | [Қазақша](README_kk.md) | [Русский](README_ru.md)
-
 ---
 
 ## About
