@@ -1,3 +1,0 @@
-[submodule "libapg"]
-	path = libapg
-	url = https://github.com/NurOS-Linux/libAPG
