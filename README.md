@@ -3,11 +3,10 @@
 CLI package manager frontend for NurOS.
 
 > [!NOTE]
-> **Repository Mirror & Issue Tracking**
+> **Repository Mirrors**
 >
-> - **Primary Repository:** Active development takes place on our self-hosted Forgejo instance at [git.nuros.org](https://git.nuros.org/core/tulpar) (accounts are restricted to the core team).
-> - **GitHub Mirror:** This GitHub repository is a **read-only mirror**.
-> - **Issues & Contributions:** External contributors are welcome and encouraged to open Issues and Pull Requests directly here on GitHub! The team will review and process them.
+> - **git.nuros.org** ([core/tulpar](https://git.nuros.org/core/tulpar)): primary, self-hosted Forgejo instance, accounts restricted to the core team.
+> - **GitHub** ([NurOS-Linux/tulpar](https://github.com/NurOS-Linux/tulpar)): mirror for external contributors. Issues and Pull Requests opened here are welcome and are reviewed and processed by the core team.
 
 ## About
 
