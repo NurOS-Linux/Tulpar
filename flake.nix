@@ -1,16 +1,18 @@
 {
-  description = "Tulpar C project";
+  description = "tulpar package manager frontend for NurOS";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    iron-log.url = "github:ruzen42/iron-log";
+    libapg = {
+      url = "git+https://git.nuros.org/core/libapg.git?rev=577aa6fddcc07d3ebab56a545d3166c5b5d605c1";
+      flake = false;
+    };
   };
 
-  outputs = { self, nixpkgs, iron-log }:
+  outputs = { self, nixpkgs, libapg }:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
-      libiron = iron-log.packages.${system}.default;
     in
     {
       packages.${system}.default = pkgs.stdenv.mkDerivation {
@@ -26,32 +28,35 @@
         ];
 
         buildInputs = [
-          pkgs.gcc
-          pkgs.openssl
+          pkgs.curl
+          pkgs.yyjson
           pkgs.lmdb
           pkgs.libarchive
-          pkgs.cjson
-          libiron
+          pkgs.gpgme
+          pkgs.libsodium
         ];
+
+        postUnpack = ''
+          mkdir -p source/subprojects/libapg
+          cp -r ${libapg}/. source/subprojects/libapg
+          chmod -R u+w source/subprojects/libapg
+        '';
 
         mesonFlags = [
           "--buildtype=release"
         ];
 
         installPhase = ''
-          mkdir -p $out/bin $out/lib $out/include/pkg-config
-          cp -r apginstall/apginstall $out/bin
-          cp -r apgremove/apgremove $out/bin
-          cp -r apglist/apglist $out/bin
-          cp -r libapg/libapg.so $out/lib
-          cp -r libapg/libapg.pc $out/include/pkg-config
-          cp -r include/* $out/include/
+          ninja install
         '';
-        shellHook = ''
-            export TULPAR_ROOT=$PWD/testroot
-            mkdir -p "$TULPAR_ROOT/var/lib/tulpar/local.db"
-            echo "Tulpar root: $TULPAR_ROOT"
-        '';
+      };
+
+      devShells.${system}.default = pkgs.mkShell {
+        inputsFrom = [ self.packages.${system}.default ];
+        packages = [
+          pkgs.gdb
+          pkgs.valgrind
+        ];
       };
     };
 }

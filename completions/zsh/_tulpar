@@ -1,0 +1,62 @@
+#compdef tulpar
+# SPDX-License-Identifier: GPL-3.0-only
+
+_tulpar_commands()
+{
+    local -a commands
+    commands=(
+        'install:install one or more packages'
+        'remove:remove an installed package'
+        'uninstall:remove an installed package'
+        'upgrade:upgrade one or all installed packages'
+        'search:search local and remote package indexes'
+        'list:list installed packages'
+        'info:show full metadata for a package'
+        'show:show full metadata for a package'
+        'verify:verify installed package files'
+        'orphans:list and remove orphaned packages'
+        'autoremove:list and remove orphaned packages'
+        'hold:block a package from upgrade or removal'
+        'unhold:release a held package'
+        'history:show past install/remove operations'
+        'audit:show past install/remove operations'
+        'log:show past install/remove operations'
+        'repo:manage configured repositories'
+        'download:fetch a package without installing it'
+        'key:manage the trusted signing keyring'
+    )
+    _describe 'command' commands
+}
+
+_tulpar()
+{
+    local curcontext="$curcontext" state line
+    typeset -A opt_args
+
+    _arguments -C \
+        '1: :_tulpar_commands' \
+        '*::arg:->args'
+
+    case "$state" in
+        args)
+            case "$words[1]" in
+                repo)
+                    _values 'action' add remove list update
+                    ;;
+                key)
+                    _values 'action' add list
+                    ;;
+                *)
+                    _arguments \
+                        '(-d --dest)'{-d,--dest}'[alternate root]:path:_files -/' \
+                        '(-y --yes)'{-y,--yes}'[assume yes]' \
+                        '(-j --json)'{-j,--json}'[json output]' \
+                        '--require-signature[reject unsigned packages]' \
+                        '--sign-backend[signing backend]:backend:(sodium gpgme)'
+                    ;;
+            esac
+            ;;
+    esac
+}
+
+_tulpar "$@"

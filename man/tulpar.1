@@ -1,0 +1,133 @@
+.TH TULPAR 1 "2026" "tulpar 0.1.0" "Tulpar Manual"
+.SH NAME
+tulpar \- package manager frontend for NurOS
+.SH SYNOPSIS
+.B tulpar
+.I command
+.RI [ options ]
+.RI [ args ...]
+.SH DESCRIPTION
+.B tulpar
+is the command-line package manager for NurOS. It resolves, downloads,
+installs, removes, and upgrades packages, backed by libapg for local
+package database and transaction handling and by a Tulpar Server
+instance for remote repository operations.
+.PP
+Every command has three equivalent invocation forms: a full name, a
+single-letter short alias used as the first word, and the same letter
+used as a leading flag. The following are identical:
+.PP
+.RS
+tulpar install curl
+.br
+tulpar i curl
+.br
+tulpar \-i curl
+.RE
+.SH COMMANDS
+.TP
+.BR tulpar-install (1)
+install one or more packages
+.TP
+.BR tulpar-remove (1)
+remove an installed package (also: uninstall)
+.TP
+.BR tulpar-upgrade (1)
+upgrade one or all installed packages
+.TP
+.BR tulpar-search (1)
+search local and remote package indexes
+.TP
+.BR tulpar-list (1)
+list installed packages
+.TP
+.BR tulpar-info (1)
+show full metadata for a package (also: show)
+.TP
+.BR tulpar-verify (1)
+verify installed package files
+.TP
+.BR tulpar-orphans (1)
+list and remove orphaned packages (also: autoremove)
+.TP
+.BR tulpar-hold (1)
+block a package from upgrade or removal
+.TP
+.BR tulpar-unhold (1)
+release a held package
+.TP
+.BR tulpar-history (1)
+show past install/remove operations (also: audit, log)
+.TP
+.BR tulpar-repo (1)
+manage configured repositories
+.TP
+.BR tulpar-download (1)
+fetch a package without installing it
+.TP
+.BR tulpar-key (1)
+manage the trusted signing keyring
+.SH GLOBAL OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Show usage and exit.
+.TP
+.BR \-V ", " \-\-version
+Show the tulpar version and exit.
+.TP
+.BR \-y ", " \-\-yes
+Assume yes and skip confirmation prompts.
+.TP
+.BR \-j ", " \-\-json
+Produce machine-readable JSON output, where supported.
+.TP
+.BR \-d ", " \-\-dest " " \fIpath\fR
+Operate against an alternate filesystem root instead of the live
+system. The package database is resolved under
+.IR path /var/lib/apg/db
+and no root privileges are required, since the destination may be
+user-owned.
+.TP
+.BR \-q ", " \-\-quiet
+Suppress informational output.
+.TP
+.B \-\-verbose
+Enable debug output.
+.TP
+.B \-\-require\-signature
+Reject packages that fail signature verification instead of only
+warning about them.
+.TP
+.BI \-\-sign\-backend " backend"
+Select the signing backend used to verify package signatures, either
+.I sodium
+(libsodium, Ed25519, the default) or
+.I gpgme
+(OpenPGP). libapg builds both backends in; this flag only chooses
+which one tulpar verifies against for the current invocation.
+.SH FILES
+.TP
+.I /etc/apg/tulpar.conf
+System-wide configuration.
+.TP
+.I ~/.config/apg/tulpar.conf
+Per-user configuration overrides.
+.TP
+.I /etc/apg/repos
+System-wide repository list.
+.TP
+.I ~/.config/apg/repos
+Per-user repository list.
+.TP
+.I /var/cache/apg/pkgs/
+Downloaded package cache.
+.TP
+.I /var/cache/apg/repodata/
+Cached repository indexes.
+.TP
+.I /var/log/tulpar.log
+Default log file.
+.SH SEE ALSO
+.BR tulpar.conf (5),
+.BR tulpar-install (1),
+.BR tulpar-repo (1)

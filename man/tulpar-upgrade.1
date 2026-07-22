@@ -1,0 +1,39 @@
+.TH TULPAR-UPGRADE 1 "2026" "tulpar 0.1.0" "Tulpar Manual"
+.SH NAME
+tulpar-upgrade \- upgrade one or all installed packages
+.SH SYNOPSIS
+.B tulpar upgrade
+.RI [ options "] [" package "]"
+.br
+.B tulpar u
+.RI [ options "] [" package "]"
+.br
+.B tulpar \-u
+.RI [ options "] [" package "]"
+.SH DESCRIPTION
+With a
+.I package
+argument, upgrades that single installed package to the newest
+available version that satisfies it in the configured repositories.
+Without an argument, checks every installed package and upgrades all
+that have a newer version available.
+.SH OPTIONS
+.TP
+.BR \-d ", " \-\-dest " " \fIpath\fR
+Upgrade within an alternate root instead of the live system.
+.TP
+.BR \-y ", " \-\-yes
+Skip the confirmation prompt.
+.TP
+.B \-\-require\-signature
+Refuse to install any package whose signature cannot be verified.
+.TP
+.BI \-\-sign\-backend " sodium|gpgme"
+Select the signing backend used for signature verification.
+.SH EXIT STATUS
+0 on success (including when there is nothing to upgrade), non-zero
+if the transaction fails.
+.SH SEE ALSO
+.BR tulpar (1),
+.BR tulpar-install (1),
+.BR tulpar-hold (1)

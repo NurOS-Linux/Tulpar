@@ -1,0 +1,98 @@
+.TH TULPAR.CONF 5 "2026" "tulpar 0.1.0" "Tulpar Manual"
+.SH NAME
+tulpar.conf \- tulpar configuration file
+.SH DESCRIPTION
+.B tulpar.conf
+holds global settings for
+.BR tulpar (1).
+It is a plain text file, one
+.I key
+=
+.I value
+assignment per line. Lines starting with
+.B #
+are comments; blank lines are ignored. There are no sections.
+.PP
+Two files are read, in order, and later values override earlier ones:
+.IP 1. 4
+.I /etc/apg/tulpar.conf
+(system-wide)
+.IP 2. 4
+.I ~/.config/apg/tulpar.conf
+(per-user override)
+.SH KEYS
+.TP
+.B cache_dir
+Root of the local package and repodata cache. Default
+.IR /var/cache/apg .
+.TP
+.B db_dir
+Default package database directory used when
+.B \-\-dest
+is not given. Default
+.IR /var/lib/apg/db .
+.TP
+.B log_file
+Path to the log file. Default
+.IR /var/log/tulpar.log .
+.TP
+.B repodata_ttl
+Cache lifetime for
+.B repodata.json
+in seconds. Default
+.IR 900 " (15 minutes)."
+.TP
+.B max_parallel_downloads
+Maximum number of concurrent downloads within a single transaction.
+Default
+.IR 4 .
+.TP
+.B require_signature
+.IR true " or " false .
+When true, packages whose signature cannot be verified are rejected
+instead of only producing a warning. Default
+.IR false .
+.TP
+.B sign_backend
+.IR sodium " or " gpgme .
+Selects which of libapg's two signing backends is used to verify
+package signatures. Default
+.IR sodium .
+.TP
+.B color_theme
+Accent color used for informational output:
+.IR cyan ", " blue ", " magenta ", " green ", " yellow ", or " red .
+Default
+.IR cyan .
+Has no effect when color is disabled; see
+.B NO_COLOR
+in
+.BR tulpar (1).
+.TP
+.B verbose
+.IR true " or " false .
+Enable debug-level log and output verbosity. Default
+.IR false .
+.TP
+.B quiet
+.IR true " or " false .
+Suppress informational output. Default
+.IR false .
+.TP
+.B journald
+.IR true " or " false .
+On Linux, additionally mirror log lines to syslog/journald. Ignored
+on non-Linux platforms. Default
+.IR false .
+.SH EXAMPLE
+.nf
+# system-wide tulpar configuration
+cache_dir = /var/cache/apg
+repodata_ttl = 900
+max_parallel_downloads = 4
+require_signature = false
+sign_backend = sodium
+color_theme = cyan
+.fi
+.SH SEE ALSO
+.BR tulpar (1)

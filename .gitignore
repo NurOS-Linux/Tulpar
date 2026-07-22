@@ -8,6 +8,10 @@ build/
 builddir/
 src/build/
 
+# Meson wrap files cache (fetched subproject sources)
+subprojects/packagecache/
+subprojects/*/
+
 # Meson
 compile_commands.json
 

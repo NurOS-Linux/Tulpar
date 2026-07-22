@@ -1,0 +1,25 @@
+.TH TULPAR-UNHOLD 1 "2026" "tulpar 0.1.0" "Tulpar Manual"
+.SH NAME
+tulpar-unhold \- release a held package
+.SH SYNOPSIS
+.B tulpar unhold
+.RI [ options "] " name
+.br
+.B tulpar x
+.RI [ options "] " name
+.br
+.B tulpar \-x
+.RI [ options "] " name
+.SH DESCRIPTION
+Clears the hold flag set by
+.BR tulpar-hold (1),
+allowing the package to be upgraded or removed again.
+.SH OPTIONS
+.TP
+.BR \-d ", " \-\-dest " " \fIpath\fR
+Operate on an alternate root instead of the live system.
+.SH EXIT STATUS
+0 on success, non-zero if the package is not installed.
+.SH SEE ALSO
+.BR tulpar (1),
+.BR tulpar-hold (1)

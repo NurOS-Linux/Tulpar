@@ -1,0 +1,45 @@
+.TH TULPAR-INSTALL 1 "2026" "tulpar 0.1.0" "Tulpar Manual"
+.SH NAME
+tulpar-install \- install one or more packages
+.SH SYNOPSIS
+.B tulpar install
+.RI [ options "] " package " [" package "...]"
+.br
+.B tulpar i
+.RI [ options "] " package " [" package "...]"
+.br
+.B tulpar \-i
+.RI [ options "] " package " [" package "...]"
+.SH DESCRIPTION
+Installs one or more packages. Each
+.I package
+argument is either a bare package name, resolved against the
+configured repositories, or a path to a local
+.B .apg
+archive.
+.PP
+Dependencies are resolved transitively against each package's declared
+dependency list using libapg's dependency graph, and missing
+dependencies are downloaded from the configured repositories before
+the transaction is prepared. The resolved plan is printed and
+confirmed before anything is written to disk.
+.SH OPTIONS
+.TP
+.BR \-d ", " \-\-dest " " \fIpath\fR
+Install into an alternate root instead of the live system.
+.TP
+.BR \-y ", " \-\-yes
+Skip the confirmation prompt.
+.TP
+.B \-\-require\-signature
+Refuse to install any package whose signature cannot be verified.
+.TP
+.BI \-\-sign\-backend " sodium|gpgme"
+Select the signing backend used for signature verification.
+.SH EXIT STATUS
+0 on success, non-zero if resolution, download, or the transaction
+fails.
+.SH SEE ALSO
+.BR tulpar (1),
+.BR tulpar-upgrade (1),
+.BR tulpar-download (1)

@@ -1,0 +1,29 @@
+.TH TULPAR-LIST 1 "2026" "tulpar 0.1.0" "Tulpar Manual"
+.SH NAME
+tulpar-list \- list installed packages
+.SH SYNOPSIS
+.B tulpar list
+.RI [ options ]
+.br
+.B tulpar l
+.RI [ options ]
+.br
+.B tulpar \-l
+.RI [ options ]
+.SH DESCRIPTION
+Lists every package recorded in the package database, with its
+installed version and hold state.
+.SH OPTIONS
+.TP
+.BR \-d ", " \-\-dest " " \fIpath\fR
+List the database of an alternate root.
+.TP
+.BR \-j ", " \-\-json
+Print the package list as a JSON array instead of human-readable
+text.
+.SH EXIT STATUS
+0 on success.
+.SH SEE ALSO
+.BR tulpar (1),
+.BR tulpar-search (1),
+.BR tulpar-info (1)

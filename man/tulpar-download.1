@@ -1,0 +1,41 @@
+.TH TULPAR-DOWNLOAD 1 "2026" "tulpar 0.1.0" "Tulpar Manual"
+.SH NAME
+tulpar-download \- fetch a package without installing it
+.SH SYNOPSIS
+.B tulpar download
+.RI [ options "] " name
+.br
+.B tulpar w
+.RI [ options "] " name
+.br
+.B tulpar \-w
+.RI [ options "] " name
+.SH DESCRIPTION
+Downloads the
+.B .apg
+archive and detached signature for
+.I name
+from the configured repositories, without installing it.
+.SH OPTIONS
+.TP
+.BI \-o ", " \-\-output " " \fIpath\fR
+Write the downloaded archive to
+.I path
+instead of the default cache location under
+.IR /var/cache/apg/pkgs/ .
+.TP
+.BI \-\-version " version"
+Request a specific version instead of the first matching build.
+.TP
+.BI \-\-arch " arch"
+Request a specific architecture.
+.TP
+.BI \-\-channel " channel"
+Request a specific release channel. Defaults to
+.IR stable .
+.SH EXIT STATUS
+0 on success, non-zero if the package could not be found or
+downloaded.
+.SH SEE ALSO
+.BR tulpar (1),
+.BR tulpar-install (1)

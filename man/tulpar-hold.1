@@ -1,0 +1,25 @@
+.TH TULPAR-HOLD 1 "2026" "tulpar 0.1.0" "Tulpar Manual"
+.SH NAME
+tulpar-hold \- block a package from upgrade or removal
+.SH SYNOPSIS
+.B tulpar hold
+.RI [ options "] " name
+.br
+.B tulpar g
+.RI [ options "] " name
+.br
+.B tulpar \-g
+.RI [ options "] " name
+.SH DESCRIPTION
+Marks an installed package as held. Held packages are blocked from
+upgrade and removal until released with
+.BR tulpar-unhold (1).
+.SH OPTIONS
+.TP
+.BR \-d ", " \-\-dest " " \fIpath\fR
+Operate on an alternate root instead of the live system.
+.SH EXIT STATUS
+0 on success, non-zero if the package is not installed.
+.SH SEE ALSO
+.BR tulpar (1),
+.BR tulpar-unhold (1)

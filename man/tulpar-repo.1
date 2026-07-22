@@ -1,0 +1,68 @@
+.TH TULPAR-REPO 1 "2026" "tulpar 0.1.0" "Tulpar Manual"
+.SH NAME
+tulpar-repo \- manage configured repositories
+.SH SYNOPSIS
+.B tulpar repo add
+.I url
+.RI [ \-\-user ]
+.br
+.B tulpar repo remove
+.I url
+.RI [ \-\-user ]
+.br
+.B tulpar repo list
+.br
+.B tulpar repo update
+.br
+.B tulpar e
+.I action
+.RI [ args ...]
+.br
+.B tulpar \-e
+.I action
+.RI [ args ...]
+.SH DESCRIPTION
+Manages the list of configured Tulpar Server repositories.
+.TP
+.B add
+Appends a repository URL to the repository list file.
+.TP
+.B remove
+Removes a repository URL from the repository list file.
+.TP
+.B list
+Prints every configured repository, system-wide and per-user
+combined.
+.TP
+.B update
+Refreshes the cached
+.B repodata.json
+for every configured repository, ignoring the cache TTL.
+.SH OPTIONS
+.TP
+.B \-\-user
+For
+.B add
+and
+.BR remove ,
+operate on the per-user repository list
+.RI ( "~/.config/apg/repos" )
+instead of the system-wide one
+.RI ( "/etc/apg/repos" ).
+When omitted, the system-wide file is used if tulpar is running as
+root, and the per-user file otherwise.
+.SH FILES
+.TP
+.I /etc/apg/repos
+System-wide repository list, one URL per line, lines starting with
+.B #
+are comments.
+.TP
+.I ~/.config/apg/repos
+Per-user repository list, same format.
+.SH EXIT STATUS
+0 on success, non-zero if the requested repository could not be
+added, removed, or refreshed.
+.SH SEE ALSO
+.BR tulpar (1),
+.BR tulpar-search (1)

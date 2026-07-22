@@ -1,0 +1,40 @@
+.TH TULPAR-HISTORY 1 "2026" "tulpar 0.1.0" "Tulpar Manual"
+.SH NAME
+tulpar-history, tulpar-audit, tulpar-log \- show past install/remove operations
+.SH SYNOPSIS
+.B tulpar history
+.RI [ options ]
+.br
+.B tulpar audit
+.RI [ options ]
+.br
+.B tulpar log
+.RI [ options ]
+.br
+.B tulpar a
+.RI [ options ]
+.br
+.B tulpar \-a
+.RI [ options ]
+.SH DESCRIPTION
+Prints the recorded history of install, remove, and rollback
+operations from the package database's audit journal, in
+chronological order.
+.B history
+,
+.B audit
+, and
+.B log
+are equivalent spellings of the same command.
+.SH OPTIONS
+.TP
+.BR \-d ", " \-\-dest " " \fIpath\fR
+Read the journal of an alternate root.
+.TP
+.BR \-j ", " \-\-json
+Print the history as a JSON array instead of human-readable text.
+.SH EXIT STATUS
+0 on success.
+.SH SEE ALSO
+.BR tulpar (1),
+.BR tulpar-verify (1)

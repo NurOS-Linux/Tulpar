@@ -1,0 +1,47 @@
+option('sysconf_apg_dir',
+  type: 'string',
+  value: '/etc/apg',
+  description: 'Directory for system-wide apg/tulpar configuration (repos, tulpar.conf); auto-adjusted to /usr/local/etc/apg on FreeBSD unless overridden',
+)
+
+option('cache_dir',
+  type: 'string',
+  value: '/var/cache/apg',
+  description: 'Root of the local package and repodata cache',
+)
+
+option('db_dir',
+  type: 'string',
+  value: '/var/lib/apg/db',
+  description: 'Default package database directory under the live root',
+)
+
+option('log_file',
+  type: 'string',
+  value: '/var/log/tulpar.log',
+  description: 'Default log file path',
+)
+
+option('repodata_ttl',
+  type: 'integer',
+  value: 900,
+  description: 'Default repodata.json cache TTL in seconds',
+)
+
+option('max_parallel_downloads',
+  type: 'integer',
+  value: 4,
+  description: 'Default maximum concurrent downloads per transaction',
+)
+
+option('keyring_dir',
+  type: 'string',
+  value: '/etc/apg/trusted.d',
+  description: 'Trusted keyring directory, must match the libapg build (auto-adjusted to /usr/local/etc/apg/trusted.d on FreeBSD unless overridden)',
+)
+
+option('journald',
+  type: 'feature',
+  value: 'auto',
+  description: 'Mirror log lines to the systemd journal on Linux',
+)

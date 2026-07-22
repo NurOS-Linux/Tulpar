@@ -1,0 +1,41 @@
+.TH TULPAR-REMOVE 1 "2026" "tulpar 0.1.0" "Tulpar Manual"
+.SH NAME
+tulpar-remove, tulpar-uninstall \- remove an installed package
+.SH SYNOPSIS
+.B tulpar remove
+.RI [ options "] " package " [" package "...]"
+.br
+.B tulpar uninstall
+.RI [ options "] " package " [" package "...]"
+.br
+.B tulpar r
+.RI [ options "] " package " [" package "...]"
+.br
+.B tulpar \-r
+.RI [ options "] " package " [" package "...]"
+.SH DESCRIPTION
+Removes one or more installed packages.
+.B remove
+and
+.B uninstall
+are equivalent spellings of the same command.
+.PP
+Removal of a package with other installed packages depending on it is
+blocked; the dependents are printed so the conflict can be resolved
+manually. Held packages (see
+.BR tulpar-hold (1))
+are likewise blocked from removal.
+.SH OPTIONS
+.TP
+.BR \-d ", " \-\-dest " " \fIpath\fR
+Remove from an alternate root instead of the live system.
+.TP
+.BR \-y ", " \-\-yes
+Skip the confirmation prompt.
+.SH EXIT STATUS
+0 on success, non-zero if the removal is blocked or the transaction
+fails.
+.SH SEE ALSO
+.BR tulpar (1),
+.BR tulpar-orphans (1),
+.BR tulpar-hold (1)

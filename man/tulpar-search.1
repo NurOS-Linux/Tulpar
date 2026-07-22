@@ -1,0 +1,30 @@
+.TH TULPAR-SEARCH 1 "2026" "tulpar 0.1.0" "Tulpar Manual"
+.SH NAME
+tulpar-search \- search local and remote package indexes
+.SH SYNOPSIS
+.B tulpar search
+.RI [ options "] " query
+.br
+.B tulpar s
+.RI [ options "] " query
+.br
+.B tulpar \-s
+.RI [ options "] " query
+.SH DESCRIPTION
+Searches the local package database and the cached repository indexes
+for packages whose name or description contains
+.IR query ,
+case-insensitively. Results are grouped as installed and available.
+.SH OPTIONS
+.TP
+.BR \-d ", " \-\-dest " " \fIpath\fR
+Search the local database of an alternate root.
+.TP
+.BR \-j ", " \-\-json
+Print results as a JSON array instead of human-readable text.
+.SH EXIT STATUS
+0 regardless of whether any results were found.
+.SH SEE ALSO
+.BR tulpar (1),
+.BR tulpar-list (1),
+.BR tulpar-info (1)

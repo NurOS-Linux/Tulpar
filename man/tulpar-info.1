@@ -1,0 +1,37 @@
+.TH TULPAR-INFO 1 "2026" "tulpar 0.1.0" "Tulpar Manual"
+.SH NAME
+tulpar-info, tulpar-show \- show full metadata for a package
+.SH SYNOPSIS
+.B tulpar info
+.RI [ options "] " name
+.br
+.B tulpar show
+.RI [ options "] " name
+.br
+.B tulpar n
+.RI [ options "] " name
+.br
+.B tulpar \-n
+.RI [ options "] " name
+.SH DESCRIPTION
+Shows full metadata for
+.IR name .
+The local package database is checked first; if the package is not
+installed, the configured repositories are queried instead.
+.B info
+and
+.B show
+are equivalent spellings of the same command.
+.SH OPTIONS
+.TP
+.BR \-d ", " \-\-dest " " \fIpath\fR
+Look up in the local database of an alternate root.
+.TP
+.BR \-j ", " \-\-json
+Print the metadata as a JSON object instead of human-readable text.
+.SH EXIT STATUS
+0 if the package was found, non-zero otherwise.
+.SH SEE ALSO
+.BR tulpar (1),
+.BR tulpar-search (1),
+.BR tulpar-list (1)

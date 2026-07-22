@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: GPL-3.0-only
+
+_tulpar()
+{
+    local cur prev commands
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+    commands="install remove uninstall upgrade search list info show verify \
+orphans autoremove hold unhold history audit log repo download key"
+
+    if [ "$COMP_CWORD" -eq 1 ]; then
+        COMPREPLY=($(compgen -W "$commands -h --help -V --version" -- "$cur"))
+        return 0
+    fi
+
+    case "$prev" in
+        --dest|-d)
+            COMPREPLY=($(compgen -d -- "$cur"))
+            return 0
+            ;;
+        --sign-backend)
+            COMPREPLY=($(compgen -W "sodium gpgme" -- "$cur"))
+            return 0
+            ;;
+    esac
+
+    case "${COMP_WORDS[1]}" in
+        repo)
+            if [ "$COMP_CWORD" -eq 2 ]; then
+                COMPREPLY=($(compgen -W "add remove list update" -- "$cur"))
+                return 0
+            fi
+            ;;
+        key)
+            if [ "$COMP_CWORD" -eq 2 ]; then
+                COMPREPLY=($(compgen -W "add list" -- "$cur"))
+                return 0
+            fi
+            ;;
+    esac
+
+    COMPREPLY=($(compgen -W "--dest --yes --json --quiet --verbose \
+--require-signature --sign-backend" -- "$cur"))
+}
+
+complete -F _tulpar tulpar

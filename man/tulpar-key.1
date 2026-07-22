@@ -1,0 +1,44 @@
+.TH TULPAR-KEY 1 "2026" "tulpar 0.1.0" "Tulpar Manual"
+.SH NAME
+tulpar-key \- manage the trusted signing keyring
+.SH SYNOPSIS
+.B tulpar key add
+.I key-path
+.RI [ sig-path ]
+.br
+.B tulpar key list
+.br
+.B tulpar k
+.I action
+.RI [ args ...]
+.br
+.B tulpar \-k
+.I action
+.RI [ args ...]
+.SH DESCRIPTION
+Manages the trusted keyring used to verify package signatures.
+.TP
+.B add
+Adds a new public key to the trusted keyring, if it is endorsed by a
+key already present in the keyring.
+.I sig-path
+is the detached endorsement signature of the new key and is required
+for the libsodium backend; it is ignored for the gpgme backend, whose
+certifications are embedded in the key itself.
+.TP
+.B list
+Prints the trusted keyring directory and the active signing backend.
+.SH OPTIONS
+.TP
+.BI \-\-sign\-backend " sodium|gpgme"
+Select which backend's keyring to operate on for this invocation.
+Defaults to the
+.I sign_backend
+value from
+.BR tulpar.conf (5).
+.SH EXIT STATUS
+0 on success, non-zero if the key was not added or the keyring could
+not be read.
+.SH SEE ALSO
+.BR tulpar (1),
+.BR tulpar.conf (5)

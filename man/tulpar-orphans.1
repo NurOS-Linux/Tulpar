@@ -1,0 +1,35 @@
+.TH TULPAR-ORPHANS 1 "2026" "tulpar 0.1.0" "Tulpar Manual"
+.SH NAME
+tulpar-orphans, tulpar-autoremove \- list and remove orphaned packages
+.SH SYNOPSIS
+.B tulpar orphans
+.RI [ options ]
+.br
+.B tulpar autoremove
+.RI [ options ]
+.br
+.B tulpar o
+.RI [ options ]
+.br
+.B tulpar \-o
+.RI [ options ]
+.SH DESCRIPTION
+Lists installed packages that were pulled in automatically as
+dependencies and are no longer required by any other installed
+package, then offers to remove them.
+.B orphans
+and
+.B autoremove
+are equivalent spellings of the same command.
+.SH OPTIONS
+.TP
+.BR \-d ", " \-\-dest " " \fIpath\fR
+Operate on an alternate root instead of the live system.
+.TP
+.BR \-y ", " \-\-yes
+Skip the confirmation prompt.
+.SH EXIT STATUS
+0 on success (including when there are no orphans).
+.SH SEE ALSO
+.BR tulpar (1),
+.BR tulpar-remove (1)
