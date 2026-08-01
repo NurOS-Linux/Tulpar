@@ -13,8 +13,7 @@
 - [x] repodata.json caching with configurable TTL
 - [x] parallel downloads with a configurable limit
 - [x] Tulpar Server REST v2 client over libcurl
-- [x] dual signing backend support (libsodium default, gpgme), runtime
-      selectable via config and `--sign-backend`
+- [x] signature verification against libapg's libsodium backend
 - [x] colored terminal UI with NO_COLOR/tty detection, progress bars,
       transaction plan confirmation, `--json` output
 - [x] syslog-style logging with optional Linux journald mirroring

@@ -81,16 +81,21 @@ cmd_history_run(int argc, char **argv, struct tulpar_config *cfg)
         for (int i = 0; i < count; i++)
         {
             struct journal_entry *e = entries[i];
+            const char *name = journal_entry_pkg_name(e);
+            const char *version = journal_entry_pkg_version(e);
+
             yyjson_mut_val *obj = yyjson_mut_obj(doc);
-            yyjson_mut_obj_add_str(doc, obj, "op", op_name(e->op));
-            yyjson_mut_obj_add_strcpy(doc, obj, "name",
-                                      e->pkg_name ? e->pkg_name : "");
+            yyjson_mut_obj_add_str(doc, obj, "op",
+                                   op_name(journal_entry_op(e)));
+            yyjson_mut_obj_add_strcpy(doc, obj, "name", name ? name : "");
             yyjson_mut_obj_add_strcpy(doc, obj, "version",
-                                      e->pkg_version ? e->pkg_version : "");
-            yyjson_mut_obj_add_str(doc, obj, "status", status_name(e->status));
+                                      version ? version : "");
+            yyjson_mut_obj_add_str(doc, obj, "status",
+                                   status_name(journal_entry_status(e)));
             yyjson_mut_obj_add_uint(doc, obj, "timestamp",
-                                    (uint64_t)e->timestamp);
-            yyjson_mut_obj_add_bool(doc, obj, "explicit", e->explicit_op);
+                                    (uint64_t)journal_entry_timestamp(e));
+            yyjson_mut_obj_add_bool(doc, obj, "explicit",
+                                    journal_entry_explicit(e));
             yyjson_mut_arr_add_val(arr, obj);
         }
 
@@ -111,9 +116,12 @@ cmd_history_run(int argc, char **argv, struct tulpar_config *cfg)
         for (int i = 0; i < count; i++)
         {
             struct journal_entry *e = entries[i];
-            printf("%-8s %-8s %s %s\n", op_name(e->op), status_name(e->status),
-                   e->pkg_name ? e->pkg_name : "",
-                   e->pkg_version ? e->pkg_version : "");
+            const char *name = journal_entry_pkg_name(e);
+            const char *version = journal_entry_pkg_version(e);
+
+            printf("%-8s %-8s %s %s\n", op_name(journal_entry_op(e)),
+                   status_name(journal_entry_status(e)), name ? name : "",
+                   version ? version : "");
         }
     }
 

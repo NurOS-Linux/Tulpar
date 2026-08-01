@@ -97,14 +97,6 @@ Enable debug output.
 .B \-\-require\-signature
 Reject packages that fail signature verification instead of only
 warning about them.
-.TP
-.BI \-\-sign\-backend " backend"
-Select the signing backend used to verify package signatures, either
-.I sodium
-(libsodium, Ed25519, the default) or
-.I gpgme
-(OpenPGP). libapg builds both backends in; this flag only chooses
-which one tulpar verifies against for the current invocation.
 .SH FILES
 .TP
 .I /etc/apg/tulpar.conf

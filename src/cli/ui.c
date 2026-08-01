@@ -272,8 +272,7 @@ op_color(trans_op_t op)
 void
 ui_print_plan(const struct apg_trans *trans)
 {
-    size_t count = 0;
-    const struct trans_step *steps = trans_get_plan(trans, &count);
+    size_t count = trans_plan_count(trans);
 
     if (count == 0)
     {
@@ -284,14 +283,18 @@ ui_print_plan(const struct apg_trans *trans)
     printf("\nTransaction plan:\n");
     for (size_t i = 0; i < count; i++)
     {
-        const struct trans_step *s = &steps[i];
-        const char *ver = s->pkg_version ? s->pkg_version : "";
+        const struct trans_step *s = trans_plan_at(trans, i);
+        trans_op_t op = trans_step_op(s);
+        const char *name = trans_step_pkg_name(s);
+        const char *ver = trans_step_pkg_version(s);
+        if (!ver)
+            ver = "";
 
         if (g_colors_enabled)
-            printf("  %s%-8s%s %s %s\n", op_color(s->op), op_label(s->op),
-                   COL_RESET, s->pkg_name, ver);
+            printf("  %s%-8s%s %s %s\n", op_color(op), op_label(op), COL_RESET,
+                   name, ver);
         else
-            printf("  %-8s %s %s\n", op_label(s->op), s->pkg_name, ver);
+            printf("  %-8s %s %s\n", op_label(op), name, ver);
     }
     printf("\n");
 }
@@ -299,39 +302,49 @@ ui_print_plan(const struct apg_trans *trans)
 void
 ui_print_conflicts(const struct apg_trans *trans)
 {
-    size_t count = 0;
-
-    const struct trans_conflict *conflicts = trans_get_conflicts(trans, &count);
-    for (size_t i = 0; i < count; i++)
-        ui_errorf("%s conflicts with installed package %s",
-                  conflicts[i].pkg_name, conflicts[i].conflicts_with);
-
-    const struct trans_file_conflict *fconflicts =
-        trans_get_file_conflicts(trans, &count);
-    for (size_t i = 0; i < count; i++)
-        ui_errorf("file %s requested by %s is already owned by %s",
-                  fconflicts[i].path, fconflicts[i].requested_by,
-                  fconflicts[i].owned_by);
-
-    const struct trans_blocked_remove *blocked =
-        trans_get_blocked_removes(trans, &count);
-    for (size_t i = 0; i < count; i++)
+    size_t conflict_count = trans_conflict_count(trans);
+    for (size_t i = 0; i < conflict_count; i++)
     {
-        char deps[512];
-        deps[0] = '\0';
-        for (int j = 0; j < blocked[i].dependent_count; j++)
-        {
-            strncat(deps, blocked[i].dependents[j],
-                    sizeof(deps) - strlen(deps) - 1);
-            if (j + 1 < blocked[i].dependent_count)
-                strncat(deps, ", ", sizeof(deps) - strlen(deps) - 1);
-        }
-        ui_errorf("cannot remove %s: required by %s", blocked[i].pkg_name,
-                  deps);
+        const struct trans_conflict *c = trans_conflict_at(trans, i);
+        ui_errorf("%s conflicts with installed package %s",
+                  trans_conflict_pkg_name(c), trans_conflict_conflicts_with(c));
     }
 
-    const struct trans_held_pkg *held = trans_get_held_pkgs(trans, &count);
-    for (size_t i = 0; i < count; i++)
-        ui_errorf("%s is held, %s blocked", held[i].pkg_name,
-                  op_label(held[i].op));
+    size_t file_conflict_count = trans_file_conflict_count(trans);
+    for (size_t i = 0; i < file_conflict_count; i++)
+    {
+        const struct trans_file_conflict *fc = trans_file_conflict_at(trans, i);
+        ui_errorf("file %s requested by %s is already owned by %s",
+                  trans_file_conflict_path(fc),
+                  trans_file_conflict_requested_by(fc),
+                  trans_file_conflict_owned_by(fc));
+    }
+
+    size_t blocked_count = trans_blocked_remove_count(trans);
+    for (size_t i = 0; i < blocked_count; i++)
+    {
+        const struct trans_blocked_remove *b =
+            trans_blocked_remove_at(trans, i);
+        int dependent_count = trans_blocked_remove_dependent_count(b);
+
+        char deps[512];
+        deps[0] = '\0';
+        for (int j = 0; j < dependent_count; j++)
+        {
+            strncat(deps, trans_blocked_remove_dependent_at(b, j),
+                    sizeof(deps) - strlen(deps) - 1);
+            if (j + 1 < dependent_count)
+                strncat(deps, ", ", sizeof(deps) - strlen(deps) - 1);
+        }
+        ui_errorf("cannot remove %s: required by %s",
+                  trans_blocked_remove_pkg_name(b), deps);
+    }
+
+    size_t held_count = trans_held_pkg_count(trans);
+    for (size_t i = 0; i < held_count; i++)
+    {
+        const struct trans_held_pkg *h = trans_held_pkg_at(trans, i);
+        ui_errorf("%s is held, %s blocked", trans_held_pkg_name(h),
+                  op_label(trans_held_pkg_op(h)));
+    }
 }

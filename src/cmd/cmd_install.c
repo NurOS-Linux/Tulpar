@@ -15,7 +15,7 @@
 
 #define USAGE                                                                  \
     "tulpar install [--dest <path>] [-y] [--require-signature] "               \
-    "[--sign-backend sodium|gpgme] <package|file.apg>..."
+    "<package|file.apg>..."
 
 int
 cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
@@ -23,7 +23,6 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
     const char *dest_arg = NULL;
     bool assume_yes = false;
     bool require_sig = false;
-    sign_backend_t sign_backend = cfg->sign_backend;
     char *positional[256];
     int positional_count = 0;
 
@@ -41,15 +40,6 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
             assume_yes = true;
         else if (arg_is(argv[i], "require-signature", '\0'))
             require_sig = true;
-        else if (arg_take_value(argc, argv, &i, "sign-backend", '\0', &value))
-        {
-            if (!cmd_parse_sign_backend(value, &sign_backend))
-            {
-                ui_error("--sign-backend must be sodium or gpgme");
-                cmd_print_usage(USAGE);
-                return 1;
-            }
-        }
         else if (positional_count < 256)
             positional[positional_count++] = argv[i];
     }
@@ -100,7 +90,7 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
     ui_debugf("resolved closure of %zu package(s) to install", set.count);
 
     for (size_t i = 0; i < set.count; i++)
-        cmd_warn_if_unsigned(set.items[i], sign_backend);
+        cmd_warn_if_unsigned(set.items[i]);
 
     struct apg_trans *trans = trans_new(db);
     if (!trans)
@@ -116,8 +106,7 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
     for (size_t i = 0; i < set.count; i++)
         trans_add_install(trans, set.items[i]);
 
-    bool ok = cmd_run_transaction(trans, &dest, cfg, assume_yes, require_sig,
-                                  sign_backend);
+    bool ok = cmd_run_transaction(trans, &dest, cfg, assume_yes, require_sig);
 
     trans_free(trans);
     pkg_set_free(&set);

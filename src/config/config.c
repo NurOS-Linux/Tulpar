@@ -41,7 +41,6 @@ tulpar_config_defaults(void)
     cfg->repodata_ttl = TULPAR_REPODATA_TTL;
     cfg->max_parallel_downloads = TULPAR_MAX_PARALLEL_DOWNLOADS;
     cfg->require_signature = false;
-    cfg->sign_backend = SIGN_BACKEND_SODIUM;
     cfg->color_theme = strdup("cyan");
     cfg->verbose = false;
     cfg->quiet = false;
@@ -124,13 +123,6 @@ apply_kv(struct tulpar_config *cfg, const char *key, const char *value)
     else if (strcmp(key, "journald") == 0)
     {
         cfg->journald_mirror = parse_bool(value);
-    }
-    else if (strcmp(key, "sign_backend") == 0)
-    {
-        if (strcmp(value, "gpgme") == 0)
-            cfg->sign_backend = SIGN_BACKEND_GPGME;
-        else
-            cfg->sign_backend = SIGN_BACKEND_SODIUM;
     }
 }
 

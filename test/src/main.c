@@ -24,7 +24,6 @@ main(void)
 
     test_config_defaults();
     test_config_parse_file_overrides();
-    test_config_parse_file_sign_backend();
 
     test_plan_render_install_step();
 

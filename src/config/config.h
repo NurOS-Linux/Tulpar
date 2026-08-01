@@ -5,8 +5,6 @@
 
 #include <stdbool.h>
 
-#include <apg/sign.h>
-
 struct tulpar_config
 {
     char *cache_dir;
@@ -15,7 +13,6 @@ struct tulpar_config
     int repodata_ttl;
     int max_parallel_downloads;
     bool require_signature;
-    sign_backend_t sign_backend;
     char *color_theme;
     bool verbose;
     bool quiet;

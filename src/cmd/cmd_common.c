@@ -42,24 +42,8 @@ cmd_open_db(const struct dest_ctx *dest, bool writable)
     return db;
 }
 
-bool
-cmd_parse_sign_backend(const char *value, sign_backend_t *out)
-{
-    if (strcmp(value, "sodium") == 0)
-    {
-        *out = SIGN_BACKEND_SODIUM;
-        return true;
-    }
-    if (strcmp(value, "gpgme") == 0)
-    {
-        *out = SIGN_BACKEND_GPGME;
-        return true;
-    }
-    return false;
-}
-
 void
-cmd_warn_if_unsigned(const struct package *pkg, sign_backend_t backend)
+cmd_warn_if_unsigned(const struct package *pkg)
 {
     if (!pkg->pkg_path)
         return;
@@ -76,11 +60,7 @@ cmd_warn_if_unsigned(const struct package *pkg, sign_backend_t backend)
         return;
     }
 
-    bool verified = backend == SIGN_BACKEND_GPGME
-                        ? sign_verify_gpgme(pkg->pkg_path, sig_path, false)
-                        : sign_verify(pkg->pkg_path, sig_path, false);
-
-    if (!verified)
+    if (!sign_verify(pkg->pkg_path, sig_path, false))
         ui_warnf("%s signature at %s could not be verified; "
                  "installing an unverified package",
                  pkg->meta->name, sig_path);
@@ -89,16 +69,15 @@ cmd_warn_if_unsigned(const struct package *pkg, sign_backend_t backend)
 bool
 cmd_run_transaction(struct apg_trans *trans, const struct dest_ctx *dest,
                     const struct tulpar_config *cfg, bool assume_yes,
-                    bool require_signature_flag, sign_backend_t sign_backend)
+                    bool require_signature_flag)
 {
     install_policy policy = {
         .require_signature = require_signature_flag || cfg->require_signature,
         .keyring_dir = NULL,
-        .backend = sign_backend,
+        .backend = SIGN_BACKEND_SODIUM,
     };
-    ui_debugf("policy: require_signature=%s backend=%s",
-              policy.require_signature ? "true" : "false",
-              sign_backend == SIGN_BACKEND_GPGME ? "gpgme" : "sodium");
+    ui_debugf("policy: require_signature=%s",
+              policy.require_signature ? "true" : "false");
     trans_set_policy(trans, &policy);
 
     ui_debug("preparing transaction (dependency resolution, conflict checks)");

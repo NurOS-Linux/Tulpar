@@ -13,8 +13,7 @@
 #include "../repo/repo.h"
 
 #define USAGE                                                                  \
-    "tulpar upgrade [--dest <path>] [-y] [--require-signature] "               \
-    "[--sign-backend sodium|gpgme] [package]"
+    "tulpar upgrade [--dest <path>] [-y] [--require-signature] [package]"
 
 int
 cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
@@ -22,7 +21,6 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
     const char *dest_arg = NULL;
     bool assume_yes = false;
     bool require_sig = false;
-    sign_backend_t sign_backend = cfg->sign_backend;
     const char *target_name = NULL;
 
     for (int i = 0; i < argc; i++)
@@ -39,15 +37,6 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
             assume_yes = true;
         else if (arg_is(argv[i], "require-signature", '\0'))
             require_sig = true;
-        else if (arg_take_value(argc, argv, &i, "sign-backend", '\0', &value))
-        {
-            if (!cmd_parse_sign_backend(value, &sign_backend))
-            {
-                ui_error("--sign-backend must be sodium or gpgme");
-                cmd_print_usage(USAGE);
-                return 1;
-            }
-        }
         else if (!target_name)
             target_name = argv[i];
     }
@@ -132,7 +121,7 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
     }
 
     for (size_t i = 0; i < set.count; i++)
-        cmd_warn_if_unsigned(set.items[i], sign_backend);
+        cmd_warn_if_unsigned(set.items[i]);
 
     struct apg_trans *trans = trans_new(db);
     if (!trans)
@@ -151,8 +140,7 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
     for (size_t i = 0; i < set.count; i++)
         trans_add_upgrade(trans, set.items[i]);
 
-    bool ok = cmd_run_transaction(trans, &dest, cfg, assume_yes, require_sig,
-                                  sign_backend);
+    bool ok = cmd_run_transaction(trans, &dest, cfg, assume_yes, require_sig);
 
     trans_free(trans);
     pkg_set_free(&set);

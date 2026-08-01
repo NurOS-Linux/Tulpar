@@ -4,8 +4,6 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include <apg/sign.h>
-
 #include "config/config.h"
 #include "helpers.h"
 #include "tests.h"
@@ -18,7 +16,6 @@ test_config_defaults(void)
     assert(cfg->repodata_ttl > 0);
     assert(cfg->max_parallel_downloads > 0);
     assert(cfg->require_signature == false);
-    assert(cfg->sign_backend == SIGN_BACKEND_SODIUM);
     assert(strcmp(cfg->color_theme, "cyan") == 0);
     tulpar_config_free(cfg);
     printf("test_config_defaults: PASS\n");
@@ -49,21 +46,4 @@ test_config_parse_file_overrides(void)
     unlink(path);
     free(path);
     printf("test_config_parse_file_overrides: PASS\n");
-}
-
-void
-test_config_parse_file_sign_backend(void)
-{
-    char *path = mktmp_path("tulpar-conf-sign");
-    write_file_contents(path, "sign_backend = gpgme\n");
-
-    struct tulpar_config *cfg = tulpar_config_defaults();
-    assert(cfg);
-    assert(tulpar_config_parse_file(path, cfg));
-    assert(cfg->sign_backend == SIGN_BACKEND_GPGME);
-
-    tulpar_config_free(cfg);
-    unlink(path);
-    free(path);
-    printf("test_config_parse_file_sign_backend: PASS\n");
 }

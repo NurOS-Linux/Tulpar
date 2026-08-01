@@ -90,8 +90,7 @@ cmd_orphans_run(int argc, char **argv, struct tulpar_config *cfg)
     for (int i = 0; i < count; i++)
         trans_add_remove(trans, orphans[i]);
 
-    bool ok =
-        cmd_run_transaction(trans, &dest, cfg, true, false, cfg->sign_backend);
+    bool ok = cmd_run_transaction(trans, &dest, cfg, true, false);
 
     trans_free(trans);
     for (int i = 0; i < count; i++)

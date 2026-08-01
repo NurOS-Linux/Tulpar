@@ -57,25 +57,16 @@ The pinned revision is only the latest one known when this wrap was
 written; it does not track `main` automatically and will be bumped by
 the maintainer as libapg evolves.
 
-## Signing backends
+## Signing
 
-libapg builds in both signing backends side by side and lets the
-caller choose at runtime; tulpar exposes that choice as its own
-`sign_backend` setting:
-
-- **sodium** (the default): libsodium, Ed25519 signing. Calls libapg's
-  unsuffixed `sign_verify` / `keyring_load` / ... functions.
-- **gpgme**: OpenPGP signing via GnuPG. Calls libapg's `_gpgme`
-  suffixed `sign_verify_gpgme` / `keyring_load_gpgme` / ... functions.
-
-Set `sign_backend = sodium` or `sign_backend = gpgme` in `tulpar.conf`,
-or pass `--sign-backend sodium|gpgme` on the command line for a single
-invocation. `require_signature` defaults to `false`, matching Tulpar
-Server's own default; when a package's signature is missing or fails
-verification, tulpar always prints a loud warning before proceeding,
-regardless of `require_signature`. Set `require_signature = true` (or
-pass `--require-signature`) to reject unsigned or unverifiable
-packages outright instead of just warning.
+tulpar verifies package signatures against libapg's libsodium
+(Ed25519) backend via the unsuffixed `sign_verify` / `keyring_load` /
+`keyring_add_key` functions. `require_signature` defaults to `false`,
+matching Tulpar Server's own default; when a package's signature is
+missing or fails verification, tulpar always prints a loud warning
+before proceeding, regardless of `require_signature`. Set
+`require_signature = true` (or pass `--require-signature`) to reject
+unsigned or unverifiable packages outright instead of just warning.
 
 ## Install-script sandbox
 
@@ -128,8 +119,8 @@ values overriding earlier ones:
 The format is plain `key = value` lines; `#` starts a comment; there
 are no sections. See `tulpar.conf(5)` for the full list of keys
 (`cache_dir`, `db_dir`, `log_file`, `repodata_ttl`,
-`max_parallel_downloads`, `require_signature`, `sign_backend`,
-`color_theme`, `verbose`, `quiet`, `journald`).
+`max_parallel_downloads`, `require_signature`, `color_theme`,
+`verbose`, `quiet`, `journald`).
 
 ### Repositories
 

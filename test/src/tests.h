@@ -19,6 +19,5 @@ void test_repo_list_add_remove(void);
 
 void test_config_defaults(void);
 void test_config_parse_file_overrides(void);
-void test_config_parse_file_sign_backend(void);
 
 void test_plan_render_install_step(void);

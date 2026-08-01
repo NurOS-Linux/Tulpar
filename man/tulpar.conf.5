@@ -53,12 +53,6 @@ When true, packages whose signature cannot be verified are rejected
 instead of only producing a warning. Default
 .IR false .
 .TP
-.B sign_backend
-.IR sodium " or " gpgme .
-Selects which of libapg's two signing backends is used to verify
-package signatures. Default
-.IR sodium .
-.TP
 .B color_theme
 Accent color used for informational output:
 .IR cyan ", " blue ", " magenta ", " green ", " yellow ", or " red .
@@ -91,7 +85,6 @@ cache_dir = /var/cache/apg
 repodata_ttl = 900
 max_parallel_downloads = 4
 require_signature = false
-sign_backend = sodium
 color_theme = cyan
 .fi
 .SH SEE ALSO

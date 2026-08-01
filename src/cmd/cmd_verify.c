@@ -50,10 +50,14 @@ cmd_verify_run(int argc, char **argv, struct tulpar_config *cfg)
     {
         for (int i = 0; i < count; i++)
         {
-            ui_errorf("%s: %d missing file(s)", issues[i].pkg_name,
-                      issues[i].missing_count);
-            for (int j = 0; j < issues[i].missing_count; j++)
-                printf("    %s\n", issues[i].missing_files[j]);
+            const struct db_verify_issue *issue =
+                db_verify_issue_at(issues, count, i);
+            int missing_count = db_verify_issue_missing_count(issue);
+
+            ui_errorf("%s: %d missing file(s)", db_verify_issue_pkg_name(issue),
+                      missing_count);
+            for (int j = 0; j < missing_count; j++)
+                printf("    %s\n", db_verify_issue_missing_file_at(issue, j));
         }
     }
 

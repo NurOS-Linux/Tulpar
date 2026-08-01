@@ -73,8 +73,7 @@ cmd_remove_run(int argc, char **argv, struct tulpar_config *cfg)
     for (int i = 0; i < positional_count; i++)
         trans_add_remove(trans, positional[i]);
 
-    bool ok = cmd_run_transaction(trans, &dest, cfg, assume_yes, false,
-                                  cfg->sign_backend);
+    bool ok = cmd_run_transaction(trans, &dest, cfg, assume_yes, false);
 
     trans_free(trans);
     db_close(db);

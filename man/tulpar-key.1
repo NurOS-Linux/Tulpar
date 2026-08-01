@@ -22,20 +22,10 @@ Manages the trusted keyring used to verify package signatures.
 Adds a new public key to the trusted keyring, if it is endorsed by a
 key already present in the keyring.
 .I sig-path
-is the detached endorsement signature of the new key and is required
-for the libsodium backend; it is ignored for the gpgme backend, whose
-certifications are embedded in the key itself.
+is the detached endorsement signature of the new key.
 .TP
 .B list
-Prints the trusted keyring directory and the active signing backend.
-.SH OPTIONS
-.TP
-.BI \-\-sign\-backend " sodium|gpgme"
-Select which backend's keyring to operate on for this invocation.
-Defaults to the
-.I sign_backend
-value from
-.BR tulpar.conf (5).
+Prints the trusted keyring directory.
 .SH EXIT STATUS
 0 on success, non-zero if the key was not added or the keyring could
 not be read.
