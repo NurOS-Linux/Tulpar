@@ -7,12 +7,23 @@
 #include <sys/stat.h>
 #include <time.h>
 
-#include <apg/crc32.h>
 #include <yyjson.h>
 
 #include "repodata.h"
 #include "../net/http.h"
 #include "../util/paths.h"
+
+static unsigned int
+fnv1a_hash(const char *s)
+{
+    unsigned int hash = 2166136261u;
+    while (*s)
+    {
+        hash ^= (unsigned char)*s++;
+        hash *= 16777619u;
+    }
+    return hash;
+}
 
 static char *
 dup_str_or_empty(yyjson_val *obj, const char *key)
@@ -101,8 +112,7 @@ repo_index_free(struct repo_index *idx)
 char *
 repodata_cache_file(const char *cache_dir, const char *repo_url)
 {
-    unsigned int hash =
-        crc32((const unsigned char *)repo_url, (unsigned int)strlen(repo_url));
+    unsigned int hash = fnv1a_hash(repo_url);
 
     char name[32];
     snprintf(name, sizeof(name), "%08x.json", hash);

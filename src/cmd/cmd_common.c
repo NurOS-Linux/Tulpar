@@ -74,7 +74,6 @@ cmd_run_transaction(struct apg_trans *trans, const struct dest_ctx *dest,
     install_policy policy = {
         .require_signature = require_signature_flag || cfg->require_signature,
         .keyring_dir = NULL,
-        .backend = SIGN_BACKEND_SODIUM,
     };
     ui_debugf("policy: require_signature=%s",
               policy.require_signature ? "true" : "false");
