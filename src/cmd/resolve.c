@@ -104,27 +104,26 @@ resolve_fetch_by_name(const char *name, ver_op_t op, const char *version,
             continue;
         }
 
+        const char *use_channel = best->channel[0] ? best->channel : "stable";
+        const char *use_arch =
+            best->architecture[0] ? best->architecture : "noarch";
+
         ui_debugf("selected %s %s (%s/%s) from %s", best->name, best->version,
-                  best->channel[0] ? best->channel : "stable",
-                  best->architecture, base_url);
+                  use_channel, use_arch, base_url);
 
         char *pkgs_dir = path_join(cfg->cache_dir, "pkgs");
         mkdir_p(pkgs_dir);
 
         char filename[512];
         snprintf(filename, sizeof(filename), "%s-%s-%s.apg", best->name,
-                 best->version, best->architecture);
+                 best->version, use_arch);
         char *dest_path = path_join(pkgs_dir, filename);
         free(pkgs_dir);
 
-        char channel[128];
-        snprintf(channel, sizeof(channel), "%s",
-                 best->channel[0] ? best->channel : "stable");
-
         ui_debugf("downloading to %s", dest_path);
         bool downloaded =
-            api_download(base_url, channel, best->name, best->version,
-                         best->architecture, dest_path, NULL, NULL);
+            api_download(base_url, use_channel, best->name, best->version,
+                         use_arch, dest_path, NULL, NULL);
         if (!downloaded)
         {
             ui_debugf("download from %s failed", base_url);
@@ -135,8 +134,8 @@ resolve_fetch_by_name(const char *name, ver_op_t op, const char *version,
 
         char sig_path[600];
         snprintf(sig_path, sizeof(sig_path), "%s.sig", dest_path);
-        api_download_sig(base_url, channel, best->name, best->version,
-                         best->architecture, sig_path);
+        api_download_sig(base_url, use_channel, best->name, best->version,
+                         use_arch, sig_path);
 
         ui_debugf("parsing %s", dest_path);
         struct package *pkg = parse_package(dest_path, root_path);

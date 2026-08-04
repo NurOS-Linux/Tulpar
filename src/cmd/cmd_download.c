@@ -23,7 +23,7 @@ cmd_download_run(int argc, char **argv, struct tulpar_config *cfg)
     const char *output = NULL;
     const char *version = NULL;
     const char *arch = NULL;
-    const char *channel = "stable";
+    const char *channel = NULL;
     const char *name = NULL;
 
     for (int i = 0; i < argc; i++)
@@ -76,23 +76,35 @@ cmd_download_run(int argc, char **argv, struct tulpar_config *cfg)
     const struct repo_package *best = NULL;
     for (size_t i = 0; i < idx->count; i++)
     {
-        if (!version || strcmp(idx->items[i].version, version) == 0)
-        {
-            best = &idx->items[i];
-            break;
-        }
+        const struct repo_package *cand = &idx->items[i];
+        if (version && strcmp(cand->version, version) != 0)
+            continue;
+        if (arch &&
+            strcmp(cand->architecture[0] ? cand->architecture : "noarch",
+                   arch) != 0)
+            continue;
+        if (channel &&
+            strcmp(cand->channel[0] ? cand->channel : "stable", channel) != 0)
+            continue;
+        best = cand;
+        break;
     }
 
     if (!best)
     {
-        ui_errorf("no build of %s matches version %s", name, version);
+        ui_errorf("no build of %s matches the requested version/arch/channel",
+                  name);
         repo_index_free(idx);
         repo_list_free(repos);
         return 1;
     }
 
-    const char *use_arch = arch ? arch : best->architecture;
-    const char *use_channel = channel ? channel : best->channel;
+    const char *use_arch = arch                    ? arch
+                           : best->architecture[0] ? best->architecture
+                                                   : "noarch";
+    const char *use_channel = channel            ? channel
+                              : best->channel[0] ? best->channel
+                                                 : "stable";
 
     char default_path[512];
     if (!output)

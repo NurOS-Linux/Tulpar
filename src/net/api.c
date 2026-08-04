@@ -58,6 +58,67 @@ api_search(const char *base_url, const char *query, const char *arch,
     return idx;
 }
 
+static char *
+dup_str_or_empty(yyjson_val *obj, const char *key)
+{
+    yyjson_val *v = yyjson_obj_get(obj, key);
+    const char *s = yyjson_is_str(v) ? yyjson_get_str(v) : "";
+    return strdup(s);
+}
+
+static struct repo_index *
+parse_package_detail(const char *json, size_t len)
+{
+    yyjson_doc *doc = yyjson_read(json, len, 0);
+    if (!doc)
+        return NULL;
+
+    yyjson_val *root = yyjson_doc_get_root(doc);
+    yyjson_val *name_val = yyjson_obj_get(root, "name");
+    yyjson_val *builds = yyjson_obj_get(root, "builds");
+    if (!yyjson_is_str(name_val) || !yyjson_is_arr(builds))
+    {
+        yyjson_doc_free(doc);
+        return NULL;
+    }
+
+    const char *name = yyjson_get_str(name_val);
+
+    struct repo_index *idx = calloc(1, sizeof(*idx));
+    if (!idx)
+    {
+        yyjson_doc_free(doc);
+        return NULL;
+    }
+
+    idx->count = yyjson_arr_size(builds);
+    idx->items = calloc(idx->count, sizeof(*idx->items));
+    if (!idx->items)
+    {
+        free(idx);
+        yyjson_doc_free(doc);
+        return NULL;
+    }
+
+    size_t i = 0;
+    yyjson_val *item;
+    yyjson_arr_iter iter;
+    yyjson_arr_iter_init(builds, &iter);
+    while ((item = yyjson_arr_iter_next(&iter)) != NULL)
+    {
+        struct repo_package *pkg = &idx->items[i++];
+        pkg->name = strdup(name);
+        pkg->version = dup_str_or_empty(item, "version");
+        pkg->architecture = dup_str_or_empty(item, "architecture");
+        pkg->channel = dup_str_or_empty(item, "channel");
+        pkg->type = dup_str_or_empty(item, "type");
+        pkg->description = dup_str_or_empty(item, "description");
+    }
+
+    yyjson_doc_free(doc);
+    return idx;
+}
+
 struct repo_index *
 api_get_package(const char *base_url, const char *name)
 {
@@ -72,7 +133,7 @@ api_get_package(const char *base_url, const char *name)
 
     struct repo_index *idx = NULL;
     if (resp.status >= 200 && resp.status < 300)
-        idx = repo_index_parse_json(resp.body, resp.len);
+        idx = parse_package_detail(resp.body, resp.len);
 
     http_response_free(&resp);
     return idx;
