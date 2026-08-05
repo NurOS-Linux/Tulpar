@@ -51,7 +51,8 @@ _tulpar()
                         '(-d --dest)'{-d,--dest}'[alternate root]:path:_files -/' \
                         '(-y --yes)'{-y,--yes}'[assume yes]' \
                         '(-j --json)'{-j,--json}'[json output]' \
-                        '--require-signature[reject unsigned packages]'
+                        '--require-signature[reject unsigned packages]' \
+                        '--sign[detached signature path]:path:_files'
                     ;;
             esac
             ;;

@@ -9,6 +9,8 @@ char *path_join(const char *a, const char *b);
 
 bool mkdir_p(const char *path);
 
+bool copy_file(const char *src, const char *dst);
+
 struct dest_ctx
 {
     char *root;

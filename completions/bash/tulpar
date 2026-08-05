@@ -20,6 +20,10 @@ orphans autoremove hold unhold history audit log repo download key"
             COMPREPLY=($(compgen -d -- "$cur"))
             return 0
             ;;
+        --sign)
+            COMPREPLY=($(compgen -f -- "$cur"))
+            return 0
+            ;;
     esac
 
     case "${COMP_WORDS[1]}" in
@@ -38,7 +42,7 @@ orphans autoremove hold unhold history audit log repo download key"
     esac
 
     COMPREPLY=($(compgen -W "--dest --yes --json --quiet --verbose \
---require-signature" -- "$cur"))
+--require-signature --sign" -- "$cur"))
 }
 
 complete -F _tulpar tulpar

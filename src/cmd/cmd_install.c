@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <apg/transaction.h>
 
@@ -12,15 +13,24 @@
 #include "../cli/args.h"
 #include "../cli/ui.h"
 #include "../repo/repo.h"
+#include "../util/paths.h"
 
 #define USAGE                                                                  \
     "tulpar install [--dest <path>] [-y] [--require-signature] "               \
-    "<package|file.apg>..."
+    "[--sign <sig-path>] <package|file.apg>..."
+
+static bool
+ends_with_apg(const char *s)
+{
+    size_t len = strlen(s);
+    return len >= 4 && strcmp(s + len - 4, ".apg") == 0;
+}
 
 int
 cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
 {
     const char *dest_arg = NULL;
+    const char *sign_path = NULL;
     bool assume_yes = false;
     bool require_sig = false;
     char *positional[256];
@@ -36,6 +46,8 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
         }
         else if (arg_take_value(argc, argv, &i, "dest", 'd', &value))
             dest_arg = value;
+        else if (arg_take_value(argc, argv, &i, "sign", '\0', &value))
+            sign_path = value;
         else if (arg_is(argv[i], "yes", 'y'))
             assume_yes = true;
         else if (arg_is(argv[i], "require-signature", '\0'))
@@ -47,6 +59,13 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
     if (positional_count == 0)
     {
         ui_error("install requires at least one package name or .apg file");
+        cmd_print_usage(USAGE);
+        return 1;
+    }
+
+    if (sign_path && (positional_count != 1 || !ends_with_apg(positional[0])))
+    {
+        ui_error("--sign requires exactly one local .apg file argument");
         cmd_print_usage(USAGE);
         return 1;
     }
@@ -88,6 +107,23 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
     }
 
     ui_debugf("resolved closure of %zu package(s) to install", set.count);
+
+    if (sign_path && set.count > 0)
+    {
+        char sig_dest[4096];
+        snprintf(sig_dest, sizeof(sig_dest), "%s.sig", set.items[0]->pkg_path);
+        if (!copy_file(sign_path, sig_dest))
+        {
+            ui_errorf("failed to place signature from %s at %s", sign_path,
+                      sig_dest);
+            pkg_set_free(&set);
+            repo_list_free(repos);
+            db_close(db);
+            dest_ctx_clear(&dest);
+            return 1;
+        }
+        ui_debugf("placed signature %s at %s", sign_path, sig_dest);
+    }
 
     for (size_t i = 0; i < set.count; i++)
         cmd_warn_if_unsigned(set.items[i]);

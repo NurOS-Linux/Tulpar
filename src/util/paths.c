@@ -75,6 +75,38 @@ mkdir_p(const char *path)
     return stat(path, &st) == 0;
 }
 
+bool
+copy_file(const char *src, const char *dst)
+{
+    FILE *in = fopen(src, "rb");
+    if (!in)
+        return false;
+
+    FILE *out = fopen(dst, "wb");
+    if (!out)
+    {
+        fclose(in);
+        return false;
+    }
+
+    char buf[65536];
+    size_t n;
+    bool ok = true;
+    while ((n = fread(buf, 1, sizeof(buf), in)) > 0)
+    {
+        if (fwrite(buf, 1, n, out) != n)
+        {
+            ok = false;
+            break;
+        }
+    }
+    ok = ok && !ferror(in);
+
+    fclose(in);
+    fclose(out);
+    return ok;
+}
+
 static bool
 path_is_root(const char *p)
 {

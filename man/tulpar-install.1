@@ -33,6 +33,15 @@ Skip the confirmation prompt.
 .TP
 .B \-\-require\-signature
 Refuse to install any package whose signature cannot be verified.
+.TP
+.BI \-\-sign " sig-path"
+Use
+.I sig-path
+as the detached signature for the package instead of the
+.IR file.apg.sig
+found next to it. Only valid with exactly one local
+.B .apg
+file argument.
 .SH EXIT STATUS
 0 on success, non-zero if resolution, download, or the transaction
 fails.
