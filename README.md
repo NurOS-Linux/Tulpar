@@ -31,6 +31,7 @@ database, transaction, dependency graph, signature, and journal APIs.
 | [libapg](https://git.nuros.org/core/libapg) | Packaging backend library, pulled in as a meson subproject |
 | [libcurl](https://curl.se/libcurl/) | HTTP(S) client used for all Tulpar Server communication |
 | [yyjson](https://github.com/ibireme/yyjson) | JSON library, same one libapg uses internally |
+| `git`, `tar` | Runtime-only, invoked as subprocesses by `tulpar install <git-url>` |
 
 Everything else (terminal color output, progress bars, argument
 parsing) is hand-written with no external dependency.

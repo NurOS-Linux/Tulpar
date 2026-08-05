@@ -11,6 +11,8 @@ bool mkdir_p(const char *path);
 
 bool copy_file(const char *src, const char *dst);
 
+bool remove_dir_recursive(const char *path);
+
 struct dest_ctx
 {
     char *root;

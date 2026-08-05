@@ -4,12 +4,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include "resolve.h"
 #include "../cli/ui.h"
 #include "../net/api.h"
 #include "../net/http.h"
 #include "../util/paths.h"
+#include "../util/proc.h"
 
 bool
 pkg_set_contains(const struct pkg_set *set, const char *name)
@@ -73,11 +75,31 @@ file_exists(const char *path)
     return true;
 }
 
+static bool
+dir_exists(const char *path)
+{
+    struct stat st;
+    return stat(path, &st) == 0 && S_ISDIR(st.st_mode);
+}
+
 bool
 resolve_arg_is_url(const char *arg)
 {
     return starts_with(arg, "http://") || starts_with(arg, "https://") ||
            starts_with(arg, "ftp://");
+}
+
+bool
+resolve_arg_is_git_url(const char *arg)
+{
+    if (starts_with(arg, "git+http://") || starts_with(arg, "git+https://") ||
+        starts_with(arg, "git+ssh://") || starts_with(arg, "git+git://") ||
+        starts_with(arg, "git+file://") || starts_with(arg, "git://"))
+        return true;
+
+    const char *hash = strchr(arg, '#');
+    size_t len = hash ? (size_t)(hash - arg) : strlen(arg);
+    return len >= 4 && strncmp(arg + len - 4, ".git", 4) == 0;
 }
 
 static unsigned int
@@ -132,6 +154,139 @@ fetch_from_url(const char *url, const struct tulpar_config *cfg,
     snprintf(sig_path, sizeof(sig_path), "%s.sig", dest_path);
     struct http_response sig_resp = {0};
     http_download(sig_url, sig_path, NULL, NULL, &sig_resp);
+
+    ui_debugf("parsing %s", dest_path);
+    struct package *pkg = parse_package(dest_path, root_path);
+    free(dest_path);
+    return pkg;
+}
+
+static void
+git_split_url(const char *arg, char **clone_url, char **ref)
+{
+    const char *url = arg;
+    if (starts_with(url, "git+"))
+        url += 4;
+
+    const char *hash = strchr(url, '#');
+    if (hash)
+    {
+        *clone_url = strndup(url, (size_t)(hash - url));
+        *ref = strdup(hash + 1);
+    }
+    else
+    {
+        *clone_url = strdup(url);
+        *ref = NULL;
+    }
+}
+
+static struct package *
+fetch_from_git(const char *arg, const struct tulpar_config *cfg,
+               const char *root_path)
+{
+    char *clone_url = NULL;
+    char *ref = NULL;
+    git_split_url(arg, &clone_url, &ref);
+
+    char *tmp_base = path_join(cfg->cache_dir, "git-tmp");
+    mkdir_p(tmp_base);
+
+    char tmpdir[4096];
+    snprintf(tmpdir, sizeof(tmpdir), "%s/repo-XXXXXX", tmp_base);
+    free(tmp_base);
+
+    if (!mkdtemp(tmpdir))
+    {
+        ui_errorf("failed to create a temporary directory for %s", arg);
+        free(clone_url);
+        free(ref);
+        return NULL;
+    }
+
+    ui_debugf("cloning %s to %s%s%s", clone_url, tmpdir, ref ? " at ref " : "",
+              ref ? ref : "");
+
+    bool cloned;
+    if (ref)
+    {
+        char *clone_argv[] = {"git",     "clone", "--quiet",
+                              clone_url, tmpdir,  NULL};
+        cloned = run_command(clone_argv);
+        if (cloned)
+        {
+            char *checkout_argv[] = {"git",     "-C", tmpdir, "checkout",
+                                     "--quiet", ref,  NULL};
+            cloned = run_command(checkout_argv);
+        }
+    }
+    else
+    {
+        char *clone_argv[] = {"git", "clone",   "--quiet", "--depth",
+                              "1",   clone_url, tmpdir,    NULL};
+        cloned = run_command(clone_argv);
+    }
+
+    free(clone_url);
+    free(ref);
+
+    if (!cloned)
+    {
+        ui_errorf("failed to clone %s", arg);
+        remove_dir_recursive(tmpdir);
+        return NULL;
+    }
+
+    char *metadata_path = path_join(tmpdir, "metadata.json");
+    bool has_metadata = file_exists(metadata_path);
+    free(metadata_path);
+    if (!has_metadata)
+    {
+        ui_errorf("%s does not contain a metadata.json at its root", arg);
+        remove_dir_recursive(tmpdir);
+        return NULL;
+    }
+
+    char *data_path = path_join(tmpdir, "data");
+    bool has_data = dir_exists(data_path);
+    free(data_path);
+
+    char *scripts_path = path_join(tmpdir, "scripts");
+    bool has_scripts = dir_exists(scripts_path);
+    free(scripts_path);
+
+    char *pkgs_dir = path_join(cfg->cache_dir, "pkgs");
+    mkdir_p(pkgs_dir);
+
+    char name[32];
+    snprintf(name, sizeof(name), "git-%08x.apg", fnv1a_hash(arg));
+    char *dest_path = path_join(pkgs_dir, name);
+    free(pkgs_dir);
+
+    char *tar_argv[8];
+    int n = 0;
+    tar_argv[n++] = "tar";
+    tar_argv[n++] = "-cf";
+    tar_argv[n++] = dest_path;
+    tar_argv[n++] = "-C";
+    tar_argv[n++] = tmpdir;
+    tar_argv[n++] = "metadata.json";
+    if (has_data)
+        tar_argv[n++] = "data";
+    if (has_scripts)
+        tar_argv[n++] = "scripts";
+    tar_argv[n] = NULL;
+
+    ui_debugf("archiving %s into %s", tmpdir, dest_path);
+    bool archived = run_command(tar_argv);
+    remove_dir_recursive(tmpdir);
+
+    if (!archived)
+    {
+        ui_errorf("failed to archive the cloned repository at %s", arg);
+        free(dest_path);
+        return NULL;
+    }
 
     ui_debugf("parsing %s", dest_path);
     struct package *pkg = parse_package(dest_path, root_path);
@@ -288,7 +443,17 @@ resolve_install_closure(char *const *requested, size_t requested_count,
         const char *arg = requested[i];
         struct package *pkg = NULL;
 
-        if (resolve_arg_is_url(arg))
+        if (resolve_arg_is_git_url(arg))
+        {
+            ui_debugf("%s is a git repository URL, cloning", arg);
+            pkg = fetch_from_git(arg, cfg, root_path);
+            if (!pkg)
+            {
+                ui_errorf("failed to install from %s", arg);
+                return false;
+            }
+        }
+        else if (resolve_arg_is_url(arg))
         {
             ui_debugf("%s is a URL, downloading directly", arg);
             pkg = fetch_from_url(arg, cfg, root_path);

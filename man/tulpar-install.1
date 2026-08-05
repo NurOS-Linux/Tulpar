@@ -32,6 +32,22 @@ URL to a
 .B .apg
 file, downloaded directly to the package cache, bypassing the
 configured repository list entirely
+.IP \(bu 2
+a git repository URL (prefixed with
+.BR git+ ,
+or a plain URL ending in
+.BR .git ),
+optionally suffixed with
+.RI # ref
+to select a branch, tag, or commit. The repository is cloned and must
+contain an already-unpacked package tree at its root
+.RI ( metadata.json ,
+.B data/
+,
+.BR scripts/ )
+rather than a built
+.B .apg
+archive; intended for local development and testing workflows
 .RE
 .PP
 Dependencies are resolved transitively against each package's declared
@@ -56,8 +72,7 @@ Use
 as the detached signature for the package instead of the
 .IR file.apg.sig
 found next to it. Only valid with exactly one local
-.B .apg
-file or URL argument.
+.BR .apg " file, URL, or git-url argument."
 .SH EXIT STATUS
 0 on success, non-zero if resolution, download, or the transaction
 fails.

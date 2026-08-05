@@ -17,7 +17,7 @@
 
 #define USAGE                                                                  \
     "tulpar install [--dest <path>] [-y] [--require-signature] "               \
-    "[--sign <sig-path>] <package|file.apg|url>..."
+    "[--sign <sig-path>] <package|file.apg|url|git-url>..."
 
 static bool
 ends_with_apg(const char *s)
@@ -65,9 +65,11 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (sign_path &&
         (positional_count != 1 ||
-         (!ends_with_apg(positional[0]) && !resolve_arg_is_url(positional[0]))))
+         (!ends_with_apg(positional[0]) && !resolve_arg_is_url(positional[0]) &&
+          !resolve_arg_is_git_url(positional[0]))))
     {
-        ui_error("--sign requires exactly one local .apg file or URL argument");
+        ui_error("--sign requires exactly one local .apg file, URL, or "
+                 "git-url argument");
         cmd_print_usage(USAGE);
         return 1;
     }

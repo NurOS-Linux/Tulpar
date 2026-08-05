@@ -29,7 +29,7 @@
       `tulpar install https://example.com/foo-1.0.0-x86_64.apg`).
       Downloads straight to the package cache and otherwise follows
       the normal install flow (signature warning, plan, confirmation).
-- [ ] `tulpar install <git-url>`: install from a git repository
+- [x] `tulpar install <git-url>`: install from a git repository
       containing an already-unpacked package tree (a `data/`,
       `metadata.json`, `scripts/` layout, not a built `.apg` archive),
       for local development and testing workflows. Clones the

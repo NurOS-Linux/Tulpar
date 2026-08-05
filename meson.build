@@ -71,6 +71,7 @@ tulpar_sources = files(
   'src/net/downloader.c',
   'src/log/log.c',
   'src/util/paths.c',
+  'src/util/proc.c',
   'src/cmd/cmd_common.c',
   'src/cmd/resolve.c',
   'src/cmd/cmd_install.c',

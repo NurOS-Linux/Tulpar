@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // SPDX-FileCopyrightText: 2026 AnmiTaliDev <anmitalidev@nuros.org>
 
+#include <dirent.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -104,6 +105,38 @@ copy_file(const char *src, const char *dst)
 
     fclose(in);
     fclose(out);
+    return ok;
+}
+
+bool
+remove_dir_recursive(const char *path)
+{
+    DIR *dir = opendir(path);
+    if (!dir)
+        return errno == ENOENT;
+
+    bool ok = true;
+    struct dirent *ent;
+    while ((ent = readdir(dir)) != NULL)
+    {
+        if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0)
+            continue;
+
+        char *child = path_join(path, ent->d_name);
+        struct stat st;
+        if (child && lstat(child, &st) == 0)
+        {
+            if (S_ISDIR(st.st_mode))
+                ok = remove_dir_recursive(child) && ok;
+            else if (unlink(child) != 0)
+                ok = false;
+        }
+        free(child);
+    }
+
+    closedir(dir);
+    if (rmdir(path) != 0)
+        ok = false;
     return ok;
 }
 
