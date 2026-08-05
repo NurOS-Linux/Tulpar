@@ -23,7 +23,7 @@
 
 ## v0.2.0
 
-- [ ] `tulpar install <url>`: install a package directly from a plain
+- [x] `tulpar install <url>`: install a package directly from a plain
       HTTP or FTP URL to a `.apg` file, bypassing the configured
       repository list entirely (e.g.
       `tulpar install https://example.com/foo-1.0.0-x86_64.apg`).

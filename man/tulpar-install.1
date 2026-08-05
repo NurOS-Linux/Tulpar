@@ -13,10 +13,26 @@ tulpar-install \- install one or more packages
 .SH DESCRIPTION
 Installs one or more packages. Each
 .I package
-argument is either a bare package name, resolved against the
-configured repositories, or a path to a local
+argument is one of:
+.RS
+.IP \(bu 2
+a bare package name, resolved against the configured repositories
+.IP \(bu 2
+a path to a local
 .B .apg
-archive.
+archive
+.IP \(bu 2
+an
+.B http://
+,
+.B https://
+, or
+.B ftp://
+URL to a
+.B .apg
+file, downloaded directly to the package cache, bypassing the
+configured repository list entirely
+.RE
 .PP
 Dependencies are resolved transitively against each package's declared
 dependency list using libapg's dependency graph, and missing
@@ -41,7 +57,7 @@ as the detached signature for the package instead of the
 .IR file.apg.sig
 found next to it. Only valid with exactly one local
 .B .apg
-file argument.
+file or URL argument.
 .SH EXIT STATUS
 0 on success, non-zero if resolution, download, or the transaction
 fails.

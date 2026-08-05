@@ -20,6 +20,8 @@ struct pkg_set
     size_t cap;
 };
 
+bool resolve_arg_is_url(const char *arg);
+
 bool pkg_set_contains(const struct pkg_set *set, const char *name);
 bool pkg_set_add(struct pkg_set *set, struct package *pkg);
 void pkg_set_free(struct pkg_set *set);

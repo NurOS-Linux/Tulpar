@@ -8,6 +8,7 @@
 #include "resolve.h"
 #include "../cli/ui.h"
 #include "../net/api.h"
+#include "../net/http.h"
 #include "../util/paths.h"
 
 bool
@@ -57,6 +58,12 @@ ends_with(const char *s, const char *suffix)
 }
 
 static bool
+starts_with(const char *s, const char *prefix)
+{
+    return strncmp(s, prefix, strlen(prefix)) == 0;
+}
+
+static bool
 file_exists(const char *path)
 {
     FILE *f = fopen(path, "rb");
@@ -64,6 +71,72 @@ file_exists(const char *path)
         return false;
     fclose(f);
     return true;
+}
+
+bool
+resolve_arg_is_url(const char *arg)
+{
+    return starts_with(arg, "http://") || starts_with(arg, "https://") ||
+           starts_with(arg, "ftp://");
+}
+
+static unsigned int
+fnv1a_hash(const char *s)
+{
+    unsigned int hash = 2166136261u;
+    while (*s)
+    {
+        hash ^= (unsigned char)*s++;
+        hash *= 16777619u;
+    }
+    return hash;
+}
+
+static char *
+url_cache_filename(const char *url)
+{
+    const char *slash = strrchr(url, '/');
+    const char *base = slash ? slash + 1 : url;
+    if (base[0] != '\0' && ends_with(base, ".apg"))
+        return strdup(base);
+
+    char name[32];
+    snprintf(name, sizeof(name), "%08x.apg", fnv1a_hash(url));
+    return strdup(name);
+}
+
+static struct package *
+fetch_from_url(const char *url, const struct tulpar_config *cfg,
+               const char *root_path)
+{
+    char *pkgs_dir = path_join(cfg->cache_dir, "pkgs");
+    mkdir_p(pkgs_dir);
+
+    char *filename = url_cache_filename(url);
+    char *dest_path = path_join(pkgs_dir, filename);
+    free(filename);
+    free(pkgs_dir);
+
+    ui_debugf("downloading %s to %s", url, dest_path);
+    struct http_response resp = {0};
+    if (!http_download(url, dest_path, NULL, NULL, &resp))
+    {
+        ui_errorf("failed to download %s", url);
+        free(dest_path);
+        return NULL;
+    }
+
+    char sig_url[2048];
+    snprintf(sig_url, sizeof(sig_url), "%s.sig", url);
+    char sig_path[600];
+    snprintf(sig_path, sizeof(sig_path), "%s.sig", dest_path);
+    struct http_response sig_resp = {0};
+    http_download(sig_url, sig_path, NULL, NULL, &sig_resp);
+
+    ui_debugf("parsing %s", dest_path);
+    struct package *pkg = parse_package(dest_path, root_path);
+    free(dest_path);
+    return pkg;
 }
 
 struct package *
@@ -215,7 +288,17 @@ resolve_install_closure(char *const *requested, size_t requested_count,
         const char *arg = requested[i];
         struct package *pkg = NULL;
 
-        if (ends_with(arg, ".apg") && file_exists(arg))
+        if (resolve_arg_is_url(arg))
+        {
+            ui_debugf("%s is a URL, downloading directly", arg);
+            pkg = fetch_from_url(arg, cfg, root_path);
+            if (!pkg)
+            {
+                ui_errorf("failed to install from %s", arg);
+                return false;
+            }
+        }
+        else if (ends_with(arg, ".apg") && file_exists(arg))
         {
             ui_debugf("%s is a local archive, parsing directly", arg);
             pkg = parse_package(arg, root_path);
