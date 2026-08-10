@@ -42,7 +42,7 @@ orphans autoremove hold unhold history audit log repo download key"
     esac
 
     COMPREPLY=($(compgen -W "--dest --yes --json --quiet --verbose \
---require-signature --sign" -- "$cur"))
+--require-signature --sign --provider" -- "$cur"))
 }
 
 complete -F _tulpar tulpar

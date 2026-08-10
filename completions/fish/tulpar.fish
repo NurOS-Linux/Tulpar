@@ -47,5 +47,6 @@ complete -c tulpar -l quiet -s q -d "suppress informational output"
 complete -c tulpar -l verbose -d "enable debug output"
 complete -c tulpar -l require-signature -d "reject unsigned packages"
 complete -c tulpar -l sign -d "detached signature path" -r
+complete -c tulpar -l provider -d "force a provider for a dependency (name=package)" -r
 complete -c tulpar -s h -l help -d "show usage"
 complete -c tulpar -s V -l version -d "show version"

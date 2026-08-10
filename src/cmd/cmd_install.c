@@ -17,7 +17,8 @@
 
 #define USAGE                                                                  \
     "tulpar install [--dest <path>] [-y] [--require-signature] "               \
-    "[--sign <sig-path>] <package|file.apg|url|git-url>..."
+    "[--sign <sig-path>] [--provider <name>=<package>]... "                    \
+    "<package|file.apg|url|git-url>..."
 
 static bool
 ends_with_apg(const char *s)
@@ -35,6 +36,9 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
     bool require_sig = false;
     char *positional[256];
     int positional_count = 0;
+    char provider_name[64][256];
+    const char *provider_pkg[64];
+    int provider_count = 0;
 
     for (int i = 0; i < argc; i++)
     {
@@ -48,6 +52,26 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
             dest_arg = value;
         else if (arg_take_value(argc, argv, &i, "sign", '\0', &value))
             sign_path = value;
+        else if (arg_take_value(argc, argv, &i, "provider", '\0', &value))
+        {
+            const char *eq = strchr(value, '=');
+            if (!eq || eq == value || eq[1] == '\0')
+            {
+                ui_errorf("--provider requires name=package (got %s)", value);
+                cmd_print_usage(USAGE);
+                return 1;
+            }
+            if (provider_count < 64)
+            {
+                size_t namelen = (size_t)(eq - value);
+                if (namelen >= sizeof(provider_name[0]))
+                    namelen = sizeof(provider_name[0]) - 1;
+                memcpy(provider_name[provider_count], value, namelen);
+                provider_name[provider_count][namelen] = '\0';
+                provider_pkg[provider_count] = eq + 1;
+                provider_count++;
+            }
+        }
         else if (arg_is(argv[i], "yes", 'y'))
             assume_yes = true;
         else if (arg_is(argv[i], "require-signature", '\0'))
@@ -145,6 +169,13 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
 
     for (size_t i = 0; i < set.count; i++)
         trans_add_install(trans, set.items[i]);
+
+    for (int i = 0; i < provider_count; i++)
+    {
+        ui_debugf("preferring %s to resolve %s", provider_pkg[i],
+                  provider_name[i]);
+        trans_prefer_provider(trans, provider_name[i], provider_pkg[i]);
+    }
 
     bool ok = cmd_run_transaction(trans, &dest, cfg, assume_yes, require_sig);
 

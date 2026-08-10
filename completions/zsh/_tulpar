@@ -52,7 +52,8 @@ _tulpar()
                         '(-y --yes)'{-y,--yes}'[assume yes]' \
                         '(-j --json)'{-j,--json}'[json output]' \
                         '--require-signature[reject unsigned packages]' \
-                        '--sign[detached signature path]:path:_files'
+                        '--sign[detached signature path]:path:_files' \
+                        '*--provider[force a provider for a dependency]:name=package'
                     ;;
             esac
             ;;

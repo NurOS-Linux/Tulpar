@@ -73,6 +73,15 @@ as the detached signature for the package instead of the
 .IR file.apg.sig
 found next to it. Only valid with exactly one local
 .BR .apg " file, URL, or git-url argument."
+.TP
+.BI \-\-provider " name=package"
+When more than one package can satisfy a dependency or
+.B provides
+name, force it to resolve to
+.IR package
+instead of the default choice (an already-installed provider, or
+otherwise whichever provider was added to the transaction first).
+Repeatable.
 .SH EXIT STATUS
 0 on success, non-zero if resolution, download, or the transaction
 fails.
