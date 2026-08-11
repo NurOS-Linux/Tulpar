@@ -6,6 +6,7 @@
 #include "dispatch.h"
 
 #include "../cmd/cmd_download.h"
+#include "../cmd/cmd_graph.h"
 #include "../cmd/cmd_history.h"
 #include "../cmd/cmd_hold.h"
 #include "../cmd/cmd_info.h"
@@ -40,6 +41,8 @@ const struct command g_commands[] = {
     {"download", 'w', "fetch a package without installing it",
      cmd_download_run},
     {"key", 'k', "manage the trusted signing keyring", cmd_key_run},
+    {"graph", 'p', "export the installed package dependency graph as DOT",
+     cmd_graph_run},
 };
 
 const size_t g_command_count = sizeof(g_commands) / sizeof(g_commands[0]);

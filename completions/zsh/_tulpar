@@ -24,6 +24,7 @@ _tulpar_commands()
         'repo:manage configured repositories'
         'download:fetch a package without installing it'
         'key:manage the trusted signing keyring'
+        'graph:export the installed package dependency graph as DOT'
     )
     _describe 'command' commands
 }
@@ -54,7 +55,8 @@ _tulpar()
                         '--require-signature[reject unsigned packages]' \
                         '--sign[detached signature path]:path:_files' \
                         '*--provider[force a provider for a dependency]:name=package' \
-                        '*--exclude[skip a package during a full upgrade]:name'
+                        '*--exclude[skip a package during a full upgrade]:name' \
+                        '(-o --output)'{-o,--output}'[output path]:path:_files'
                     ;;
             esac
             ;;

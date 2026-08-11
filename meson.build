@@ -87,6 +87,7 @@ tulpar_sources = files(
   'src/cmd/cmd_repo.c',
   'src/cmd/cmd_download.c',
   'src/cmd/cmd_key.c',
+  'src/cmd/cmd_graph.c',
 )
 
 tulpar_inc = include_directories('src')

@@ -14,6 +14,7 @@ man1_pages = [
   'tulpar-repo.1',
   'tulpar-download.1',
   'tulpar-key.1',
+  'tulpar-graph.1',
 ]
 
 install_man(man1_pages)

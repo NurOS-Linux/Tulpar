@@ -8,7 +8,7 @@ _tulpar()
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
     commands="install remove uninstall upgrade search list info show verify \
-orphans autoremove hold unhold history audit log repo download key"
+orphans autoremove hold unhold history audit log repo download key graph"
 
     if [ "$COMP_CWORD" -eq 1 ]; then
         COMPREPLY=($(compgen -W "$commands -h --help -V --version" -- "$cur"))
@@ -20,7 +20,7 @@ orphans autoremove hold unhold history audit log repo download key"
             COMPREPLY=($(compgen -d -- "$cur"))
             return 0
             ;;
-        --sign)
+        --sign|--output|-o)
             COMPREPLY=($(compgen -f -- "$cur"))
             return 0
             ;;

@@ -1,0 +1,38 @@
+.TH TULPAR-GRAPH 1 "2026" "tulpar 0.1.0" "Tulpar Manual"
+.SH NAME
+tulpar-graph \- export the installed package dependency graph
+.SH SYNOPSIS
+.B tulpar graph
+.RI [ options ]
+.br
+.B tulpar p
+.RI [ options ]
+.br
+.B tulpar \-p
+.RI [ options ]
+.SH DESCRIPTION
+Builds libapg's dependency graph from every installed package and
+exports it in Graphviz DOT format. Every package is a node (installed
+ones filled green), every dependency is an edge to whatever provider
+libapg would currently resolve it to (labeled with the version
+constraint, if any; drawn red and dashed if unresolved), and every
+virtual
+.RI ( provides )
+name is a diamond node with an edge to each of its providers.
+.SH OPTIONS
+.TP
+.BR \-d ", " \-\-dest " " \fIpath\fR
+Inspect the package database of an alternate root instead of the live
+system.
+.TP
+.BI \-o ", " \-\-output " " \fIpath\fR
+Write the DOT source to
+.I path
+instead of standard output.
+.SH EXIT STATUS
+0 on success, non-zero if the database cannot be opened or the graph
+cannot be exported.
+.SH SEE ALSO
+.BR tulpar (1),
+.BR tulpar-list (1),
+.BR tulpar-verify (1)
