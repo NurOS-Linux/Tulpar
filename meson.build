@@ -39,6 +39,8 @@ if host_machine.system() == 'freebsd'
   endif
 endif
 
+localedir = get_option('prefix') / get_option('localedir')
+
 add_project_arguments(
   '-DTULPAR_VERSION="' + meson.project_version() + '"',
   '-DTULPAR_SYSCONF_DIR="' + sysconf_apg_dir + '"',
@@ -48,8 +50,18 @@ add_project_arguments(
   '-DTULPAR_REPODATA_TTL=' + get_option('repodata_ttl').to_string(),
   '-DTULPAR_MAX_PARALLEL_DOWNLOADS=' + get_option('max_parallel_downloads').to_string(),
   '-DTULPAR_KEYRING_DIR="' + keyring_dir + '"',
+  '-DLOCALEDIR="' + localedir + '"',
+  '-DGETTEXT_PACKAGE="tulpar"',
   language: 'c',
 )
+
+intl_dep = dependency('intl', required: false)
+if not intl_dep.found()
+  intl_dep = cc.find_library('intl', required: false)
+endif
+
+i18n = import('i18n')
+subdir('po')
 
 libapg_proj = subproject('libapg')
 libapg_dep = libapg_proj.get_variable('libapg_dep')
@@ -92,7 +104,7 @@ tulpar_sources = files(
 
 tulpar_inc = include_directories('src')
 
-tulpar_deps = [libapg_dep, curl_dep, yyjson_dep, threads_dep]
+tulpar_deps = [libapg_dep, curl_dep, yyjson_dep, threads_dep, intl_dep]
 
 tulpar_exe = executable('tulpar',
   tulpar_sources,

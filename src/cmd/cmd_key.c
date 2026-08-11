@@ -10,6 +10,7 @@
 #include "cmd_common.h"
 #include "../cli/args.h"
 #include "../cli/ui.h"
+#include "../i18n.h"
 
 #ifndef TULPAR_KEYRING_DIR
 #define TULPAR_KEYRING_DIR "/etc/apg/trusted.d"
@@ -40,7 +41,7 @@ run_add(int argc, char **argv)
 
     if (!new_key_path)
     {
-        ui_error("key add requires a path to the new public key");
+        ui_error(_("key add requires a path to the new public key"));
         cmd_print_usage(USAGE);
         return 1;
     }
@@ -48,7 +49,8 @@ run_add(int argc, char **argv)
     struct keyring *trusted = keyring_load(TULPAR_KEYRING_DIR);
     if (!trusted)
     {
-        ui_errorf("failed to load trusted keyring from %s", TULPAR_KEYRING_DIR);
+        ui_errorf(_("failed to load trusted keyring from %s"),
+                  TULPAR_KEYRING_DIR);
         return 1;
     }
 
@@ -57,10 +59,10 @@ run_add(int argc, char **argv)
     keyring_free(trusted);
 
     if (ok)
-        ui_success("key added to the trusted keyring");
+        ui_success(_("key added to the trusted keyring"));
     else
-        ui_error("key was not added; it must be endorsed by an already "
-                 "trusted key");
+        ui_error(_("key was not added; it must be endorsed by an already "
+                   "trusted key"));
 
     return ok ? 0 : 1;
 }
@@ -69,7 +71,7 @@ static int
 run_list(void)
 {
     printf("Trusted keyring directory: %s\n", TULPAR_KEYRING_DIR);
-    ui_info("use your platform's file listing to inspect individual keys");
+    ui_info(_("use your platform's file listing to inspect individual keys"));
     return 0;
 }
 
@@ -80,7 +82,7 @@ cmd_key_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (argc == 0)
     {
-        ui_error("key requires a sub-action: add, list");
+        ui_error(_("key requires a sub-action: add, list"));
         cmd_print_usage(USAGE);
         return 1;
     }
@@ -101,7 +103,7 @@ cmd_key_run(int argc, char **argv, struct tulpar_config *cfg)
     if (is_list)
         return run_list();
 
-    ui_errorf("unknown key sub-action: %s", action);
+    ui_errorf(_("unknown key sub-action: %s"), action);
     cmd_print_usage(USAGE);
     return 1;
 }

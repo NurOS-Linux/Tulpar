@@ -13,6 +13,7 @@
 #include "../net/api.h"
 #include "../repo/repo.h"
 #include "../util/paths.h"
+#include "../i18n.h"
 
 #define USAGE "tulpar info [--dest <path>] [--json] <name>"
 
@@ -85,7 +86,7 @@ cmd_info_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (!name)
     {
-        ui_error("info requires a package name");
+        ui_error(_("info requires a package name"));
         cmd_print_usage(USAGE);
         return 1;
     }
@@ -117,7 +118,7 @@ cmd_info_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (!idx || idx->count == 0)
     {
-        ui_errorf("package %s not found locally or in any configured repo",
+        ui_errorf(_("package %s not found locally or in any configured repo"),
                   name);
         if (idx)
             repo_index_free(idx);

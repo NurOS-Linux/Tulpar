@@ -10,6 +10,7 @@
 #include "cmd_common.h"
 #include "../cli/args.h"
 #include "../cli/ui.h"
+#include "../i18n.h"
 
 #define USAGE "tulpar orphans [--dest <path>] [-y]"
 
@@ -54,7 +55,7 @@ cmd_orphans_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (count == 0)
     {
-        ui_info("no orphaned packages found");
+        ui_info(_("no orphaned packages found"));
         db_close(db);
         dest_ctx_clear(&dest);
         return 0;
@@ -66,7 +67,7 @@ cmd_orphans_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (!ui_confirm("Remove these packages?", assume_yes))
     {
-        ui_info("aborted");
+        ui_info(_("aborted"));
         for (int i = 0; i < count; i++)
             free(orphans[i]);
         free(orphans);
@@ -78,7 +79,7 @@ cmd_orphans_run(int argc, char **argv, struct tulpar_config *cfg)
     struct apg_trans *trans = trans_new(db);
     if (!trans)
     {
-        ui_error("failed to allocate transaction");
+        ui_error(_("failed to allocate transaction"));
         for (int i = 0; i < count; i++)
             free(orphans[i]);
         free(orphans);

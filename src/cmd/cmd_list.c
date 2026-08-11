@@ -11,6 +11,7 @@
 #include "../cli/args.h"
 #include "../cli/ui.h"
 #include "../util/paths.h"
+#include "../i18n.h"
 
 #define USAGE "tulpar list [--dest <path>] [--json]"
 
@@ -69,7 +70,7 @@ cmd_list_run(int argc, char **argv, struct tulpar_config *cfg)
     }
     else if (count == 0)
     {
-        ui_info("no packages installed");
+        ui_info(_("no packages installed"));
     }
     else
     {

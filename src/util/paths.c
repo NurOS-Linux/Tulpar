@@ -11,6 +11,7 @@
 
 #include "paths.h"
 #include "../cli/ui.h"
+#include "../i18n.h"
 
 static bool
 mkdir_or_exists(const char *path)
@@ -197,8 +198,8 @@ require_privilege(const struct dest_ctx *ctx)
     if (geteuid() == 0)
         return true;
 
-    ui_error("this operation modifies the host root and requires "
-             "root privileges (use --dest to target a user-owned root)");
+    ui_error(_("this operation modifies the host root and requires "
+               "root privileges (use --dest to target a user-owned root)"));
     return false;
 }
 

@@ -1,0 +1,552 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the tulpar package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: tulpar 0.1.0\n"
+"Report-Msgid-Bugs-To: anmitalidev@nuros.org\n"
+"POT-Creation-Date: 2026-08-11 19:47+0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/main.c:24
+#, c-format
+msgid ""
+"usage: tulpar <command> [options] [args]\n"
+"\n"
+msgstr ""
+
+#: src/main.c:25
+#, c-format
+msgid "commands:\n"
+msgstr ""
+
+#: src/main.c:44
+#, c-format
+msgid ""
+"\n"
+"global flags:\n"
+msgstr ""
+
+#: src/main.c:45
+#, c-format
+msgid "  -h, --help              show this help text\n"
+msgstr ""
+
+#: src/main.c:46
+#, c-format
+msgid "  -V, --version           show the tulpar version\n"
+msgstr ""
+
+#: src/main.c:47
+#, c-format
+msgid "  -y, --yes               assume yes on confirmation prompts\n"
+msgstr ""
+
+#: src/main.c:48
+#, c-format
+msgid "  -j, --json              machine-readable output\n"
+msgstr ""
+
+#: src/main.c:49
+#, c-format
+msgid "  -d, --dest <path>       operate against an alternate root\n"
+msgstr ""
+
+#: src/main.c:50
+#, c-format
+msgid "  -q, --quiet             suppress informational output\n"
+msgstr ""
+
+#: src/main.c:51
+#, c-format
+msgid "      --verbose           enable debug output\n"
+msgstr ""
+
+#: src/main.c:87
+#, c-format
+msgid "tulpar %s\n"
+msgstr ""
+
+#: src/main.c:95
+msgid "unknown command"
+msgstr ""
+
+#: src/main.c:119
+msgid "failed to initialise configuration"
+msgstr ""
+
+#: src/main.c:136
+msgid "could not open the log file, continuing without file logging"
+msgstr ""
+
+#: src/cli/dispatch.c:26
+msgid "install one or more packages"
+msgstr ""
+
+#: src/cli/dispatch.c:27 src/cli/dispatch.c:28
+msgid "remove an installed package"
+msgstr ""
+
+#: src/cli/dispatch.c:29
+msgid "upgrade one or all installed packages"
+msgstr ""
+
+#: src/cli/dispatch.c:31
+msgid "search local and remote package indexes"
+msgstr ""
+
+#: src/cli/dispatch.c:33
+msgid "list installed packages"
+msgstr ""
+
+#: src/cli/dispatch.c:34 src/cli/dispatch.c:35
+msgid "show full metadata for a package"
+msgstr ""
+
+#: src/cli/dispatch.c:36
+msgid "verify installed package files"
+msgstr ""
+
+#: src/cli/dispatch.c:37 src/cli/dispatch.c:38
+msgid "list and remove orphaned packages"
+msgstr ""
+
+#: src/cli/dispatch.c:40
+msgid "block a package from upgrade/removal"
+msgstr ""
+
+#: src/cli/dispatch.c:41
+msgid "release a held package"
+msgstr ""
+
+#: src/cli/dispatch.c:42 src/cli/dispatch.c:44 src/cli/dispatch.c:45
+msgid "show past install/remove operations"
+msgstr ""
+
+#: src/cli/dispatch.c:46
+msgid "manage configured repositories"
+msgstr ""
+
+#: src/cli/dispatch.c:47
+msgid "fetch a package without installing it"
+msgstr ""
+
+#: src/cli/dispatch.c:49
+msgid "manage the trusted signing keyring"
+msgstr ""
+
+#: src/cli/dispatch.c:50
+msgid "export the installed package dependency graph as DOT"
+msgstr ""
+
+#: src/cli/ui.c:186 src/cli/ui.c:188
+msgid "[y/N]"
+msgstr ""
+
+#: src/cli/ui.c:215
+#, c-format
+msgid "enter a number [1-%d]: "
+msgstr ""
+
+#: src/cli/ui.c:226
+#, c-format
+msgid "invalid choice\n"
+msgstr ""
+
+#: src/cli/ui.c:281
+msgid "install"
+msgstr ""
+
+#: src/cli/ui.c:283
+msgid "upgrade"
+msgstr ""
+
+#: src/cli/ui.c:285
+msgid "remove"
+msgstr ""
+
+#: src/cli/ui.c:314
+msgid "nothing to do"
+msgstr ""
+
+#: src/cli/ui.c:318
+#, c-format
+msgid ""
+"\n"
+"Transaction plan:\n"
+msgstr ""
+
+#: src/cli/ui.c:344
+#, c-format
+msgid "%s conflicts with installed package %s"
+msgstr ""
+
+#: src/cli/ui.c:352
+#, c-format
+msgid "file %s requested by %s is already owned by %s"
+msgstr ""
+
+#: src/cli/ui.c:374
+#, c-format
+msgid "cannot remove %s: required by %s"
+msgstr ""
+
+#: src/cli/ui.c:382
+#, c-format
+msgid "%s is held, %s blocked"
+msgstr ""
+
+#: src/cmd/cmd_common.c:20
+#, c-format
+msgid "usage: %s\n"
+msgstr ""
+
+#: src/cmd/cmd_common.c:31 src/cmd/cmd_common.c:118
+msgid "failed to prepare target root directory structure"
+msgstr ""
+
+#: src/cmd/cmd_common.c:39
+#, c-format
+msgid ""
+"failed to open package database at %s (missing, or locked by another process)"
+msgstr ""
+
+#: src/cmd/cmd_common.c:58
+#, c-format
+msgid ""
+"%s has no detached signature (%s); installing without signature verification"
+msgstr ""
+
+#: src/cmd/cmd_common.c:65
+#, c-format
+msgid ""
+"%s signature at %s could not be verified; installing an unverified package"
+msgstr ""
+
+#: src/cmd/cmd_common.c:96
+msgid "circular dependency detected"
+msgstr ""
+
+#: src/cmd/cmd_common.c:99
+msgid "a required dependency could not be resolved"
+msgstr ""
+
+#: src/cmd/cmd_common.c:102
+msgid "failed to prepare the transaction"
+msgstr ""
+
+#: src/cmd/cmd_common.c:110
+msgid "Proceed with this transaction?"
+msgstr ""
+
+#: src/cmd/cmd_common.c:112 src/cmd/cmd_orphans.c:70
+msgid "aborted"
+msgstr ""
+
+#: src/cmd/cmd_common.c:129
+msgid "a package failed signature verification and was rejected by policy"
+msgstr ""
+
+#: src/cmd/cmd_common.c:133
+msgid "installation failed; already-applied changes were rolled back"
+msgstr ""
+
+#: src/cmd/cmd_common.c:137
+msgid "failed to commit the transaction"
+msgstr ""
+
+#: src/cmd/cmd_common.c:144
+msgid "transaction complete"
+msgstr ""
+
+#: src/cmd/cmd_download.c:52
+msgid "download requires a package name"
+msgstr ""
+
+#: src/cmd/cmd_download.c:70 src/cmd/resolve.c:634
+#, c-format
+msgid "package %s not found in any configured repo"
+msgstr ""
+
+#: src/cmd/cmd_download.c:97
+#, c-format
+msgid "no build of %s matches the requested version/arch/channel"
+msgstr ""
+
+#: src/cmd/cmd_download.c:131
+#, c-format
+msgid "downloaded %s to %s"
+msgstr ""
+
+#: src/cmd/cmd_download.c:137
+msgid "no detached signature available for this package"
+msgstr ""
+
+#: src/cmd/cmd_download.c:141 src/cmd/resolve.c:174
+#, c-format
+msgid "failed to download %s"
+msgstr ""
+
+#: src/cmd/cmd_graph.c:53
+msgid "failed to allocate dependency graph"
+msgstr ""
+
+#: src/cmd/cmd_graph.c:76
+msgid "failed to export the dependency graph"
+msgstr ""
+
+#: src/cmd/cmd_graph.c:85
+#, c-format
+msgid "failed to open %s for writing"
+msgstr ""
+
+#: src/cmd/cmd_graph.c:91
+#, c-format
+msgid "wrote dependency graph to %s"
+msgstr ""
+
+#: src/cmd/cmd_history.c:68 src/cmd/cmd_verify.c:38
+msgid "no package database found"
+msgstr ""
+
+#: src/cmd/cmd_history.c:113
+msgid "no history recorded"
+msgstr ""
+
+#: src/cmd/cmd_hold.c:34
+msgid "a package name is required"
+msgstr ""
+
+#: src/cmd/cmd_hold.c:57
+#, c-format
+msgid "%s is now %s"
+msgstr ""
+
+#: src/cmd/cmd_hold.c:59
+#, c-format
+msgid "failed to update hold state for %s (not installed?)"
+msgstr ""
+
+#: src/cmd/cmd_info.c:89
+msgid "info requires a package name"
+msgstr ""
+
+#: src/cmd/cmd_info.c:121
+#, c-format
+msgid "package %s not found locally or in any configured repo"
+msgstr ""
+
+#: src/cmd/cmd_install.c:61
+#, c-format
+msgid "--provider requires name=package (got %s)"
+msgstr ""
+
+#: src/cmd/cmd_install.c:89
+msgid "install requires at least one package name or .apg file"
+msgstr ""
+
+#: src/cmd/cmd_install.c:99
+msgid "--sign requires exactly one local .apg file, URL, or git-url argument"
+msgstr ""
+
+#: src/cmd/cmd_install.c:108 src/cmd/cmd_remove.c:48 src/cmd/cmd_upgrade.c:90
+msgid "failed to resolve destination root"
+msgstr ""
+
+#: src/cmd/cmd_install.c:150
+#, c-format
+msgid "failed to place signature from %s at %s"
+msgstr ""
+
+#: src/cmd/cmd_install.c:167 src/cmd/cmd_orphans.c:82 src/cmd/cmd_remove.c:68
+#: src/cmd/cmd_upgrade.c:186
+msgid "failed to allocate transaction"
+msgstr ""
+
+#: src/cmd/cmd_key.c:44
+msgid "key add requires a path to the new public key"
+msgstr ""
+
+#: src/cmd/cmd_key.c:52
+#, c-format
+msgid "failed to load trusted keyring from %s"
+msgstr ""
+
+#: src/cmd/cmd_key.c:62
+msgid "key added to the trusted keyring"
+msgstr ""
+
+#: src/cmd/cmd_key.c:64
+msgid "key was not added; it must be endorsed by an already trusted key"
+msgstr ""
+
+#: src/cmd/cmd_key.c:74
+msgid "use your platform's file listing to inspect individual keys"
+msgstr ""
+
+#: src/cmd/cmd_key.c:85
+msgid "key requires a sub-action: add, list"
+msgstr ""
+
+#: src/cmd/cmd_key.c:106
+#, c-format
+msgid "unknown key sub-action: %s"
+msgstr ""
+
+#: src/cmd/cmd_list.c:73
+msgid "no packages installed"
+msgstr ""
+
+#: src/cmd/cmd_orphans.c:58
+msgid "no orphaned packages found"
+msgstr ""
+
+#: src/cmd/cmd_remove.c:40
+msgid "remove requires at least one package name"
+msgstr ""
+
+#: src/cmd/cmd_repo.c:52
+msgid "repo add requires a URL"
+msgstr ""
+
+#: src/cmd/cmd_repo.c:60 src/cmd/cmd_repo.c:103
+msgid "could not determine a repo list file to write to"
+msgstr ""
+
+#: src/cmd/cmd_repo.c:66
+#, c-format
+msgid "added repo %s to %s"
+msgstr ""
+
+#: src/cmd/cmd_repo.c:68
+#, c-format
+msgid "failed to add repo to %s"
+msgstr ""
+
+#: src/cmd/cmd_repo.c:95
+msgid "repo remove requires a URL"
+msgstr ""
+
+#: src/cmd/cmd_repo.c:109
+#, c-format
+msgid "removed repo %s from %s"
+msgstr ""
+
+#: src/cmd/cmd_repo.c:111
+#, c-format
+msgid "repo %s was not found in %s"
+msgstr ""
+
+#: src/cmd/cmd_repo.c:122
+msgid "no repositories configured"
+msgstr ""
+
+#: src/cmd/cmd_repo.c:140
+#, c-format
+msgid "updated %s"
+msgstr ""
+
+#: src/cmd/cmd_repo.c:143
+#, c-format
+msgid "failed to update %s"
+msgstr ""
+
+#: src/cmd/cmd_repo.c:157
+msgid "repo requires a sub-action: add, remove, list, update"
+msgstr ""
+
+#: src/cmd/cmd_repo.c:184
+#, c-format
+msgid "unknown repo sub-action: %s"
+msgstr ""
+
+#: src/cmd/cmd_search.c:70
+msgid "search requires a query string"
+msgstr ""
+
+#: src/cmd/cmd_upgrade.c:81
+msgid "--exclude only applies to a full upgrade (no target package)"
+msgstr ""
+
+#: src/cmd/cmd_upgrade.c:118
+#, c-format
+msgid "%s is not installed"
+msgstr ""
+
+#: src/cmd/cmd_upgrade.c:138
+#, c-format
+msgid "%s %s not found in any configured repo"
+msgstr ""
+
+#: src/cmd/cmd_upgrade.c:141
+msgid "already up to date"
+msgstr ""
+
+#: src/cmd/cmd_upgrade.c:170
+msgid "nothing to upgrade"
+msgstr ""
+
+#: src/cmd/cmd_verify.c:48
+msgid "all installed packages verified successfully"
+msgstr ""
+
+#: src/cmd/cmd_verify.c:58
+#, c-format
+msgid "%s: %d missing file(s)"
+msgstr ""
+
+#: src/cmd/resolve.c:229
+#, c-format
+msgid "failed to create a temporary directory for %s"
+msgstr ""
+
+#: src/cmd/resolve.c:263
+#, c-format
+msgid "failed to clone %s"
+msgstr ""
+
+#: src/cmd/resolve.c:273
+#, c-format
+msgid "%s does not contain a metadata.json at its root"
+msgstr ""
+
+#: src/cmd/resolve.c:314
+#, c-format
+msgid "failed to archive the cloned repository at %s"
+msgstr ""
+
+#: src/cmd/resolve.c:403
+#, c-format
+msgid ""
+"'%s' is provided by %d packages; use --provider %s=<package> to pick one"
+msgstr ""
+
+#: src/cmd/resolve.c:562
+#, c-format
+msgid "could not resolve dependency %s in any configured repo"
+msgstr ""
+
+#: src/cmd/resolve.c:602 src/cmd/resolve.c:612
+#, c-format
+msgid "failed to install from %s"
+msgstr ""
+
+#: src/cmd/resolve.c:622
+#, c-format
+msgid "failed to read package archive %s"
+msgstr ""
+
+#: src/util/paths.c:201
+msgid ""
+"this operation modifies the host root and requires root privileges (use --"
+"dest to target a user-owned root)"
+msgstr ""

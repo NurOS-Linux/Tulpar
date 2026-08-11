@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // SPDX-FileCopyrightText: 2026 AnmiTaliDev <anmitalidev@nuros.org>
 
+#include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,6 +10,7 @@
 #include "cli/dispatch.h"
 #include "cli/ui.h"
 #include "config/config.h"
+#include "i18n.h"
 #include "log/log.h"
 #include "net/http.h"
 
@@ -19,8 +21,8 @@
 static void
 print_usage(void)
 {
-    printf("usage: tulpar <command> [options] [args]\n\n");
-    printf("commands:\n");
+    printf(_("usage: tulpar <command> [options] [args]\n\n"));
+    printf(_("commands:\n"));
 
     for (size_t i = 0; i < g_command_count; i++)
     {
@@ -36,17 +38,17 @@ print_usage(void)
         if (seen)
             continue;
         printf("  %-12s -%-2c %s\n", g_commands[i].name, g_commands[i].alias,
-               g_commands[i].summary);
+               _(g_commands[i].summary));
     }
 
-    printf("\nglobal flags:\n");
-    printf("  -h, --help              show this help text\n");
-    printf("  -V, --version           show the tulpar version\n");
-    printf("  -y, --yes               assume yes on confirmation prompts\n");
-    printf("  -j, --json              machine-readable output\n");
-    printf("  -d, --dest <path>       operate against an alternate root\n");
-    printf("  -q, --quiet             suppress informational output\n");
-    printf("      --verbose           enable debug output\n");
+    printf(_("\nglobal flags:\n"));
+    printf(_("  -h, --help              show this help text\n"));
+    printf(_("  -V, --version           show the tulpar version\n"));
+    printf(_("  -y, --yes               assume yes on confirmation prompts\n"));
+    printf(_("  -j, --json              machine-readable output\n"));
+    printf(_("  -d, --dest <path>       operate against an alternate root\n"));
+    printf(_("  -q, --quiet             suppress informational output\n"));
+    printf(_("      --verbose           enable debug output\n"));
 }
 
 static const char *
@@ -64,6 +66,10 @@ normalize_command_token(const char *arg)
 int
 main(int argc, char **argv)
 {
+    setlocale(LC_ALL, "");
+    bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
+    textdomain(GETTEXT_PACKAGE);
+
     if (argc < 2)
     {
         print_usage();
@@ -78,7 +84,7 @@ main(int argc, char **argv)
 
     if (strcmp(argv[1], "-V") == 0 || strcmp(argv[1], "--version") == 0)
     {
-        printf("tulpar %s\n", TULPAR_VERSION);
+        printf(_("tulpar %s\n"), TULPAR_VERSION);
         return 0;
     }
 
@@ -86,7 +92,7 @@ main(int argc, char **argv)
     const struct command *cmd = command_lookup(token);
     if (!cmd)
     {
-        ui_error("unknown command");
+        ui_error(_("unknown command"));
         print_usage();
         return 1;
     }
@@ -110,7 +116,7 @@ main(int argc, char **argv)
     struct tulpar_config *cfg = tulpar_config_load();
     if (!cfg)
     {
-        ui_error("failed to initialise configuration");
+        ui_error(_("failed to initialise configuration"));
         free(filtered);
         return 1;
     }
@@ -127,7 +133,7 @@ main(int argc, char **argv)
         log_set_verbosity(cfg->verbose, cfg->quiet);
     else
         ui_debug(
-            "could not open the log file, continuing without file logging");
+            _("could not open the log file, continuing without file logging"));
 
     log_set_journald_mirror(cfg->journald_mirror);
 

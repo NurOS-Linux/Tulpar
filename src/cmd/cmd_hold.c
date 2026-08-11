@@ -5,6 +5,7 @@
 #include "cmd_common.h"
 #include "../cli/args.h"
 #include "../cli/ui.h"
+#include "../i18n.h"
 
 static int
 run_set_hold(int argc, char **argv, struct tulpar_config *cfg, bool held)
@@ -30,7 +31,7 @@ run_set_hold(int argc, char **argv, struct tulpar_config *cfg, bool held)
 
     if (!name)
     {
-        ui_error("a package name is required");
+        ui_error(_("a package name is required"));
         cmd_print_usage(usage);
         return 1;
     }
@@ -53,9 +54,10 @@ run_set_hold(int argc, char **argv, struct tulpar_config *cfg, bool held)
 
     bool ok = db_set_hold(db, name, held);
     if (ok)
-        ui_successf("%s is now %s", name, held ? "held" : "unheld");
+        ui_successf(_("%s is now %s"), name, held ? "held" : "unheld");
     else
-        ui_errorf("failed to update hold state for %s (not installed?)", name);
+        ui_errorf(_("failed to update hold state for %s (not installed?)"),
+                  name);
 
     db_close(db);
     dest_ctx_clear(&dest);

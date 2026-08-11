@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 #include "ui.h"
+#include "../i18n.h"
 
 #define COL_RESET "\x1b[0m"
 #define COL_BOLD "\x1b[1m"
@@ -182,9 +183,9 @@ ui_confirm(const char *prompt, bool assume_yes)
         return true;
 
     if (g_colors_enabled)
-        printf("%s%s%s %s [y/N] ", COL_BOLD, "::", COL_RESET, prompt);
+        printf("%s%s%s %s %s ", COL_BOLD, "::", COL_RESET, prompt, _("[y/N]"));
     else
-        printf(":: %s [y/N] ", prompt);
+        printf(":: %s %s ", prompt, _("[y/N]"));
     fflush(stdout);
 
     char line[16];
@@ -211,7 +212,7 @@ ui_select(const char *prompt, const char *const *options, int count,
 
     for (int attempt = 0; attempt < 3; attempt++)
     {
-        printf("enter a number [1-%d]: ", count);
+        printf(_("enter a number [1-%d]: "), count);
         fflush(stdout);
 
         char line[32];
@@ -222,7 +223,7 @@ ui_select(const char *prompt, const char *const *options, int count,
         if (choice >= 1 && choice <= count)
             return choice - 1;
 
-        printf("invalid choice\n");
+        printf(_("invalid choice\n"));
     }
 
     return -1;
@@ -277,11 +278,11 @@ op_label(trans_op_t op)
     switch (op)
     {
     case TRANS_OP_INSTALL:
-        return "install";
+        return _("install");
     case TRANS_OP_UPGRADE:
-        return "upgrade";
+        return _("upgrade");
     case TRANS_OP_REMOVE:
-        return "remove";
+        return _("remove");
     default:
         return "?";
     }
@@ -310,11 +311,11 @@ ui_print_plan(const struct apg_trans *trans)
 
     if (count == 0)
     {
-        ui_info("nothing to do");
+        ui_info(_("nothing to do"));
         return;
     }
 
-    printf("\nTransaction plan:\n");
+    printf(_("\nTransaction plan:\n"));
     for (size_t i = 0; i < count; i++)
     {
         const struct trans_step *s = trans_plan_at(trans, i);
@@ -340,7 +341,7 @@ ui_print_conflicts(const struct apg_trans *trans)
     for (size_t i = 0; i < conflict_count; i++)
     {
         const struct trans_conflict *c = trans_conflict_at(trans, i);
-        ui_errorf("%s conflicts with installed package %s",
+        ui_errorf(_("%s conflicts with installed package %s"),
                   trans_conflict_pkg_name(c), trans_conflict_conflicts_with(c));
     }
 
@@ -348,7 +349,7 @@ ui_print_conflicts(const struct apg_trans *trans)
     for (size_t i = 0; i < file_conflict_count; i++)
     {
         const struct trans_file_conflict *fc = trans_file_conflict_at(trans, i);
-        ui_errorf("file %s requested by %s is already owned by %s",
+        ui_errorf(_("file %s requested by %s is already owned by %s"),
                   trans_file_conflict_path(fc),
                   trans_file_conflict_requested_by(fc),
                   trans_file_conflict_owned_by(fc));
@@ -370,7 +371,7 @@ ui_print_conflicts(const struct apg_trans *trans)
             if (j + 1 < dependent_count)
                 strncat(deps, ", ", sizeof(deps) - strlen(deps) - 1);
         }
-        ui_errorf("cannot remove %s: required by %s",
+        ui_errorf(_("cannot remove %s: required by %s"),
                   trans_blocked_remove_pkg_name(b), deps);
     }
 
@@ -378,7 +379,7 @@ ui_print_conflicts(const struct apg_trans *trans)
     for (size_t i = 0; i < held_count; i++)
     {
         const struct trans_held_pkg *h = trans_held_pkg_at(trans, i);
-        ui_errorf("%s is held, %s blocked", trans_held_pkg_name(h),
+        ui_errorf(_("%s is held, %s blocked"), trans_held_pkg_name(h),
                   op_label(trans_held_pkg_op(h)));
     }
 }

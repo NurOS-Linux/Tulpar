@@ -12,6 +12,7 @@
 #include "../net/api.h"
 #include "../repo/repo.h"
 #include "../util/paths.h"
+#include "../i18n.h"
 
 #define USAGE                                                                  \
     "tulpar download [-o <path>] [--version <v>] [--arch <a>] "                \
@@ -48,7 +49,7 @@ cmd_download_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (!name)
     {
-        ui_error("download requires a package name");
+        ui_error(_("download requires a package name"));
         cmd_print_usage(USAGE);
         return 1;
     }
@@ -66,7 +67,7 @@ cmd_download_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (!idx || idx->count == 0)
     {
-        ui_errorf("package %s not found in any configured repo", name);
+        ui_errorf(_("package %s not found in any configured repo"), name);
         if (idx)
             repo_index_free(idx);
         repo_list_free(repos);
@@ -92,8 +93,9 @@ cmd_download_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (!best)
     {
-        ui_errorf("no build of %s matches the requested version/arch/channel",
-                  name);
+        ui_errorf(
+            _("no build of %s matches the requested version/arch/channel"),
+            name);
         repo_index_free(idx);
         repo_list_free(repos);
         return 1;
@@ -126,17 +128,17 @@ cmd_download_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (ok)
     {
-        ui_successf("downloaded %s to %s", name, output);
+        ui_successf(_("downloaded %s to %s"), name, output);
 
         char sig_path[600];
         snprintf(sig_path, sizeof(sig_path), "%s.sig", output);
         if (!api_download_sig(found_base_url, use_channel, best->name,
                               best->version, use_arch, sig_path))
-            ui_warn("no detached signature available for this package");
+            ui_warn(_("no detached signature available for this package"));
     }
     else
     {
-        ui_errorf("failed to download %s", name);
+        ui_errorf(_("failed to download %s"), name);
     }
 
     repo_index_free(idx);

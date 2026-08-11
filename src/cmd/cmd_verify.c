@@ -8,6 +8,7 @@
 #include "../cli/args.h"
 #include "../cli/ui.h"
 #include "../util/paths.h"
+#include "../i18n.h"
 
 #define USAGE "tulpar verify [--dest <path>]"
 
@@ -34,7 +35,7 @@ cmd_verify_run(int argc, char **argv, struct tulpar_config *cfg)
     struct db_handle *db = db_open_readonly(dest.db_path);
     if (!db)
     {
-        ui_error("no package database found");
+        ui_error(_("no package database found"));
         dest_ctx_clear(&dest);
         return 1;
     }
@@ -44,7 +45,7 @@ cmd_verify_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (count == 0)
     {
-        ui_success("all installed packages verified successfully");
+        ui_success(_("all installed packages verified successfully"));
     }
     else
     {
@@ -54,8 +55,8 @@ cmd_verify_run(int argc, char **argv, struct tulpar_config *cfg)
                 db_verify_issue_at(issues, count, i);
             int missing_count = db_verify_issue_missing_count(issue);
 
-            ui_errorf("%s: %d missing file(s)", db_verify_issue_pkg_name(issue),
-                      missing_count);
+            ui_errorf(_("%s: %d missing file(s)"),
+                      db_verify_issue_pkg_name(issue), missing_count);
             for (int j = 0; j < missing_count; j++)
                 printf("    %s\n", db_verify_issue_missing_file_at(issue, j));
         }

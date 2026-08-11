@@ -15,6 +15,7 @@
 #include "../repo/repo.h"
 #include "../repo/repodata.h"
 #include "../util/paths.h"
+#include "../i18n.h"
 
 #define USAGE "tulpar search [--dest <path>] [--json] <query>"
 
@@ -66,7 +67,7 @@ cmd_search_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (!query)
     {
-        ui_error("search requires a query string");
+        ui_error(_("search requires a query string"));
         cmd_print_usage(USAGE);
         return 1;
     }

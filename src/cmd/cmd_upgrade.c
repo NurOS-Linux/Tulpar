@@ -12,6 +12,7 @@
 #include "../cli/args.h"
 #include "../cli/ui.h"
 #include "../repo/repo.h"
+#include "../i18n.h"
 
 #define USAGE                                                                  \
     "tulpar upgrade [--dest <path>] [-y] [--require-signature] "               \
@@ -77,8 +78,8 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (exclude_count > 0 && target_name)
     {
-        ui_error("--exclude only applies to a full upgrade (no target "
-                 "package)");
+        ui_error(_("--exclude only applies to a full upgrade (no target "
+                   "package)"));
         cmd_print_usage(USAGE);
         return 1;
     }
@@ -86,7 +87,7 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
     struct dest_ctx dest = {0};
     if (!dest_ctx_resolve(dest_arg, cfg->db_dir, &dest))
     {
-        ui_error("failed to resolve destination root");
+        ui_error(_("failed to resolve destination root"));
         return 1;
     }
 
@@ -114,7 +115,7 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
         struct package *installed = db_get(db, target_name);
         if (!installed)
         {
-            ui_errorf("%s is not installed", target_name);
+            ui_errorf(_("%s is not installed"), target_name);
             repo_list_free(repos);
             db_close(db);
             dest_ctx_clear(&dest);
@@ -134,10 +135,10 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
         if (!candidate)
         {
             if (target_version)
-                ui_errorf("%s %s not found in any configured repo", target_name,
-                          target_version);
+                ui_errorf(_("%s %s not found in any configured repo"),
+                          target_name, target_version);
             else
-                ui_info("already up to date");
+                ui_info(_("already up to date"));
             repo_list_free(repos);
             db_close(db);
             dest_ctx_clear(&dest);
@@ -166,7 +167,7 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (set.count == 0)
     {
-        ui_info("nothing to upgrade");
+        ui_info(_("nothing to upgrade"));
         for (int i = 0; i < candidates_count; i++)
             package_free(candidates_from[i]);
         free(candidates_from);
@@ -182,7 +183,7 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
     struct apg_trans *trans = trans_new(db);
     if (!trans)
     {
-        ui_error("failed to allocate transaction");
+        ui_error(_("failed to allocate transaction"));
         pkg_set_free(&set);
         for (int i = 0; i < candidates_count; i++)
             package_free(candidates_from[i]);

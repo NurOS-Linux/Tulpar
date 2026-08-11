@@ -7,6 +7,7 @@
 #include "cmd_common.h"
 #include "../cli/args.h"
 #include "../cli/ui.h"
+#include "../i18n.h"
 
 #define USAGE "tulpar remove [--dest <path>] [-y] <package>..."
 
@@ -36,7 +37,7 @@ cmd_remove_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (positional_count == 0)
     {
-        ui_error("remove requires at least one package name");
+        ui_error(_("remove requires at least one package name"));
         cmd_print_usage(USAGE);
         return 1;
     }
@@ -44,7 +45,7 @@ cmd_remove_run(int argc, char **argv, struct tulpar_config *cfg)
     struct dest_ctx dest = {0};
     if (!dest_ctx_resolve(dest_arg, cfg->db_dir, &dest))
     {
-        ui_error("failed to resolve destination root");
+        ui_error(_("failed to resolve destination root"));
         return 1;
     }
 
@@ -64,7 +65,7 @@ cmd_remove_run(int argc, char **argv, struct tulpar_config *cfg)
     struct apg_trans *trans = trans_new(db);
     if (!trans)
     {
-        ui_error("failed to allocate transaction");
+        ui_error(_("failed to allocate transaction"));
         db_close(db);
         dest_ctx_clear(&dest);
         return 1;

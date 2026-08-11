@@ -10,6 +10,7 @@
 #include "cmd_common.h"
 #include "../cli/args.h"
 #include "../cli/ui.h"
+#include "../i18n.h"
 
 #define USAGE "tulpar graph [--dest <path>] [-o <file>]"
 
@@ -49,7 +50,7 @@ cmd_graph_run(int argc, char **argv, struct tulpar_config *cfg)
     struct dep_graph *g = dep_graph_new();
     if (!g)
     {
-        ui_error("failed to allocate dependency graph");
+        ui_error(_("failed to allocate dependency graph"));
         for (int i = 0; i < count; i++)
             package_free(pkgs[i]);
         free(pkgs);
@@ -72,7 +73,7 @@ cmd_graph_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (!dot)
     {
-        ui_error("failed to export the dependency graph");
+        ui_error(_("failed to export the dependency graph"));
         return 1;
     }
 
@@ -81,13 +82,13 @@ cmd_graph_run(int argc, char **argv, struct tulpar_config *cfg)
         FILE *f = fopen(out_path, "wb");
         if (!f)
         {
-            ui_errorf("failed to open %s for writing", out_path);
+            ui_errorf(_("failed to open %s for writing"), out_path);
             free(dot);
             return 1;
         }
         fputs(dot, f);
         fclose(f);
-        ui_successf("wrote dependency graph to %s", out_path);
+        ui_successf(_("wrote dependency graph to %s"), out_path);
     }
     else
     {

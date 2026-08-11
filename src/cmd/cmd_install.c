@@ -14,6 +14,7 @@
 #include "../cli/ui.h"
 #include "../repo/repo.h"
 #include "../util/paths.h"
+#include "../i18n.h"
 
 #define USAGE                                                                  \
     "tulpar install [--dest <path>] [-y] [--require-signature] "               \
@@ -57,7 +58,8 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
             const char *eq = strchr(value, '=');
             if (!eq || eq == value || eq[1] == '\0')
             {
-                ui_errorf("--provider requires name=package (got %s)", value);
+                ui_errorf(_("--provider requires name=package (got %s)"),
+                          value);
                 cmd_print_usage(USAGE);
                 return 1;
             }
@@ -84,7 +86,7 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (positional_count == 0)
     {
-        ui_error("install requires at least one package name or .apg file");
+        ui_error(_("install requires at least one package name or .apg file"));
         cmd_print_usage(USAGE);
         return 1;
     }
@@ -94,8 +96,8 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
          (!ends_with_apg(positional[0]) && !resolve_arg_is_url(positional[0]) &&
           !resolve_arg_is_git_url(positional[0]))))
     {
-        ui_error("--sign requires exactly one local .apg file, URL, or "
-                 "git-url argument");
+        ui_error(_("--sign requires exactly one local .apg file, URL, or "
+                   "git-url argument"));
         cmd_print_usage(USAGE);
         return 1;
     }
@@ -103,7 +105,7 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
     struct dest_ctx dest = {0};
     if (!dest_ctx_resolve(dest_arg, cfg->db_dir, &dest))
     {
-        ui_error("failed to resolve destination root");
+        ui_error(_("failed to resolve destination root"));
         return 1;
     }
 
@@ -145,7 +147,7 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
         snprintf(sig_dest, sizeof(sig_dest), "%s.sig", set.items[0]->pkg_path);
         if (!copy_file(sign_path, sig_dest))
         {
-            ui_errorf("failed to place signature from %s at %s", sign_path,
+            ui_errorf(_("failed to place signature from %s at %s"), sign_path,
                       sig_dest);
             pkg_set_free(&set);
             repo_list_free(repos);
@@ -162,7 +164,7 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
     struct apg_trans *trans = trans_new(db);
     if (!trans)
     {
-        ui_error("failed to allocate transaction");
+        ui_error(_("failed to allocate transaction"));
         pkg_set_free(&set);
         repo_list_free(repos);
         db_close(db);

@@ -13,6 +13,7 @@
 #include "../cli/args.h"
 #include "../cli/ui.h"
 #include "../util/paths.h"
+#include "../i18n.h"
 
 #define USAGE "tulpar history [--dest <path>] [--json]"
 
@@ -64,7 +65,7 @@ cmd_history_run(int argc, char **argv, struct tulpar_config *cfg)
     struct db_handle *db = db_open_readonly(dest.db_path);
     if (!db)
     {
-        ui_error("no package database found");
+        ui_error(_("no package database found"));
         dest_ctx_clear(&dest);
         return 1;
     }
@@ -109,7 +110,7 @@ cmd_history_run(int argc, char **argv, struct tulpar_config *cfg)
     }
     else if (count == 0)
     {
-        ui_info("no history recorded");
+        ui_info(_("no history recorded"));
     }
     else
     {

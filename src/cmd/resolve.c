@@ -13,6 +13,7 @@
 #include "../repo/repodata.h"
 #include "../util/paths.h"
 #include "../util/proc.h"
+#include "../i18n.h"
 
 static bool
 metadata_satisfies_name(const struct package_metadata *meta, const char *name)
@@ -170,7 +171,7 @@ fetch_from_url(const char *url, const struct tulpar_config *cfg,
     struct http_response resp = {0};
     if (!http_download(url, dest_path, NULL, NULL, &resp))
     {
-        ui_errorf("failed to download %s", url);
+        ui_errorf(_("failed to download %s"), url);
         free(dest_path);
         return NULL;
     }
@@ -225,7 +226,7 @@ fetch_from_git(const char *arg, const struct tulpar_config *cfg,
 
     if (!mkdtemp(tmpdir))
     {
-        ui_errorf("failed to create a temporary directory for %s", arg);
+        ui_errorf(_("failed to create a temporary directory for %s"), arg);
         free(clone_url);
         free(ref);
         return NULL;
@@ -259,7 +260,7 @@ fetch_from_git(const char *arg, const struct tulpar_config *cfg,
 
     if (!cloned)
     {
-        ui_errorf("failed to clone %s", arg);
+        ui_errorf(_("failed to clone %s"), arg);
         remove_dir_recursive(tmpdir);
         return NULL;
     }
@@ -269,7 +270,7 @@ fetch_from_git(const char *arg, const struct tulpar_config *cfg,
     free(metadata_path);
     if (!has_metadata)
     {
-        ui_errorf("%s does not contain a metadata.json at its root", arg);
+        ui_errorf(_("%s does not contain a metadata.json at its root"), arg);
         remove_dir_recursive(tmpdir);
         return NULL;
     }
@@ -310,7 +311,7 @@ fetch_from_git(const char *arg, const struct tulpar_config *cfg,
 
     if (!archived)
     {
-        ui_errorf("failed to archive the cloned repository at %s", arg);
+        ui_errorf(_("failed to archive the cloned repository at %s"), arg);
         free(dest_path);
         return NULL;
     }
@@ -399,8 +400,8 @@ resolve_choose_provider(const char *virtual_name, const struct repo_list *repos,
     if (choice < 0)
     {
         ui_errorf(
-            "'%s' is provided by %d packages; use --provider %s=<package> "
-            "to pick one",
+            _("'%s' is provided by %d packages; use --provider %s=<package> "
+              "to pick one"),
             virtual_name, candidate_count, virtual_name);
         return false;
     }
@@ -558,7 +559,7 @@ resolve_dependency(const struct dep_constraint *dep, struct db_handle *db,
                               root_path, prefs, pref_count, assume_yes);
     if (!fetched)
     {
-        ui_errorf("could not resolve dependency %s in any configured repo",
+        ui_errorf(_("could not resolve dependency %s in any configured repo"),
                   dep->name);
         return false;
     }
@@ -598,7 +599,7 @@ resolve_install_closure(char *const *requested, size_t requested_count,
             pkg = fetch_from_git(arg, cfg, root_path);
             if (!pkg)
             {
-                ui_errorf("failed to install from %s", arg);
+                ui_errorf(_("failed to install from %s"), arg);
                 return false;
             }
         }
@@ -608,7 +609,7 @@ resolve_install_closure(char *const *requested, size_t requested_count,
             pkg = fetch_from_url(arg, cfg, root_path);
             if (!pkg)
             {
-                ui_errorf("failed to install from %s", arg);
+                ui_errorf(_("failed to install from %s"), arg);
                 return false;
             }
         }
@@ -618,7 +619,7 @@ resolve_install_closure(char *const *requested, size_t requested_count,
             pkg = parse_package(arg, root_path);
             if (!pkg)
             {
-                ui_errorf("failed to read package archive %s", arg);
+                ui_errorf(_("failed to read package archive %s"), arg);
                 return false;
             }
         }
@@ -630,7 +631,8 @@ resolve_install_closure(char *const *requested, size_t requested_count,
                                       root_path, prefs, pref_count, assume_yes);
             if (!pkg)
             {
-                ui_errorf("package %s not found in any configured repo", arg);
+                ui_errorf(_("package %s not found in any configured repo"),
+                          arg);
                 return false;
             }
         }

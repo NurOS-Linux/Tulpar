@@ -11,12 +11,13 @@
 
 #include "cmd_common.h"
 #include "../cli/ui.h"
+#include "../i18n.h"
 #include "../log/log.h"
 
 void
 cmd_print_usage(const char *usage)
 {
-    printf("usage: %s\n", usage);
+    printf(_("usage: %s\n"), usage);
 }
 
 struct db_handle *
@@ -27,7 +28,7 @@ cmd_open_db(const struct dest_ctx *dest, bool writable)
 
     if (writable && !dest_ctx_prepare_tree(dest))
     {
-        ui_error("failed to prepare target root directory structure");
+        ui_error(_("failed to prepare target root directory structure"));
         return NULL;
     }
 
@@ -35,8 +36,8 @@ cmd_open_db(const struct dest_ctx *dest, bool writable)
         writable ? db_open(dest->db_path) : db_open_readonly(dest->db_path);
 
     if (!db)
-        ui_errorf("failed to open package database at %s "
-                  "(missing, or locked by another process)",
+        ui_errorf(_("failed to open package database at %s "
+                    "(missing, or locked by another process)"),
                   dest->db_path);
 
     return db;
@@ -54,15 +55,15 @@ cmd_warn_if_unsigned(const struct package *pkg)
     struct stat st;
     if (stat(sig_path, &st) != 0)
     {
-        ui_warnf("%s has no detached signature (%s); "
-                 "installing without signature verification",
+        ui_warnf(_("%s has no detached signature (%s); "
+                   "installing without signature verification"),
                  pkg->meta->name, sig_path);
         return;
     }
 
     if (!sign_verify(pkg->pkg_path, sig_path, false))
-        ui_warnf("%s signature at %s could not be verified; "
-                 "installing an unverified package",
+        ui_warnf(_("%s signature at %s could not be verified; "
+                   "installing an unverified package"),
                  pkg->meta->name, sig_path);
 }
 
@@ -92,13 +93,13 @@ cmd_run_transaction(struct apg_trans *trans, const struct dest_ctx *dest,
             ui_print_conflicts(trans);
             break;
         case TRANS_ERR_CYCLE:
-            ui_error("circular dependency detected");
+            ui_error(_("circular dependency detected"));
             break;
         case TRANS_ERR_MISSING_DEP:
-            ui_error("a required dependency could not be resolved");
+            ui_error(_("a required dependency could not be resolved"));
             break;
         default:
-            ui_error("failed to prepare the transaction");
+            ui_error(_("failed to prepare the transaction"));
             break;
         }
         return false;
@@ -106,15 +107,15 @@ cmd_run_transaction(struct apg_trans *trans, const struct dest_ctx *dest,
 
     ui_print_plan(trans);
 
-    if (!ui_confirm("Proceed with this transaction?", assume_yes))
+    if (!ui_confirm(_("Proceed with this transaction?"), assume_yes))
     {
-        ui_info("aborted");
+        ui_info(_("aborted"));
         return false;
     }
 
     if (!dest_ctx_prepare_tree(dest))
     {
-        ui_error("failed to prepare target root directory structure");
+        ui_error(_("failed to prepare target root directory structure"));
         return false;
     }
 
@@ -125,22 +126,22 @@ cmd_run_transaction(struct apg_trans *trans, const struct dest_ctx *dest,
         switch (commit_err)
         {
         case TRANS_ERR_UNSIGNED:
-            ui_error("a package failed signature verification and was "
-                     "rejected by policy");
+            ui_error(_("a package failed signature verification and was "
+                       "rejected by policy"));
             break;
         case TRANS_ERR_INSTALL_FAILED:
-            ui_error("installation failed; already-applied changes were "
-                     "rolled back");
+            ui_error(_("installation failed; already-applied changes were "
+                       "rolled back"));
             break;
         default:
-            ui_error("failed to commit the transaction");
+            ui_error(_("failed to commit the transaction"));
             break;
         }
         log_write(TULPAR_LOG_ERROR, "transaction commit failed");
         return false;
     }
 
-    ui_success("transaction complete");
+    ui_success(_("transaction complete"));
     log_write(TULPAR_LOG_INFO, "transaction committed successfully");
     return true;
 }
