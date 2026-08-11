@@ -14,11 +14,37 @@
 #include "../util/paths.h"
 #include "../util/proc.h"
 
+static bool
+metadata_satisfies_name(const struct package_metadata *meta, const char *name)
+{
+    if (strcmp(meta->name, name) == 0)
+        return true;
+
+    for (int i = 0; i < meta->provides.count; i++)
+        if (strcmp(meta->provides.items[i], name) == 0)
+            return true;
+
+    for (int i = 0; i < meta->replaces.count; i++)
+        if (strcmp(meta->replaces.items[i], name) == 0)
+            return true;
+
+    return false;
+}
+
 bool
 pkg_set_contains(const struct pkg_set *set, const char *name)
 {
     for (size_t i = 0; i < set->count; i++)
         if (strcmp(set->items[i]->meta->name, name) == 0)
+            return true;
+    return false;
+}
+
+static bool
+pkg_set_satisfies(const struct pkg_set *set, const char *name)
+{
+    for (size_t i = 0; i < set->count; i++)
+        if (metadata_satisfies_name(set->items[i]->meta, name))
             return true;
     return false;
 }
@@ -323,16 +349,14 @@ resolve_choose_provider(const char *virtual_name, const struct repo_list *repos,
         for (size_t j = 0; j < idx->count && candidate_count < 16; j++)
         {
             const struct repo_package *cand = &idx->items[j];
-            bool provides_match = false;
-            for (size_t k = 0; k < cand->provides_count; k++)
-            {
+            bool matches = false;
+            for (size_t k = 0; k < cand->provides_count && !matches; k++)
                 if (strcmp(cand->provides[k], virtual_name) == 0)
-                {
-                    provides_match = true;
-                    break;
-                }
-            }
-            if (!provides_match)
+                    matches = true;
+            for (size_t k = 0; k < cand->replaces_count && !matches; k++)
+                if (strcmp(cand->replaces[k], virtual_name) == 0)
+                    matches = true;
+            if (!matches)
                 continue;
 
             bool already_listed = false;
@@ -480,6 +504,24 @@ resolve_fetch_by_name(const char *name, ver_op_t op, const char *version,
                                  root_path, prefs, pref_count, assume_yes);
 }
 
+static struct package *
+db_find_provider(struct db_handle *db, const char *name)
+{
+    int count = 0;
+    struct package **all = db_list(db, &count);
+    struct package *found = NULL;
+
+    for (int i = 0; i < count; i++)
+    {
+        if (!found && metadata_satisfies_name(all[i]->meta, name))
+            found = all[i];
+        else
+            package_free(all[i]);
+    }
+    free(all);
+    return found;
+}
+
 static bool
 resolve_dependency(const struct dep_constraint *dep, struct db_handle *db,
                    const struct repo_list *repos,
@@ -487,13 +529,15 @@ resolve_dependency(const struct dep_constraint *dep, struct db_handle *db,
                    const struct provider_pref *prefs, size_t pref_count,
                    bool assume_yes, struct pkg_set *out)
 {
-    if (pkg_set_contains(out, dep->name))
+    if (pkg_set_satisfies(out, dep->name))
     {
         ui_debugf("dependency %s already queued", dep->name);
         return true;
     }
 
     struct package *installed = db_get(db, dep->name);
+    if (!installed)
+        installed = db_find_provider(db, dep->name);
     if (installed)
     {
         bool satisfied =

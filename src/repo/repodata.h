@@ -16,6 +16,8 @@ struct repo_package
     char *description;
     char **provides;
     size_t provides_count;
+    char **replaces;
+    size_t replaces_count;
 };
 
 struct repo_index

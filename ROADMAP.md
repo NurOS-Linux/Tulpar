@@ -35,7 +35,7 @@
       for local development and testing workflows. Clones the
       repository, reads `metadata.json` directly instead of extracting
       an archive, and otherwise follows the normal transaction flow.
-- [ ] richer dependency resolution: honour `provides`/`replaces` when
+- [x] richer dependency resolution: honour `provides`/`replaces` when
       resolving transitive dependencies against remote repositories,
       not only against packages already in the transaction
 - [ ] version pinning and `--exclude` style upgrade filters

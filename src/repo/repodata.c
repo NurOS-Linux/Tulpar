@@ -110,6 +110,7 @@ repo_index_parse_json(const char *json, size_t len)
         pkg->type = dup_str_or_empty(item, "type");
         pkg->description = dup_str_or_empty(item, "description");
         pkg->provides = dup_str_array(item, "provides", &pkg->provides_count);
+        pkg->replaces = dup_str_array(item, "replaces", &pkg->replaces_count);
     }
 
     yyjson_doc_free(doc);
@@ -133,6 +134,9 @@ repo_index_free(struct repo_index *idx)
         for (size_t j = 0; j < idx->items[i].provides_count; j++)
             free(idx->items[i].provides[j]);
         free(idx->items[i].provides);
+        for (size_t j = 0; j < idx->items[i].replaces_count; j++)
+            free(idx->items[i].replaces[j]);
+        free(idx->items[i].replaces);
     }
     free(idx->items);
     free(idx);
