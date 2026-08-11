@@ -3,18 +3,24 @@
 tulpar-upgrade \- upgrade one or all installed packages
 .SH SYNOPSIS
 .B tulpar upgrade
-.RI [ options "] [" package "]"
+.RI [ options "] [" package [= version ]]
 .br
 .B tulpar u
-.RI [ options "] [" package "]"
+.RI [ options "] [" package [= version ]]
 .br
 .B tulpar \-u
-.RI [ options "] [" package "]"
+.RI [ options "] [" package [= version ]]
 .SH DESCRIPTION
 With a
 .I package
 argument, upgrades that single installed package to the newest
 available version that satisfies it in the configured repositories.
+Suffix the argument with
+.RI = version
+(e.g.
+.IR foo=1.2.3 )
+to pin the upgrade to that exact version instead of the newest one
+available; this can also downgrade an installed package.
 Without an argument, checks every installed package and upgrades all
 that have a newer version available.
 .SH OPTIONS
@@ -27,6 +33,14 @@ Skip the confirmation prompt.
 .TP
 .B \-\-require\-signature
 Refuse to install any package whose signature cannot be verified.
+.TP
+.BI \-\-exclude " name"
+Skip
+.I name
+during a full upgrade (no target package given). Repeatable. Only
+valid without a
+.I package
+argument.
 .SH EXIT STATUS
 0 on success (including when there is nothing to upgrade), non-zero
 if the transaction fails.

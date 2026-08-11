@@ -38,7 +38,7 @@
 - [x] richer dependency resolution: honour `provides`/`replaces` when
       resolving transitive dependencies against remote repositories,
       not only against packages already in the transaction
-- [ ] version pinning and `--exclude` style upgrade filters
+- [x] version pinning and `--exclude` style upgrade filters
 
 ## v0.3.0 and later
 

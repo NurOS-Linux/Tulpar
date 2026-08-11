@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: 2026 AnmiTaliDev <anmitalidev@nuros.org>
 
 #include <stdlib.h>
+#include <string.h>
 
 #include <apg/transaction.h>
 
@@ -13,7 +14,17 @@
 #include "../repo/repo.h"
 
 #define USAGE                                                                  \
-    "tulpar upgrade [--dest <path>] [-y] [--require-signature] [package]"
+    "tulpar upgrade [--dest <path>] [-y] [--require-signature] "               \
+    "[--exclude <name>]... [package[=version]]"
+
+static bool
+is_excluded(const char *name, char *const *exclude, int exclude_count)
+{
+    for (int i = 0; i < exclude_count; i++)
+        if (strcmp(name, exclude[i]) == 0)
+            return true;
+    return false;
+}
 
 int
 cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
@@ -21,7 +32,11 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
     const char *dest_arg = NULL;
     bool assume_yes = false;
     bool require_sig = false;
+    char target_name_buf[256];
     const char *target_name = NULL;
+    const char *target_version = NULL;
+    char *exclude[64];
+    int exclude_count = 0;
 
     for (int i = 0; i < argc; i++)
     {
@@ -33,12 +48,39 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
         }
         else if (arg_take_value(argc, argv, &i, "dest", 'd', &value))
             dest_arg = value;
+        else if (arg_take_value(argc, argv, &i, "exclude", '\0', &value))
+        {
+            if (exclude_count < 64)
+                exclude[exclude_count++] = (char *)value;
+        }
         else if (arg_is(argv[i], "yes", 'y'))
             assume_yes = true;
         else if (arg_is(argv[i], "require-signature", '\0'))
             require_sig = true;
         else if (!target_name)
-            target_name = argv[i];
+        {
+            const char *eq = strchr(argv[i], '=');
+            if (eq)
+            {
+                size_t namelen = (size_t)(eq - argv[i]);
+                if (namelen >= sizeof(target_name_buf))
+                    namelen = sizeof(target_name_buf) - 1;
+                memcpy(target_name_buf, argv[i], namelen);
+                target_name_buf[namelen] = '\0';
+                target_name = target_name_buf;
+                target_version = eq + 1;
+            }
+            else
+                target_name = argv[i];
+        }
+    }
+
+    if (exclude_count > 0 && target_name)
+    {
+        ui_error("--exclude only applies to a full upgrade (no target "
+                 "package)");
+        cmd_print_usage(USAGE);
+        return 1;
     }
 
     struct dest_ctx dest = {0};
@@ -79,18 +121,27 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
             return 1;
         }
 
-        struct package *candidate = resolve_fetch_by_name(
-            target_name, VER_OP_GT, installed->meta->version, repos, cfg,
-            dest.root, NULL, 0, assume_yes);
+        struct package *candidate =
+            target_version
+                ? resolve_fetch_by_name(target_name, VER_OP_EQ, target_version,
+                                        repos, cfg, dest.root, NULL, 0,
+                                        assume_yes)
+                : resolve_fetch_by_name(target_name, VER_OP_GT,
+                                        installed->meta->version, repos, cfg,
+                                        dest.root, NULL, 0, assume_yes);
         package_free(installed);
 
         if (!candidate)
         {
-            ui_info("already up to date");
+            if (target_version)
+                ui_errorf("%s %s not found in any configured repo", target_name,
+                          target_version);
+            else
+                ui_info("already up to date");
             repo_list_free(repos);
             db_close(db);
             dest_ctx_clear(&dest);
-            return 0;
+            return target_version ? 1 : 0;
         }
 
         pkg_set_add(&set, candidate);
@@ -100,6 +151,10 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
         candidates_from = db_list(db, &candidates_count);
         for (int i = 0; i < candidates_count; i++)
         {
+            if (is_excluded(candidates_from[i]->meta->name, exclude,
+                            exclude_count))
+                continue;
+
             struct package *candidate =
                 resolve_fetch_by_name(candidates_from[i]->meta->name, VER_OP_GT,
                                       candidates_from[i]->meta->version, repos,
