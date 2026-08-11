@@ -89,7 +89,7 @@ http_get(const char *url, struct http_response *out)
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buf);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, 60L);
-    curl_easy_setopt(curl, CURLOPT_USERAGENT, "tulpar/0.1.0");
+    curl_easy_setopt(curl, CURLOPT_USERAGENT, "tulpar/" TULPAR_VERSION);
 
     CURLcode res = curl_easy_perform(curl);
     bool ok = res == CURLE_OK;
@@ -133,7 +133,7 @@ http_download(const char *url, const char *dest_path, http_progress_fn progress,
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, f);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, 300L);
-    curl_easy_setopt(curl, CURLOPT_USERAGENT, "tulpar/0.1.0");
+    curl_easy_setopt(curl, CURLOPT_USERAGENT, "tulpar/" TULPAR_VERSION);
     if (progress)
     {
         curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);

@@ -11,6 +11,14 @@ ROOT = Path(__file__).resolve().parent.parent
 TARGETS = [
     (ROOT / 'meson.build', r"(version:\s*')\d+\.\d+\.\d+(')"),
     (ROOT / 'flake.nix',   r'(version\s*=\s*")\d+\.\d+\.\d+(";\s*)'),
+    (ROOT / 'src/main.c',  r'(#define TULPAR_VERSION ")\d+\.\d+\.\d+(")'),
+]
+
+GLOB_TARGETS = [
+    ('man/*.1',    r'("tulpar )\d+\.\d+\.\d+(")'),
+    ('man/*.5',    r'("tulpar )\d+\.\d+\.\d+(")'),
+    ('po/*.po',    r'(Project-Id-Version: tulpar )\d+\.\d+\.\d+(\\n")'),
+    ('po/*.pot',   r'(Project-Id-Version: tulpar )\d+\.\d+\.\d+(\\n")'),
 ]
 
 SEMVER = re.compile(r'^\d+\.\d+\.\d+$')
@@ -51,6 +59,14 @@ def main() -> None:
             bump(path, pattern, new)
         else:
             print(f'  skip  {path.relative_to(ROOT)}  (not found)')
+
+    for glob, pattern in GLOB_TARGETS:
+        paths = sorted(ROOT.glob(glob))
+        if not paths:
+            print(f'  skip  {glob}  (no matches)')
+            continue
+        for path in paths:
+            bump(path, pattern, new)
 
     print()
     print(f'commit: chore: bump version to {new}')

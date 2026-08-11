@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: tulpar 0.1.0\n"
+"Project-Id-Version: tulpar 0.2.0\n"
 "Report-Msgid-Bugs-To: anmitalidev@nuros.org\n"
 "POT-Creation-Date: 2026-08-11 19:47+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
