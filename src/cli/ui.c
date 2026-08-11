@@ -194,6 +194,40 @@ ui_confirm(const char *prompt, bool assume_yes)
     return line[0] == 'y' || line[0] == 'Y';
 }
 
+int
+ui_select(const char *prompt, const char *const *options, int count,
+          bool assume_yes)
+{
+    if (assume_yes || isatty(STDIN_FILENO) == 0)
+        return -1;
+
+    if (g_colors_enabled)
+        printf("%s%s%s %s\n", COL_BOLD, "::", COL_RESET, prompt);
+    else
+        printf(":: %s\n", prompt);
+
+    for (int i = 0; i < count; i++)
+        printf("  %d) %s\n", i + 1, options[i]);
+
+    for (int attempt = 0; attempt < 3; attempt++)
+    {
+        printf("enter a number [1-%d]: ", count);
+        fflush(stdout);
+
+        char line[32];
+        if (!fgets(line, sizeof(line), stdin))
+            return -1;
+
+        int choice = atoi(line);
+        if (choice >= 1 && choice <= count)
+            return choice - 1;
+
+        printf("invalid choice\n");
+    }
+
+    return -1;
+}
+
 void
 ui_progress_start(const char *label, size_t total)
 {

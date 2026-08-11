@@ -35,6 +35,9 @@ void ui_debugf(const char *fmt, ...) TULPAR_PRINTF(1, 2);
 
 bool ui_confirm(const char *prompt, bool assume_yes);
 
+int ui_select(const char *prompt, const char *const *options, int count,
+              bool assume_yes);
+
 void ui_progress_start(const char *label, size_t total);
 void ui_progress_update(size_t current);
 void ui_progress_finish(void);

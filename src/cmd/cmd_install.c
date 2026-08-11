@@ -36,8 +36,8 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
     bool require_sig = false;
     char *positional[256];
     int positional_count = 0;
-    char provider_name[64][256];
-    const char *provider_pkg[64];
+    char provider_name_buf[64][256];
+    struct provider_pref provider_prefs[64];
     int provider_count = 0;
 
     for (int i = 0; i < argc; i++)
@@ -64,11 +64,13 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
             if (provider_count < 64)
             {
                 size_t namelen = (size_t)(eq - value);
-                if (namelen >= sizeof(provider_name[0]))
-                    namelen = sizeof(provider_name[0]) - 1;
-                memcpy(provider_name[provider_count], value, namelen);
-                provider_name[provider_count][namelen] = '\0';
-                provider_pkg[provider_count] = eq + 1;
+                if (namelen >= sizeof(provider_name_buf[0]))
+                    namelen = sizeof(provider_name_buf[0]) - 1;
+                memcpy(provider_name_buf[provider_count], value, namelen);
+                provider_name_buf[provider_count][namelen] = '\0';
+                provider_prefs[provider_count].name =
+                    provider_name_buf[provider_count];
+                provider_prefs[provider_count].pkg_name = eq + 1;
                 provider_count++;
             }
         }
@@ -125,7 +127,8 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
     struct pkg_set set = {0};
 
     if (!resolve_install_closure(positional, (size_t)positional_count, db,
-                                 repos, cfg, dest.root, &set))
+                                 repos, cfg, dest.root, provider_prefs,
+                                 (size_t)provider_count, assume_yes, &set))
     {
         pkg_set_free(&set);
         repo_list_free(repos);
@@ -172,9 +175,10 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
 
     for (int i = 0; i < provider_count; i++)
     {
-        ui_debugf("preferring %s to resolve %s", provider_pkg[i],
-                  provider_name[i]);
-        trans_prefer_provider(trans, provider_name[i], provider_pkg[i]);
+        ui_debugf("preferring %s to resolve %s", provider_prefs[i].pkg_name,
+                  provider_prefs[i].name);
+        trans_prefer_provider(trans, provider_prefs[i].name,
+                              provider_prefs[i].pkg_name);
     }
 
     bool ok = cmd_run_transaction(trans, &dest, cfg, assume_yes, require_sig);

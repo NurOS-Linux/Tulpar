@@ -14,6 +14,8 @@ struct repo_package
     char *channel;
     char *type;
     char *description;
+    char **provides;
+    size_t provides_count;
 };
 
 struct repo_index

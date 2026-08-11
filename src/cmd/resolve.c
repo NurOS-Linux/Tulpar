@@ -10,6 +10,7 @@
 #include "../cli/ui.h"
 #include "../net/api.h"
 #include "../net/http.h"
+#include "../repo/repodata.h"
 #include "../util/paths.h"
 #include "../util/proc.h"
 
@@ -294,10 +295,102 @@ fetch_from_git(const char *arg, const struct tulpar_config *cfg,
     return pkg;
 }
 
+static bool
+resolve_choose_provider(const char *virtual_name, const struct repo_list *repos,
+                        const struct tulpar_config *cfg,
+                        const struct provider_pref *prefs, size_t pref_count,
+                        bool assume_yes, char *out_name, size_t out_size)
+{
+    for (size_t i = 0; i < pref_count; i++)
+    {
+        if (strcmp(prefs[i].name, virtual_name) == 0)
+        {
+            snprintf(out_name, out_size, "%s", prefs[i].pkg_name);
+            return true;
+        }
+    }
+
+    char candidates[16][256];
+    int candidate_count = 0;
+
+    for (int i = 0; i < repos->count && candidate_count < 16; i++)
+    {
+        struct repo_index *idx = repodata_load(repos->urls[i], cfg->cache_dir,
+                                               cfg->repodata_ttl, false);
+        if (!idx)
+            continue;
+
+        for (size_t j = 0; j < idx->count && candidate_count < 16; j++)
+        {
+            const struct repo_package *cand = &idx->items[j];
+            bool provides_match = false;
+            for (size_t k = 0; k < cand->provides_count; k++)
+            {
+                if (strcmp(cand->provides[k], virtual_name) == 0)
+                {
+                    provides_match = true;
+                    break;
+                }
+            }
+            if (!provides_match)
+                continue;
+
+            bool already_listed = false;
+            for (int m = 0; m < candidate_count; m++)
+                if (strcmp(candidates[m], cand->name) == 0)
+                {
+                    already_listed = true;
+                    break;
+                }
+            if (already_listed)
+                continue;
+
+            snprintf(candidates[candidate_count], sizeof(candidates[0]), "%s",
+                     cand->name);
+            candidate_count++;
+        }
+
+        repo_index_free(idx);
+    }
+
+    if (candidate_count == 0)
+        return false;
+
+    if (candidate_count == 1)
+    {
+        snprintf(out_name, out_size, "%s", candidates[0]);
+        return true;
+    }
+
+    const char *options[16];
+    for (int i = 0; i < candidate_count; i++)
+        options[i] = candidates[i];
+
+    char prompt[300];
+    snprintf(prompt, sizeof(prompt),
+             "multiple packages provide '%s'; which one should be installed?",
+             virtual_name);
+
+    int choice = ui_select(prompt, options, candidate_count, assume_yes);
+    if (choice < 0)
+    {
+        ui_errorf(
+            "'%s' is provided by %d packages; use --provider %s=<package> "
+            "to pick one",
+            virtual_name, candidate_count, virtual_name);
+        return false;
+    }
+
+    snprintf(out_name, out_size, "%s", candidates[choice]);
+    return true;
+}
+
 struct package *
 resolve_fetch_by_name(const char *name, ver_op_t op, const char *version,
                       const struct repo_list *repos,
-                      const struct tulpar_config *cfg, const char *root_path)
+                      const struct tulpar_config *cfg, const char *root_path,
+                      const struct provider_pref *prefs, size_t pref_count,
+                      bool assume_yes)
 {
     ui_debugf("resolving %s against %d configured repo(s)", name, repos->count);
 
@@ -376,14 +469,23 @@ resolve_fetch_by_name(const char *name, ver_op_t op, const char *version,
         ui_debugf("failed to parse the downloaded archive for %s", name);
     }
 
-    return NULL;
+    char provider_name[256];
+    if (!resolve_choose_provider(name, repos, cfg, prefs, pref_count,
+                                 assume_yes, provider_name,
+                                 sizeof(provider_name)))
+        return NULL;
+
+    ui_debugf("%s resolved via provides to package %s", name, provider_name);
+    return resolve_fetch_by_name(provider_name, VER_OP_ANY, NULL, repos, cfg,
+                                 root_path, prefs, pref_count, assume_yes);
 }
 
 static bool
 resolve_dependency(const struct dep_constraint *dep, struct db_handle *db,
                    const struct repo_list *repos,
                    const struct tulpar_config *cfg, const char *root_path,
-                   struct pkg_set *out)
+                   const struct provider_pref *prefs, size_t pref_count,
+                   bool assume_yes, struct pkg_set *out)
 {
     if (pkg_set_contains(out, dep->name))
     {
@@ -407,8 +509,9 @@ resolve_dependency(const struct dep_constraint *dep, struct db_handle *db,
     }
 
     ui_debugf("dependency %s needs to be fetched", dep->name);
-    struct package *fetched = resolve_fetch_by_name(
-        dep->name, dep->op, dep->version, repos, cfg, root_path);
+    struct package *fetched =
+        resolve_fetch_by_name(dep->name, dep->op, dep->version, repos, cfg,
+                              root_path, prefs, pref_count, assume_yes);
     if (!fetched)
     {
         ui_errorf("could not resolve dependency %s in any configured repo",
@@ -425,7 +528,8 @@ resolve_dependency(const struct dep_constraint *dep, struct db_handle *db,
     for (int i = 0; i < fetched->meta->dependencies.count; i++)
     {
         if (!resolve_dependency(&fetched->meta->dependencies.items[i], db,
-                                repos, cfg, root_path, out))
+                                repos, cfg, root_path, prefs, pref_count,
+                                assume_yes, out))
             return false;
     }
 
@@ -436,7 +540,8 @@ bool
 resolve_install_closure(char *const *requested, size_t requested_count,
                         struct db_handle *db, const struct repo_list *repos,
                         const struct tulpar_config *cfg, const char *root_path,
-                        struct pkg_set *out)
+                        const struct provider_pref *prefs, size_t pref_count,
+                        bool assume_yes, struct pkg_set *out)
 {
     for (size_t i = 0; i < requested_count; i++)
     {
@@ -476,8 +581,9 @@ resolve_install_closure(char *const *requested, size_t requested_count,
         else
         {
             ui_debugf("%s is not a local archive, resolving by name", arg);
-            pkg = resolve_fetch_by_name(arg, VER_OP_ANY, NULL, repos, cfg,
-                                        root_path);
+            pkg =
+                resolve_fetch_by_name(arg, VER_OP_ANY, NULL, repos, cfg,
+                                      root_path, prefs, pref_count, assume_yes);
             if (!pkg)
             {
                 ui_errorf("package %s not found in any configured repo", arg);
@@ -503,7 +609,8 @@ resolve_install_closure(char *const *requested, size_t requested_count,
         for (int j = 0; j < pkg->meta->dependencies.count; j++)
         {
             if (!resolve_dependency(&pkg->meta->dependencies.items[j], db,
-                                    repos, cfg, root_path, out))
+                                    repos, cfg, root_path, prefs, pref_count,
+                                    assume_yes, out))
                 return false;
         }
     }

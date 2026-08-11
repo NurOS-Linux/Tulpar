@@ -33,6 +33,31 @@ dup_str_or_empty(yyjson_val *obj, const char *key)
     return strdup(s);
 }
 
+static char **
+dup_str_array(yyjson_val *obj, const char *key, size_t *out_count)
+{
+    yyjson_val *arr = yyjson_obj_get(obj, key);
+    *out_count = 0;
+    if (!yyjson_is_arr(arr))
+        return NULL;
+
+    size_t count = yyjson_arr_size(arr);
+    if (count == 0)
+        return NULL;
+
+    char **items = calloc(count, sizeof(char *));
+    if (!items)
+        return NULL;
+
+    size_t idx, max;
+    yyjson_val *val;
+    yyjson_arr_foreach(arr, idx, max, val) items[idx] =
+        strdup(yyjson_is_str(val) ? yyjson_get_str(val) : "");
+
+    *out_count = count;
+    return items;
+}
+
 struct repo_index *
 repo_index_parse_json(const char *json, size_t len)
 {
@@ -84,6 +109,7 @@ repo_index_parse_json(const char *json, size_t len)
         pkg->channel = dup_str_or_empty(item, "channel");
         pkg->type = dup_str_or_empty(item, "type");
         pkg->description = dup_str_or_empty(item, "description");
+        pkg->provides = dup_str_array(item, "provides", &pkg->provides_count);
     }
 
     yyjson_doc_free(doc);
@@ -104,6 +130,9 @@ repo_index_free(struct repo_index *idx)
         free(idx->items[i].channel);
         free(idx->items[i].type);
         free(idx->items[i].description);
+        for (size_t j = 0; j < idx->items[i].provides_count; j++)
+            free(idx->items[i].provides[j]);
+        free(idx->items[i].provides);
     }
     free(idx->items);
     free(idx);

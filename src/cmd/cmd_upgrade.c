@@ -81,7 +81,7 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
 
         struct package *candidate = resolve_fetch_by_name(
             target_name, VER_OP_GT, installed->meta->version, repos, cfg,
-            dest.root);
+            dest.root, NULL, 0, assume_yes);
         package_free(installed);
 
         if (!candidate)
@@ -100,9 +100,10 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
         candidates_from = db_list(db, &candidates_count);
         for (int i = 0; i < candidates_count; i++)
         {
-            struct package *candidate = resolve_fetch_by_name(
-                candidates_from[i]->meta->name, VER_OP_GT,
-                candidates_from[i]->meta->version, repos, cfg, dest.root);
+            struct package *candidate =
+                resolve_fetch_by_name(candidates_from[i]->meta->name, VER_OP_GT,
+                                      candidates_from[i]->meta->version, repos,
+                                      cfg, dest.root, NULL, 0, assume_yes);
             if (candidate)
                 pkg_set_add(&set, candidate);
         }
