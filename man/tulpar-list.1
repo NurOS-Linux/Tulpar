@@ -4,15 +4,21 @@ tulpar-list \- list installed packages
 .SH SYNOPSIS
 .B tulpar list
 .RI [ options ]
+.RI [ pattern ]
 .br
 .B tulpar l
 .RI [ options ]
+.RI [ pattern ]
 .br
 .B tulpar \-l
 .RI [ options ]
+.RI [ pattern ]
 .SH DESCRIPTION
-Lists every package recorded in the package database, with its
-installed version and hold state.
+Lists packages recorded in the package database, with their
+installed version and hold state. When an optional
+.I pattern
+substring is provided, only installed packages whose name contains the
+pattern are displayed.
 .SH OPTIONS
 .TP
 .BR \-d ", " \-\-dest " " \fIpath\fR

@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <yyjson.h>
 
@@ -13,12 +14,13 @@
 #include "../util/paths.h"
 #include "../i18n.h"
 
-#define USAGE "tulpar list [--dest <path>] [--json]"
+#define USAGE "tulpar list [--dest <path>] [--json] [pattern]"
 
 int
 cmd_list_run(int argc, char **argv, struct tulpar_config *cfg)
 {
     const char *dest_arg = NULL;
+    const char *pattern = NULL;
     bool json_output = false;
 
     for (int i = 0; i < argc; i++)
@@ -33,6 +35,8 @@ cmd_list_run(int argc, char **argv, struct tulpar_config *cfg)
             dest_arg = value;
         else if (arg_is(argv[i], "json", 'j'))
             json_output = true;
+        else if (!pattern)
+            pattern = argv[i];
     }
 
     struct dest_ctx dest = {0};
@@ -41,6 +45,13 @@ cmd_list_run(int argc, char **argv, struct tulpar_config *cfg)
     struct db_handle *db = db_open_readonly(dest.db_path);
     int count = 0;
     struct package **pkgs = db ? db_list(db, &count) : NULL;
+
+    size_t matched_count = 0;
+    for (int i = 0; i < count; i++)
+    {
+        if (!pattern || strstr(pkgs[i]->meta->name, pattern) != NULL)
+            matched_count++;
+    }
 
     if (json_output)
     {
@@ -51,6 +62,9 @@ cmd_list_run(int argc, char **argv, struct tulpar_config *cfg)
         for (int i = 0; i < count; i++)
         {
             struct package *pkg = pkgs[i];
+            if (pattern && strstr(pkg->meta->name, pattern) == NULL)
+                continue;
+
             yyjson_mut_val *obj = yyjson_mut_obj(doc);
             yyjson_mut_obj_add_strcpy(doc, obj, "name", pkg->meta->name);
             yyjson_mut_obj_add_strcpy(doc, obj, "version", pkg->meta->version);
@@ -68,15 +82,21 @@ cmd_list_run(int argc, char **argv, struct tulpar_config *cfg)
         }
         yyjson_mut_doc_free(doc);
     }
-    else if (count == 0)
+    else if (matched_count == 0)
     {
-        ui_info(_("no packages installed"));
+        if (pattern)
+            ui_info(_("no matching packages installed"));
+        else
+            ui_info(_("no packages installed"));
     }
     else
     {
         for (int i = 0; i < count; i++)
         {
             struct package *pkg = pkgs[i];
+            if (pattern && strstr(pkg->meta->name, pattern) == NULL)
+                continue;
+
             printf("%s %s%s\n", pkg->meta->name, pkg->meta->version,
                    pkg->held ? " [held]" : "");
         }

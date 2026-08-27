@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tulpar 0.2.0\n"
 "Report-Msgid-Bugs-To: anmitalidev@nuros.org\n"
-"POT-Creation-Date: 2026-08-27 15:59+0500\n"
+"POT-Creation-Date: 2026-08-27 16:05+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -425,7 +425,11 @@ msgstr ""
 msgid "unknown key sub-action: %s"
 msgstr ""
 
-#: src/cmd/cmd_list.c:73
+#: src/cmd/cmd_list.c:88
+msgid "no matching packages installed"
+msgstr ""
+
+#: src/cmd/cmd_list.c:90
 msgid "no packages installed"
 msgstr ""
 

@@ -7,19 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.2.0]
-
 ### Added
 
 - `tulpar clean` (also `autoclean`) command: purges downloaded package
   archives, temporary git clone workspaces, and metadata cache files
   from the package cache directory, with interactive confirmation and
   `-y`/`--yes` override.
+- `tulpar list [pattern]`: filter the list of installed packages by an
+  optional substring pattern in text and `--json` modes.
+- `tulpar graph [package]`: export only the transitive dependency
+  subgraph for a specific package instead of the entire database.
+
+### Changed
+
+- libapg pinned to v2.2.0 (`191635f`) with SAT dependency resolver
+  integration in `resolve_install_closure()`.
+
+## [0.2.0]
+
+### Added
+
 - `tulpar graph` command: exports the installed package dependency graph
   in Graphviz DOT format via libapg's `dep_graph_new()`/
   `dep_graph_add_installed()`/`dep_graph_export_dot()`, with `-o <file>`
-  to write to a file instead of stdout, and an optional `[package]`
-  argument to export a single package's dependency subgraph.
+  to write to a file instead of stdout.
 - Internationalization (i18n) via GNU gettext: all user-facing CLI output
   (usage text, command summaries, prompts, errors, warnings, transaction
   plan/conflict output) is now translatable. Includes Russian and Kazakh
@@ -55,7 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- libapg pinned to v2.0.0 (`2cf0ec8`), v2.1.0 (`01d5418`), and v2.2.0 (`191635f`).
+- libapg pinned to v2.0.0 (`2cf0ec8`) and v2.1.0 (`01d5418`).
 
 ### Fixed
 
