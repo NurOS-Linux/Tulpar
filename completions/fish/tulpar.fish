@@ -53,6 +53,8 @@ complete -c tulpar -l require-signature -d "reject unsigned packages"
 complete -c tulpar -l sign -d "detached signature path" -r
 complete -c tulpar -l provider -d "force a provider for a dependency (name=package)" -r
 complete -c tulpar -l exclude -d "skip a package during a full upgrade" -r
+complete -c tulpar -l installed -d "search installed packages only"
+complete -c tulpar -l remote -d "search remote packages only"
 complete -c tulpar -l output -s o -d "output path" -r
 complete -c tulpar -s h -l help -d "show usage"
 complete -c tulpar -s V -l version -d "show version"

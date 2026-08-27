@@ -17,7 +17,8 @@
 #include "../util/paths.h"
 #include "../i18n.h"
 
-#define USAGE "tulpar search [--dest <path>] [--json] <query>"
+#define USAGE                                                                  \
+    "tulpar search [--dest <path>] [--json] [--installed] [--remote] <query>"
 
 static bool
 substr_ci(const char *haystack, const char *needle)
@@ -47,6 +48,8 @@ cmd_search_run(int argc, char **argv, struct tulpar_config *cfg)
 {
     const char *dest_arg = NULL;
     bool json_output = false;
+    bool only_installed = false;
+    bool only_remote = false;
     const char *query = NULL;
 
     for (int i = 0; i < argc; i++)
@@ -61,6 +64,10 @@ cmd_search_run(int argc, char **argv, struct tulpar_config *cfg)
             dest_arg = value;
         else if (arg_is(argv[i], "json", 'j'))
             json_output = true;
+        else if (strcmp(argv[i], "--installed") == 0)
+            only_installed = true;
+        else if (strcmp(argv[i], "--remote") == 0)
+            only_remote = true;
         else if (!query)
             query = argv[i];
     }
@@ -72,14 +79,18 @@ cmd_search_run(int argc, char **argv, struct tulpar_config *cfg)
         return 1;
     }
 
+    bool show_installed = !only_remote;
+    bool show_remote = !only_installed;
+
     struct dest_ctx dest = {0};
     dest_ctx_resolve(dest_arg, cfg->db_dir, &dest);
 
-    struct db_handle *db = db_open_readonly(dest.db_path);
+    struct db_handle *db =
+        show_installed ? db_open_readonly(dest.db_path) : NULL;
     int local_count = 0;
     struct package **local = db ? db_search(db, query, &local_count) : NULL;
 
-    struct repo_list *repos = repo_list_load();
+    struct repo_list *repos = show_remote ? repo_list_load() : NULL;
 
     yyjson_mut_doc *doc = NULL;
     yyjson_mut_val *arr = NULL;
@@ -89,67 +100,79 @@ cmd_search_run(int argc, char **argv, struct tulpar_config *cfg)
         arr = yyjson_mut_arr(doc);
         yyjson_mut_doc_set_root(doc, arr);
     }
-    else
+
+    if (show_installed)
     {
-        printf("Installed:\n");
-    }
+        if (!json_output)
+            printf("Installed:\n");
 
-    for (int i = 0; i < local_count; i++)
-    {
-        struct package *pkg = local[i];
-        if (json_output)
+        for (int i = 0; i < local_count; i++)
         {
-            yyjson_mut_val *obj = yyjson_mut_obj(doc);
-            yyjson_mut_obj_add_str(doc, obj, "source", "local");
-            yyjson_mut_obj_add_strcpy(doc, obj, "name", pkg->meta->name);
-            yyjson_mut_obj_add_strcpy(doc, obj, "version", pkg->meta->version);
-            yyjson_mut_obj_add_strcpy(
-                doc, obj, "description",
-                pkg->meta->description ? pkg->meta->description : "");
-            yyjson_mut_arr_add_val(arr, obj);
-        }
-        else
-        {
-            printf("  %s %s\n    %s\n", pkg->meta->name, pkg->meta->version,
-                   pkg->meta->description ? pkg->meta->description : "");
-        }
-    }
-
-    if (!json_output)
-        printf("\nAvailable:\n");
-
-    for (int r = 0; r < repos->count; r++)
-    {
-        struct repo_index *idx = repodata_load(repos->urls[r], cfg->cache_dir,
-                                               cfg->repodata_ttl, false);
-        if (!idx)
-            continue;
-
-        for (size_t i = 0; i < idx->count; i++)
-        {
-            struct repo_package *pkg = &idx->items[i];
-            if (!substr_ci(pkg->name, query) &&
-                !substr_ci(pkg->description, query))
-                continue;
-
+            struct package *pkg = local[i];
             if (json_output)
             {
                 yyjson_mut_val *obj = yyjson_mut_obj(doc);
-                yyjson_mut_obj_add_str(doc, obj, "source", "remote");
-                yyjson_mut_obj_add_strcpy(doc, obj, "name", pkg->name);
-                yyjson_mut_obj_add_strcpy(doc, obj, "version", pkg->version);
-                yyjson_mut_obj_add_strcpy(doc, obj, "description",
-                                          pkg->description);
+                yyjson_mut_obj_add_str(doc, obj, "source", "local");
+                yyjson_mut_obj_add_strcpy(doc, obj, "name", pkg->meta->name);
+                yyjson_mut_obj_add_strcpy(doc, obj, "version",
+                                          pkg->meta->version);
+                yyjson_mut_obj_add_strcpy(
+                    doc, obj, "description",
+                    pkg->meta->description ? pkg->meta->description : "");
                 yyjson_mut_arr_add_val(arr, obj);
             }
             else
             {
-                printf("  %s %s\n    %s\n", pkg->name, pkg->version,
-                       pkg->description);
+                printf("  %s %s\n    %s\n", pkg->meta->name, pkg->meta->version,
+                       pkg->meta->description ? pkg->meta->description : "");
             }
         }
+    }
 
-        repo_index_free(idx);
+    if (show_remote)
+    {
+        if (!json_output)
+        {
+            if (show_installed)
+                printf("\nAvailable:\n");
+            else
+                printf("Available:\n");
+        }
+
+        for (int r = 0; repos && r < repos->count; r++)
+        {
+            struct repo_index *idx = repodata_load(
+                repos->urls[r], cfg->cache_dir, cfg->repodata_ttl, false);
+            if (!idx)
+                continue;
+
+            for (size_t i = 0; i < idx->count; i++)
+            {
+                struct repo_package *pkg = &idx->items[i];
+                if (!substr_ci(pkg->name, query) &&
+                    !substr_ci(pkg->description, query))
+                    continue;
+
+                if (json_output)
+                {
+                    yyjson_mut_val *obj = yyjson_mut_obj(doc);
+                    yyjson_mut_obj_add_str(doc, obj, "source", "remote");
+                    yyjson_mut_obj_add_strcpy(doc, obj, "name", pkg->name);
+                    yyjson_mut_obj_add_strcpy(doc, obj, "version",
+                                              pkg->version);
+                    yyjson_mut_obj_add_strcpy(doc, obj, "description",
+                                              pkg->description);
+                    yyjson_mut_arr_add_val(arr, obj);
+                }
+                else
+                {
+                    printf("  %s %s\n    %s\n", pkg->name, pkg->version,
+                           pkg->description);
+                }
+            }
+
+            repo_index_free(idx);
+        }
     }
 
     if (json_output)
@@ -168,7 +191,8 @@ cmd_search_run(int argc, char **argv, struct tulpar_config *cfg)
     free(local);
     if (db)
         db_close(db);
-    repo_list_free(repos);
+    if (repos)
+        repo_list_free(repos);
     dest_ctx_clear(&dest);
 
     return 0;

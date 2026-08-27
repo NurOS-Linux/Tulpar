@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `tulpar search`: `--installed` and `--remote` flags to restrict search
+  scope to locally installed packages or available remote repositories.
 - `tulpar info <pkg>`: display dependencies, provides, conflicts,
   replaces, and reverse dependencies (`Required By`) for installed
   packages in both human-readable and `--json` formats.

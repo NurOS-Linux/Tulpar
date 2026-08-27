@@ -14,7 +14,11 @@ tulpar-search \- search local and remote package indexes
 Searches the local package database and the cached repository indexes
 for packages whose name or description contains
 .IR query ,
-case-insensitively. Results are grouped as installed and available.
+case-insensitively. Results are grouped as installed and available
+unless filtered by
+.B \-\-installed
+or
+.BR \-\-remote .
 .SH OPTIONS
 .TP
 .BR \-d ", " \-\-dest " " \fIpath\fR
@@ -22,6 +26,12 @@ Search the local database of an alternate root.
 .TP
 .BR \-j ", " \-\-json
 Print results as a JSON array instead of human-readable text.
+.TP
+.B \-\-installed
+Restrict search results to locally installed packages only.
+.TP
+.B \-\-remote
+Restrict search results to available remote repository packages only.
 .SH EXIT STATUS
 0 regardless of whether any results were found.
 .SH SEE ALSO
