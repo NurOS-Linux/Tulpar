@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tulpar 0.2.0\n"
 "Report-Msgid-Bugs-To: anmitalidev@nuros.org\n"
-"POT-Creation-Date: 2026-08-27 16:05+0500\n"
+"POT-Creation-Date: 2026-08-27 16:18+0500\n"
 "PO-Revision-Date: 2026-08-11 19:47+0500\n"
 "Last-Translator: AnmiTaliDev <anmitalidev@nuros.org>\n"
 "Language-Team: Russian\n"
@@ -92,69 +92,73 @@ msgstr "не удалось инициализировать конфигура�
 msgid "could not open the log file, continuing without file logging"
 msgstr "не удалось открыть файл журнала, продолжаем без записи в файл"
 
-#: src/cli/dispatch.c:27
+#: src/cli/dispatch.c:28
 msgid "install one or more packages"
 msgstr "установить один или несколько пакетов"
 
-#: src/cli/dispatch.c:28 src/cli/dispatch.c:29
+#: src/cli/dispatch.c:29 src/cli/dispatch.c:30
 msgid "remove an installed package"
 msgstr "удалить установленный пакет"
 
-#: src/cli/dispatch.c:30
+#: src/cli/dispatch.c:31
 msgid "upgrade one or all installed packages"
 msgstr "обновить один или все установленные пакеты"
 
-#: src/cli/dispatch.c:32
+#: src/cli/dispatch.c:33
 msgid "search local and remote package indexes"
 msgstr "искать в локальных и удалённых индексах пакетов"
 
-#: src/cli/dispatch.c:34
+#: src/cli/dispatch.c:35
 msgid "list installed packages"
 msgstr "вывести список установленных пакетов"
 
-#: src/cli/dispatch.c:35 src/cli/dispatch.c:36
+#: src/cli/dispatch.c:36 src/cli/dispatch.c:37
 msgid "show full metadata for a package"
 msgstr "показать полные метаданные пакета"
 
-#: src/cli/dispatch.c:37
+#: src/cli/dispatch.c:38
 msgid "verify installed package files"
 msgstr "проверить файлы установленного пакета"
 
-#: src/cli/dispatch.c:38 src/cli/dispatch.c:39
+#: src/cli/dispatch.c:39 src/cli/dispatch.c:40
 msgid "list and remove orphaned packages"
 msgstr "вывести и удалить осиротевшие пакеты"
 
-#: src/cli/dispatch.c:41
+#: src/cli/dispatch.c:42
 msgid "block a package from upgrade/removal"
 msgstr "заблокировать обновление/удаление пакета"
 
-#: src/cli/dispatch.c:42
+#: src/cli/dispatch.c:43
 msgid "release a held package"
 msgstr "снять блокировку с пакета"
 
-#: src/cli/dispatch.c:43 src/cli/dispatch.c:45 src/cli/dispatch.c:46
+#: src/cli/dispatch.c:44 src/cli/dispatch.c:46 src/cli/dispatch.c:47
 msgid "show past install/remove operations"
 msgstr "показать историю операций установки/удаления"
 
-#: src/cli/dispatch.c:47
+#: src/cli/dispatch.c:48
 msgid "manage configured repositories"
 msgstr "управлять настроенными репозиториями"
 
-#: src/cli/dispatch.c:48
+#: src/cli/dispatch.c:49
 msgid "fetch a package without installing it"
 msgstr "скачать пакет без установки"
 
-#: src/cli/dispatch.c:50
+#: src/cli/dispatch.c:51
 msgid "manage the trusted signing keyring"
 msgstr "управлять доверенной связкой ключей подписи"
 
-#: src/cli/dispatch.c:51
+#: src/cli/dispatch.c:52
 msgid "export the installed package dependency graph as DOT"
 msgstr "экспортировать граф зависимостей установленных пакетов в формате DOT"
 
-#: src/cli/dispatch.c:53 src/cli/dispatch.c:55
+#: src/cli/dispatch.c:54 src/cli/dispatch.c:56
 msgid "purge downloaded packages and metadata cache"
 msgstr "очистить кэш скачанных пакетов и метаданных"
+
+#: src/cli/dispatch.c:58 src/cli/dispatch.c:60
+msgid "undo the most recent package operation"
+msgstr "отменить последнюю операцию с пакетами"
 
 #: src/cli/ui.c:186 src/cli/ui.c:188
 msgid "[y/N]"
@@ -347,7 +351,7 @@ msgstr "не удалось открыть %s для записи"
 msgid "wrote dependency graph to %s"
 msgstr "граф зависимостей записан в %s"
 
-#: src/cmd/cmd_history.c:68 src/cmd/cmd_verify.c:38
+#: src/cmd/cmd_history.c:68 src/cmd/cmd_rollback.c:58 src/cmd/cmd_verify.c:38
 msgid "no package database found"
 msgstr "база данных пакетов не найдена"
 
@@ -369,11 +373,11 @@ msgstr "%s теперь %s"
 msgid "failed to update hold state for %s (not installed?)"
 msgstr "не удалось изменить состояние удержания для %s (не установлен?)"
 
-#: src/cmd/cmd_info.c:89
+#: src/cmd/cmd_info.c:268
 msgid "info requires a package name"
 msgstr "для info требуется имя пакета"
 
-#: src/cmd/cmd_info.c:121
+#: src/cmd/cmd_info.c:311
 #, c-format
 msgid "package %s not found locally or in any configured repo"
 msgstr "пакет %s не найден ни локально, ни в настроенных репозиториях"
@@ -392,7 +396,8 @@ msgid "--sign requires exactly one local .apg file, URL, or git-url argument"
 msgstr ""
 "--sign требует ровно один аргумент: локальный .apg файл, URL или git-url"
 
-#: src/cmd/cmd_install.c:108 src/cmd/cmd_remove.c:48 src/cmd/cmd_upgrade.c:90
+#: src/cmd/cmd_install.c:108 src/cmd/cmd_remove.c:48 src/cmd/cmd_rollback.c:45
+#: src/cmd/cmd_upgrade.c:90
 msgid "failed to resolve destination root"
 msgstr "не удалось определить целевой корень"
 
@@ -402,7 +407,7 @@ msgid "failed to place signature from %s at %s"
 msgstr "не удалось разместить подпись из %s в %s"
 
 #: src/cmd/cmd_install.c:167 src/cmd/cmd_orphans.c:82 src/cmd/cmd_remove.c:68
-#: src/cmd/cmd_upgrade.c:186
+#: src/cmd/cmd_rollback.c:111 src/cmd/cmd_upgrade.c:186
 msgid "failed to allocate transaction"
 msgstr "не удалось выделить память под транзакцию"
 
@@ -509,7 +514,20 @@ msgstr "repo требует подкоманду: add, remove, list, update"
 msgid "unknown repo sub-action: %s"
 msgstr "неизвестная подкоманда repo: %s"
 
-#: src/cmd/cmd_search.c:70
+#: src/cmd/cmd_rollback.c:78
+msgid "no past successful operations to undo"
+msgstr "нет успешных прошлых операций для отмены"
+
+#: src/cmd/cmd_rollback.c:158
+#, c-format
+msgid "could not resolve package %s for rollback"
+msgstr "не удалось разрешить пакет %s для отката"
+
+#: src/cmd/cmd_rollback.c:169
+msgid "nothing to rollback"
+msgstr "нечего откатывать"
+
+#: src/cmd/cmd_search.c:77
 msgid "search requires a query string"
 msgstr "search требует строку запроса"
 

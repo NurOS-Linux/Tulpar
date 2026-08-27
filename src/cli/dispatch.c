@@ -19,6 +19,7 @@
 #include "../cmd/cmd_orphans.h"
 #include "../cmd/cmd_remove.h"
 #include "../cmd/cmd_repo.h"
+#include "../cmd/cmd_rollback.h"
 #include "../cmd/cmd_search.h"
 #include "../cmd/cmd_upgrade.h"
 #include "../cmd/cmd_verify.h"
@@ -54,6 +55,10 @@ const struct command g_commands[] = {
      cmd_clean_run},
     {"autoclean", 'c', N_("purge downloaded packages and metadata cache"),
      cmd_clean_run},
+    {"rollback", 'b', N_("undo the most recent package operation"),
+     cmd_rollback_run},
+    {"undo", 'b', N_("undo the most recent package operation"),
+     cmd_rollback_run},
 };
 
 const size_t g_command_count = sizeof(g_commands) / sizeof(g_commands[0]);

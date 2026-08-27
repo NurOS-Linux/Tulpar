@@ -27,6 +27,8 @@ _tulpar_commands()
         'graph:export the installed package dependency graph as DOT'
         'clean:purge downloaded package archives and metadata cache'
         'autoclean:purge downloaded package archives and metadata cache'
+        'rollback:undo the most recent package operation'
+        'undo:undo the most recent package operation'
     )
     _describe 'command' commands
 }

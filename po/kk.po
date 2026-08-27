@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tulpar 0.2.0\n"
 "Report-Msgid-Bugs-To: anmitalidev@nuros.org\n"
-"POT-Creation-Date: 2026-08-27 16:05+0500\n"
+"POT-Creation-Date: 2026-08-27 16:18+0500\n"
 "PO-Revision-Date: 2026-08-12 16:17+0500\n"
 "Last-Translator: AnmiTaliDev <anmitalidev@nuros.org>\n"
 "Language-Team: Kazakh\n"
@@ -91,69 +91,73 @@ msgstr "конфигурацияны инициализациялау сәтсі
 msgid "could not open the log file, continuing without file logging"
 msgstr "журнал файлын ашу мүмкін болмады, файлға жазбай жалғастырамыз"
 
-#: src/cli/dispatch.c:27
+#: src/cli/dispatch.c:28
 msgid "install one or more packages"
 msgstr "бір немесе бірнеше дестені орнату"
 
-#: src/cli/dispatch.c:28 src/cli/dispatch.c:29
+#: src/cli/dispatch.c:29 src/cli/dispatch.c:30
 msgid "remove an installed package"
 msgstr "орнатылған дестені өшіру"
 
-#: src/cli/dispatch.c:30
+#: src/cli/dispatch.c:31
 msgid "upgrade one or all installed packages"
 msgstr "бір немесе барлық орнатылған дестелерді жаңарту"
 
-#: src/cli/dispatch.c:32
+#: src/cli/dispatch.c:33
 msgid "search local and remote package indexes"
 msgstr "жергілікті және қашықтағы дестелер индекстерінен іздеу"
 
-#: src/cli/dispatch.c:34
+#: src/cli/dispatch.c:35
 msgid "list installed packages"
 msgstr "орнатылған дестелер тізімін көрсету"
 
-#: src/cli/dispatch.c:35 src/cli/dispatch.c:36
+#: src/cli/dispatch.c:36 src/cli/dispatch.c:37
 msgid "show full metadata for a package"
 msgstr "десте үшін толық метадеректерді көрсету"
 
-#: src/cli/dispatch.c:37
+#: src/cli/dispatch.c:38
 msgid "verify installed package files"
 msgstr "орнатылған десте файлдарын тексеру"
 
-#: src/cli/dispatch.c:38 src/cli/dispatch.c:39
+#: src/cli/dispatch.c:39 src/cli/dispatch.c:40
 msgid "list and remove orphaned packages"
 msgstr "жетім дестелерді тізімдеу және өшіру"
 
-#: src/cli/dispatch.c:41
+#: src/cli/dispatch.c:42
 msgid "block a package from upgrade/removal"
 msgstr "дестенің жаңартылуын/өшірілуін бұғаттау"
 
-#: src/cli/dispatch.c:42
+#: src/cli/dispatch.c:43
 msgid "release a held package"
 msgstr "ұсталған дестені босату"
 
-#: src/cli/dispatch.c:43 src/cli/dispatch.c:45 src/cli/dispatch.c:46
+#: src/cli/dispatch.c:44 src/cli/dispatch.c:46 src/cli/dispatch.c:47
 msgid "show past install/remove operations"
 msgstr "өткен орнату/өшіру амалдарын көрсету"
 
-#: src/cli/dispatch.c:47
+#: src/cli/dispatch.c:48
 msgid "manage configured repositories"
 msgstr "теңшелген репозиторийлерді басқару"
 
-#: src/cli/dispatch.c:48
+#: src/cli/dispatch.c:49
 msgid "fetch a package without installing it"
 msgstr "дестені орнатпай жүктеп алу"
 
-#: src/cli/dispatch.c:50
+#: src/cli/dispatch.c:51
 msgid "manage the trusted signing keyring"
 msgstr "сенімді қолтаңба кілттер байламын басқару"
 
-#: src/cli/dispatch.c:51
+#: src/cli/dispatch.c:52
 msgid "export the installed package dependency graph as DOT"
 msgstr "орнатылған дестелердің тәуелділік графигін DOT форматында экспорттау"
 
-#: src/cli/dispatch.c:53 src/cli/dispatch.c:55
+#: src/cli/dispatch.c:54 src/cli/dispatch.c:56
 msgid "purge downloaded packages and metadata cache"
 msgstr "жүктелген дестелер мен метадеректер кэшін тазалау"
+
+#: src/cli/dispatch.c:58 src/cli/dispatch.c:60
+msgid "undo the most recent package operation"
+msgstr "соңғы десте операциясының күшін жою"
 
 #: src/cli/ui.c:186 src/cli/ui.c:188
 msgid "[y/N]"
@@ -346,7 +350,7 @@ msgstr "%s жазу үшін ашу сәтсіз аяқталды"
 msgid "wrote dependency graph to %s"
 msgstr "тәуелділіктер графигі %s файлына жазылды"
 
-#: src/cmd/cmd_history.c:68 src/cmd/cmd_verify.c:38
+#: src/cmd/cmd_history.c:68 src/cmd/cmd_rollback.c:58 src/cmd/cmd_verify.c:38
 msgid "no package database found"
 msgstr "дестелер дерекқоры табылмады"
 
@@ -368,11 +372,11 @@ msgstr "%s енді %s"
 msgid "failed to update hold state for %s (not installed?)"
 msgstr "%s үшін ұстау күйін жаңарту сәтсіз аяқталды (орнатылмаған ба?)"
 
-#: src/cmd/cmd_info.c:89
+#: src/cmd/cmd_info.c:268
 msgid "info requires a package name"
 msgstr "info үшін дестенің атауы қажет"
 
-#: src/cmd/cmd_info.c:121
+#: src/cmd/cmd_info.c:311
 #, c-format
 msgid "package %s not found locally or in any configured repo"
 msgstr ""
@@ -393,7 +397,8 @@ msgstr ""
 "--sign нақты бір аргументті талап етеді: жергілікті .apg файлы, URL немесе "
 "git-url"
 
-#: src/cmd/cmd_install.c:108 src/cmd/cmd_remove.c:48 src/cmd/cmd_upgrade.c:90
+#: src/cmd/cmd_install.c:108 src/cmd/cmd_remove.c:48 src/cmd/cmd_rollback.c:45
+#: src/cmd/cmd_upgrade.c:90
 msgid "failed to resolve destination root"
 msgstr "мақсатты түбірді анықтау сәтсіз аяқталды"
 
@@ -403,7 +408,7 @@ msgid "failed to place signature from %s at %s"
 msgstr "%s қолтаңбасын %s жеріне орналастыру сәтсіз аяқталды"
 
 #: src/cmd/cmd_install.c:167 src/cmd/cmd_orphans.c:82 src/cmd/cmd_remove.c:68
-#: src/cmd/cmd_upgrade.c:186
+#: src/cmd/cmd_rollback.c:111 src/cmd/cmd_upgrade.c:186
 msgid "failed to allocate transaction"
 msgstr "транзакцияны бөлу сәтсіз аяқталды"
 
@@ -508,7 +513,20 @@ msgstr "repo ішкі әрекетті талап етеді: add, remove, list,
 msgid "unknown repo sub-action: %s"
 msgstr "белгісіз repo ішкі әрекеті: %s"
 
-#: src/cmd/cmd_search.c:70
+#: src/cmd/cmd_rollback.c:78
+msgid "no past successful operations to undo"
+msgstr "күшін жою үшін сәтті өткен операциялар жоқ"
+
+#: src/cmd/cmd_rollback.c:158
+#, c-format
+msgid "could not resolve package %s for rollback"
+msgstr "қайтару үшін %s дестесін шешу сәтсіз аяқталды"
+
+#: src/cmd/cmd_rollback.c:169
+msgid "nothing to rollback"
+msgstr "қайтаратын ештеңе жоқ"
+
+#: src/cmd/cmd_search.c:77
 msgid "search requires a query string"
 msgstr "search сұраныс жолын талап етеді"
 

@@ -14,6 +14,7 @@ src/cmd/cmd_list.c
 src/cmd/cmd_orphans.c
 src/cmd/cmd_remove.c
 src/cmd/cmd_repo.c
+src/cmd/cmd_rollback.c
 src/cmd/cmd_search.c
 src/cmd/cmd_upgrade.c
 src/cmd/cmd_verify.c

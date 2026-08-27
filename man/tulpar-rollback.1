@@ -1,0 +1,34 @@
+.TH TULPAR-ROLLBACK 1 "2026" "tulpar 0.2.0" "Tulpar Manual"
+.SH NAME
+tulpar-rollback, tulpar-undo \- undo the most recent package operation
+.SH SYNOPSIS
+.B tulpar rollback
+.RI [ options ]
+.br
+.B tulpar undo
+.RI [ options ]
+.br
+.B tulpar b
+.RI [ options ]
+.br
+.B tulpar \-b
+.RI [ options ]
+.SH DESCRIPTION
+Inspects the database audit journal to find the most recent successful
+transaction batch and inverts its operations:
+packages installed during that operation are removed, and packages
+removed during that operation are re-installed.
+.SH OPTIONS
+.TP
+.BR \-d ", " \-\-dest " " \fIpath\fR
+Operate against the database of an alternate root.
+.TP
+.BR \-y ", " \-\-yes
+Assume yes and skip confirmation prompts.
+.SH EXIT STATUS
+0 on success, non-zero on error.
+.SH SEE ALSO
+.BR tulpar (1),
+.BR tulpar-history (1),
+.BR tulpar-install (1),
+.BR tulpar-remove (1)

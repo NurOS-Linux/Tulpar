@@ -8,7 +8,7 @@ _tulpar()
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
     commands="install remove uninstall upgrade search list info show verify \
-orphans autoremove hold unhold history audit log repo download key graph clean autoclean"
+orphans autoremove hold unhold history audit log repo download key graph clean autoclean rollback undo"
 
     if [ "$COMP_CWORD" -eq 1 ]; then
         COMPREPLY=($(compgen -W "$commands -h --help -V --version" -- "$cur"))

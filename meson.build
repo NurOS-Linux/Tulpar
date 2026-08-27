@@ -101,6 +101,7 @@ tulpar_sources = files(
   'src/cmd/cmd_key.c',
   'src/cmd/cmd_graph.c',
   'src/cmd/cmd_clean.c',
+  'src/cmd/cmd_rollback.c',
 )
 
 tulpar_inc = include_directories('src')

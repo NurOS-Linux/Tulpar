@@ -1,100 +1,93 @@
 .TH TULPAR 1 "2026" "tulpar 0.2.0" "Tulpar Manual"
 .SH NAME
-tulpar \- package manager frontend for NurOS
+tulpar \- modern, reliable package manager for APG packages
 .SH SYNOPSIS
 .B tulpar
+.RI [ global-options ]
 .I command
-.RI [ options ]
-.RI [ args ...]
+.RI [ command-options ]
+.RI [ arguments... ]
 .SH DESCRIPTION
 .B tulpar
-is the command-line package manager for NurOS. It resolves, downloads,
-installs, removes, and upgrades packages, backed by libapg for local
-package database and transaction handling and by a Tulpar Server
-instance for remote repository operations.
-.PP
-Every command has three equivalent invocation forms: a full name, a
-single-letter short alias used as the first word, and the same letter
-used as a leading flag. The following are identical:
-.PP
-.RS
-tulpar install curl
-.br
-tulpar i curl
-.br
-tulpar \-i curl
-.RE
+is the command-line package manager for the APG package format,
+backed by
+.BR libapg (3)
+for database storage, dependency resolution, and atomic multi-package
+transactions.
 .SH COMMANDS
 .TP
 .BR tulpar-install (1)
-install one or more packages
+install one or more packages from repositories or files (also: i)
 .TP
 .BR tulpar-remove (1)
-remove an installed package (also: uninstall)
+remove an installed package (also: uninstall, r)
 .TP
 .BR tulpar-upgrade (1)
-upgrade one or all installed packages
+upgrade one or all installed packages (also: u)
 .TP
 .BR tulpar-search (1)
-search local and remote package indexes
+search local and remote package indexes (also: s)
 .TP
 .BR tulpar-list (1)
-list installed packages
+list installed packages (also: l)
 .TP
 .BR tulpar-info (1)
-show full metadata for a package (also: show)
+show full metadata for a package (also: show, n)
 .TP
 .BR tulpar-verify (1)
-verify installed package files
+verify installed package files against the database (also: v)
 .TP
 .BR tulpar-orphans (1)
-list and remove orphaned packages (also: autoremove)
+list and remove orphaned packages (also: autoremove, o)
 .TP
 .BR tulpar-hold (1)
-block a package from upgrade or removal
+block a package from upgrade or removal (also: g)
 .TP
 .BR tulpar-unhold (1)
-release a held package
+release a held package (also: x)
 .TP
 .BR tulpar-history (1)
-show past install/remove operations (also: audit, log)
+show past install/remove operations (also: audit, log, a)
 .TP
 .BR tulpar-repo (1)
-manage configured repositories
+manage configured repositories (also: e)
 .TP
 .BR tulpar-download (1)
-fetch a package without installing it
+fetch a package without installing it (also: w)
 .TP
 .BR tulpar-key (1)
-manage the trusted signing keyring
+manage the trusted signing keyring (also: k)
 .TP
 .BR tulpar-graph (1)
-export the installed package dependency graph as DOT
+export the installed package dependency graph as DOT (also: p)
 .TP
 .BR tulpar-clean (1)
-purge downloaded package archives and metadata cache (also: autoclean)
+purge downloaded package archives and metadata cache (also: autoclean, c)
+.TP
+.BR tulpar-rollback (1)
+undo the most recent package operation (also: undo, b)
 .SH GLOBAL OPTIONS
 .TP
-.BR \-h ", " \-\-help
+.BR \-h \", \" \-\-help
 Show usage and exit.
 .TP
-.BR \-V ", " \-\-version
+.BR \-V \", \" \-\-version
 Show the tulpar version and exit.
 .TP
-.BR \-y ", " \-\-yes
+.BR \-y \", \" \-\-yes
 Assume yes and skip confirmation prompts.
 .TP
-.BR \-j ", " \-\-json
+.BR \-j \", \" \-\-json
 Produce machine-readable JSON output, where supported.
 .TP
-.BR \-d ", " \-\-dest " " \fIpath\fR
+.BR \-d \", \" \-\-dest \" \" \fIpath\fR
 Operate against an alternate filesystem root instead of the live
 system. The package database is resolved under
 .IR path /var/lib/apg/db
 and no root privileges are required, since the destination may be
 user-owned.
 .TP
-.BR \-q ", " \-\-quiet
+.BR \-q \", \" \-\-quiet
 Suppress informational output.
 .TP
 .B \-\-verbose
@@ -109,32 +102,25 @@ warning about them.
 System-wide configuration.
 .TP
 .I ~/.config/apg/tulpar.conf
-Per-user configuration overrides.
+Per-user configuration override.
 .TP
 .I /etc/apg/repos.list
-System repository list.
+System-wide repository URL list.
 .TP
 .I ~/.config/apg/repos.list
-Per-user repository list.
+Per-user repository URL list override.
 .TP
-.I /etc/apg/trusted.d/
-Directory containing trusted Ed25519 public keys.
+.I /var/cache/apg/pkgs
+Default package cache directory.
 .TP
 .I /var/lib/apg/db
-Installed package database.
+Default LMDB package database directory.
 .TP
-.I /var/cache/apg/
-Downloaded package and repodata cache.
+.I /etc/apg/trusted.d
+Default trusted public key directory.
 .TP
 .I /var/log/tulpar.log
-Transaction audit log.
-.SH ENVIRONMENT
-.TP
-.B NO_COLOR
-If set and non-empty, disables colored output.
-.SH EXIT STATUS
-0 on success, non-zero on failure.
+Default log file.
 .SH SEE ALSO
 .BR tulpar.conf (5),
-.BR apg (1),
-.BR apg-build (1)
+.BR libapg (3)
