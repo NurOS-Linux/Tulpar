@@ -4,15 +4,21 @@ tulpar-graph \- export the installed package dependency graph
 .SH SYNOPSIS
 .B tulpar graph
 .RI [ options ]
+.RI [ package ]
 .br
 .B tulpar p
 .RI [ options ]
+.RI [ package ]
 .br
 .B tulpar \-p
 .RI [ options ]
+.RI [ package ]
 .SH DESCRIPTION
-Builds libapg's dependency graph from every installed package and
-exports it in Graphviz DOT format. Every package is a node (installed
+Builds libapg's dependency graph from installed packages and
+exports it in Graphviz DOT format. When an optional
+.I package
+name is supplied, only the transitive dependency subgraph rooted at that
+package is exported. Every package is a node (installed
 ones filled green), every dependency is an edge to whatever provider
 libapg would currently resolve it to (labeled with the version
 constraint, if any; drawn red and dashed if unresolved), and every

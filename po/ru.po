@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tulpar 0.2.0\n"
 "Report-Msgid-Bugs-To: anmitalidev@nuros.org\n"
-"POT-Creation-Date: 2026-08-27 15:37+0500\n"
+"POT-Creation-Date: 2026-08-27 15:48+0500\n"
 "PO-Revision-Date: 2026-08-11 19:47+0500\n"
 "Last-Translator: AnmiTaliDev <anmitalidev@nuros.org>\n"
 "Language-Team: Russian\n"
@@ -306,20 +306,30 @@ msgstr "для этого пакета нет отдельной подписи"
 msgid "failed to download %s"
 msgstr "не удалось скачать %s"
 
-#: src/cmd/cmd_graph.c:53
+#: src/cmd/cmd_graph.c:57 src/cmd/cmd_graph.c:107
 msgid "failed to allocate dependency graph"
 msgstr "не удалось выделить память под граф зависимостей"
 
 #: src/cmd/cmd_graph.c:76
+#, c-format
+msgid "package %s is not installed"
+msgstr "пакет %s не установлен"
+
+#: src/cmd/cmd_graph.c:93
+#, c-format
+msgid "failed to resolve dependency graph for %s"
+msgstr "не удалось разрешить граф зависимостей для %s"
+
+#: src/cmd/cmd_graph.c:150
 msgid "failed to export the dependency graph"
 msgstr "не удалось экспортировать граф зависимостей"
 
-#: src/cmd/cmd_graph.c:85
+#: src/cmd/cmd_graph.c:159
 #, c-format
 msgid "failed to open %s for writing"
 msgstr "не удалось открыть %s для записи"
 
-#: src/cmd/cmd_graph.c:91
+#: src/cmd/cmd_graph.c:165
 #, c-format
 msgid "wrote dependency graph to %s"
 msgstr "граф зависимостей записан в %s"

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tulpar 0.2.0\n"
 "Report-Msgid-Bugs-To: anmitalidev@nuros.org\n"
-"POT-Creation-Date: 2026-08-27 15:37+0500\n"
+"POT-Creation-Date: 2026-08-27 15:48+0500\n"
 "PO-Revision-Date: 2026-08-12 16:17+0500\n"
 "Last-Translator: AnmiTaliDev <anmitalidev@nuros.org>\n"
 "Language-Team: Kazakh\n"
@@ -305,20 +305,30 @@ msgstr "бұл десте үшін бөлек қолтаңба жоқ"
 msgid "failed to download %s"
 msgstr "%s жүктеп алу сәтсіз аяқталды"
 
-#: src/cmd/cmd_graph.c:53
+#: src/cmd/cmd_graph.c:57 src/cmd/cmd_graph.c:107
 msgid "failed to allocate dependency graph"
 msgstr "тәуелділіктер графигін бөлу сәтсіз аяқталды"
 
 #: src/cmd/cmd_graph.c:76
+#, c-format
+msgid "package %s is not installed"
+msgstr "%s дестесі орнатылмаған"
+
+#: src/cmd/cmd_graph.c:93
+#, c-format
+msgid "failed to resolve dependency graph for %s"
+msgstr "%s үшін тәуелділіктер графигін шешу сәтсіз аяқталды"
+
+#: src/cmd/cmd_graph.c:150
 msgid "failed to export the dependency graph"
 msgstr "тәуелділіктер графигін экспорттау сәтсіз аяқталды"
 
-#: src/cmd/cmd_graph.c:85
+#: src/cmd/cmd_graph.c:159
 #, c-format
 msgid "failed to open %s for writing"
 msgstr "%s жазу үшін ашу сәтсіз аяқталды"
 
-#: src/cmd/cmd_graph.c:91
+#: src/cmd/cmd_graph.c:165
 #, c-format
 msgid "wrote dependency graph to %s"
 msgstr "тәуелділіктер графигі %s файлына жазылды"

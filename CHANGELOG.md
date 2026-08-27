@@ -14,7 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `tulpar graph` command: exports the installed package dependency graph
   in Graphviz DOT format via libapg's `dep_graph_new()`/
   `dep_graph_add_installed()`/`dep_graph_export_dot()`, with `-o <file>`
-  to write to a file instead of stdout.
+  to write to a file instead of stdout, and an optional `[package]`
+  argument to export a single package's dependency subgraph.
 - Internationalization (i18n) via GNU gettext: all user-facing CLI output
   (usage text, command summaries, prompts, errors, warnings, transaction
   plan/conflict output) is now translatable. Includes Russian and Kazakh
