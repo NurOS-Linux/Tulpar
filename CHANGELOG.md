@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `tulpar info <pkg>`: display dependencies, provides, conflicts,
+  replaces, and reverse dependencies (`Required By`) for installed
+  packages in both human-readable and `--json` formats.
 - `tulpar clean` (also `autoclean`) command: purges downloaded package
   archives, temporary git clone workspaces, and metadata cache files
   from the package cache directory, with interactive confirmation and

@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <yyjson.h>
 
@@ -18,7 +19,65 @@
 #define USAGE "tulpar info [--dest <path>] [--json] <name>"
 
 static void
-print_pkg_human(const struct package_metadata *m)
+print_str_list(const char *label, const struct str_list *list)
+{
+    if (!list || list->count == 0)
+        return;
+
+    printf("%-13s", label);
+    for (int i = 0; i < list->count; i++)
+        printf("%s%s", i > 0 ? ", " : "", list->items[i]);
+    printf("\n");
+}
+
+static void
+print_dependencies(const struct dep_constraint_list *deps)
+{
+    if (!deps || deps->count == 0)
+        return;
+
+    printf("Depends On:  ");
+    for (int i = 0; i < deps->count; i++)
+    {
+        struct dep_constraint *c = &deps->items[i];
+        if (i > 0)
+            printf(", ");
+        if (c->op == VER_OP_ANY || !c->version)
+            printf("%s", c->name);
+        else
+        {
+            const char *op_str = "=";
+            switch (c->op)
+            {
+            case VER_OP_EQ:
+                op_str = "=";
+                break;
+            case VER_OP_NEQ:
+                op_str = "!=";
+                break;
+            case VER_OP_LT:
+                op_str = "<";
+                break;
+            case VER_OP_LE:
+                op_str = "<=";
+                break;
+            case VER_OP_GT:
+                op_str = ">";
+                break;
+            case VER_OP_GE:
+                op_str = ">=";
+                break;
+            default:
+                break;
+            }
+            printf("%s %s %s", c->name, op_str, c->version);
+        }
+    }
+    printf("\n");
+}
+
+static void
+print_pkg_human(const struct package_metadata *m, const struct str_list *req_by)
 {
     printf("Name:        %s\n", m->name ? m->name : "");
     printf("Version:     %s\n", m->version ? m->version : "");
@@ -27,11 +86,17 @@ print_pkg_human(const struct package_metadata *m)
     printf("Maintainer:  %s\n", m->maintainer ? m->maintainer : "");
     printf("License:     %s\n", m->license ? m->license : "");
     printf("Homepage:    %s\n", m->homepage ? m->homepage : "");
+    print_dependencies(&m->dependencies);
+    print_str_list("Provides:   ", &m->provides);
+    print_str_list("Conflicts:  ", &m->conflicts);
+    print_str_list("Replaces:   ", &m->replaces);
+    if (req_by && req_by->count > 0)
+        print_str_list("Required By:", req_by);
     printf("Description: %s\n", m->description ? m->description : "");
 }
 
 static void
-print_pkg_json(const struct package_metadata *m)
+print_pkg_json(const struct package_metadata *m, const struct str_list *req_by)
 {
     yyjson_mut_doc *doc = yyjson_mut_doc_new(NULL);
     yyjson_mut_val *obj = yyjson_mut_obj(doc);
@@ -49,6 +114,66 @@ print_pkg_json(const struct package_metadata *m)
                               m->license ? m->license : "");
     yyjson_mut_obj_add_strcpy(doc, obj, "homepage",
                               m->homepage ? m->homepage : "");
+
+    if (m->dependencies.count > 0)
+    {
+        yyjson_mut_val *dep_arr = yyjson_mut_arr(doc);
+        for (int i = 0; i < m->dependencies.count; i++)
+        {
+            struct dep_constraint *c = &m->dependencies.items[i];
+            if (c->op == VER_OP_ANY || !c->version)
+                yyjson_mut_arr_add_strcpy(doc, dep_arr, c->name);
+            else
+            {
+                char dep_str[256];
+                const char *op_str = "=";
+                switch (c->op)
+                {
+                case VER_OP_EQ:
+                    op_str = "=";
+                    break;
+                case VER_OP_NEQ:
+                    op_str = "!=";
+                    break;
+                case VER_OP_LT:
+                    op_str = "<";
+                    break;
+                case VER_OP_LE:
+                    op_str = "<=";
+                    break;
+                case VER_OP_GT:
+                    op_str = ">";
+                    break;
+                case VER_OP_GE:
+                    op_str = ">=";
+                    break;
+                default:
+                    break;
+                }
+                snprintf(dep_str, sizeof(dep_str), "%s %s %s", c->name, op_str,
+                         c->version);
+                yyjson_mut_arr_add_strcpy(doc, dep_arr, dep_str);
+            }
+        }
+        yyjson_mut_obj_add_val(doc, obj, "dependencies", dep_arr);
+    }
+
+    if (m->provides.count > 0)
+    {
+        yyjson_mut_val *prov_arr = yyjson_mut_arr(doc);
+        for (int i = 0; i < m->provides.count; i++)
+            yyjson_mut_arr_add_strcpy(doc, prov_arr, m->provides.items[i]);
+        yyjson_mut_obj_add_val(doc, obj, "provides", prov_arr);
+    }
+
+    if (req_by && req_by->count > 0)
+    {
+        yyjson_mut_val *req_arr = yyjson_mut_arr(doc);
+        for (int i = 0; i < req_by->count; i++)
+            yyjson_mut_arr_add_strcpy(doc, req_arr, req_by->items[i]);
+        yyjson_mut_obj_add_val(doc, obj, "required_by", req_arr);
+    }
+
     yyjson_mut_obj_add_strcpy(doc, obj, "description",
                               m->description ? m->description : "");
 
@@ -59,6 +184,60 @@ print_pkg_json(const struct package_metadata *m)
         free(json);
     }
     yyjson_mut_doc_free(doc);
+}
+
+static struct str_list
+find_required_by(struct db_handle *db, const char *target_name,
+                 const struct str_list *provides)
+{
+    struct str_list req_by = {0};
+    int count = 0;
+    struct package **pkgs = db_list(db, &count);
+    if (!pkgs)
+        return req_by;
+
+    for (int i = 0; i < count; i++)
+    {
+        struct package *p = pkgs[i];
+        if (strcmp(p->meta->name, target_name) == 0)
+            continue;
+
+        bool matched = false;
+        for (int d = 0; d < p->meta->dependencies.count && !matched; d++)
+        {
+            const char *dep_name = p->meta->dependencies.items[d].name;
+            if (strcmp(dep_name, target_name) == 0)
+                matched = true;
+            else if (provides)
+            {
+                for (int pv = 0; pv < provides->count; pv++)
+                {
+                    if (strcmp(dep_name, provides->items[pv]) == 0)
+                    {
+                        matched = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (matched)
+        {
+            char **new_items =
+                realloc(req_by.items, sizeof(char *) * (req_by.count + 1));
+            if (new_items)
+            {
+                req_by.items = new_items;
+                req_by.items[req_by.count++] = strdup(p->meta->name);
+            }
+        }
+    }
+
+    for (int i = 0; i < count; i++)
+        package_free(pkgs[i]);
+    free(pkgs);
+
+    return req_by;
 }
 
 int
@@ -96,19 +275,30 @@ cmd_info_run(int argc, char **argv, struct tulpar_config *cfg)
 
     struct db_handle *db = db_open_readonly(dest.db_path);
     struct package *local = db ? db_get(db, name) : NULL;
-    if (db)
-        db_close(db);
-    dest_ctx_clear(&dest);
 
     if (local)
     {
+        struct str_list req_by =
+            find_required_by(db, local->meta->name, &local->meta->provides);
         if (json_output)
-            print_pkg_json(local->meta);
+            print_pkg_json(local->meta, &req_by);
         else
-            print_pkg_human(local->meta);
+            print_pkg_human(local->meta, &req_by);
+
+        for (int i = 0; i < req_by.count; i++)
+            free(req_by.items[i]);
+        free(req_by.items);
+
         package_free(local);
+        if (db)
+            db_close(db);
+        dest_ctx_clear(&dest);
         return 0;
     }
+
+    if (db)
+        db_close(db);
+    dest_ctx_clear(&dest);
 
     struct repo_list *repos = repo_list_load();
     struct repo_index *idx = NULL;
@@ -135,9 +325,9 @@ cmd_info_run(int argc, char **argv, struct tulpar_config *cfg)
     };
 
     if (json_output)
-        print_pkg_json(&meta);
+        print_pkg_json(&meta, NULL);
     else
-        print_pkg_human(&meta);
+        print_pkg_human(&meta, NULL);
 
     repo_index_free(idx);
     return 0;

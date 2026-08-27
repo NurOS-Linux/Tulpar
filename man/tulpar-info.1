@@ -15,7 +15,9 @@ tulpar-info, tulpar-show \- show full metadata for a package
 .RI [ options "] " name
 .SH DESCRIPTION
 Shows full metadata for
-.IR name .
+.IR name ,
+including dependencies, provides, conflicts, replaces, and reverse
+dependencies (Required By) for locally installed packages.
 The local package database is checked first; if the package is not
 installed, the configured repositories are queried instead.
 .B info
