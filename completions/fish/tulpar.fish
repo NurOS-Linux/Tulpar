@@ -2,7 +2,7 @@
 
 set -l tulpar_commands install remove uninstall upgrade search list info \
     show verify orphans autoremove hold unhold history audit log repo \
-    download key graph
+    download key graph clean autoclean
 
 complete -c tulpar -f
 
@@ -36,6 +36,8 @@ complete -c tulpar -n "not __fish_seen_subcommand_from $tulpar_commands" \
     -a "key" -d "manage the trusted signing keyring"
 complete -c tulpar -n "not __fish_seen_subcommand_from $tulpar_commands" \
     -a "graph" -d "export the installed package dependency graph as DOT"
+complete -c tulpar -n "not __fish_seen_subcommand_from $tulpar_commands" \
+    -a "clean autoclean" -d "purge downloaded packages and metadata cache"
 
 complete -c tulpar -n "__fish_seen_subcommand_from repo" \
     -a "add remove list update"

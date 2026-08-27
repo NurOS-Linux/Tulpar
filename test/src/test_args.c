@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: 2026 AnmiTaliDev <anmitalidev@nuros.org>
 
 #include <stdio.h>
+#include <string.h>
 
 #include "cli/args.h"
 #include "cli/dispatch.h"
@@ -88,6 +89,14 @@ test_command_lookup_synonyms_share_handler(void)
     assert(remove_cmd && uninstall_cmd);
     assert(remove_cmd->run == uninstall_cmd->run);
     assert(remove_cmd->alias == uninstall_cmd->alias);
+
+    const struct command *clean_cmd = command_lookup("clean");
+    const struct command *autoclean_cmd = command_lookup("autoclean");
+    assert(clean_cmd && autoclean_cmd);
+    assert(clean_cmd->run == autoclean_cmd->run);
+    assert(clean_cmd->alias == 'c');
+    assert(autoclean_cmd->alias == 'c');
+
     printf("test_command_lookup_synonyms_share_handler: PASS\n");
 }
 

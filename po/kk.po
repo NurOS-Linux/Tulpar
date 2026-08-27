@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tulpar 0.2.0\n"
 "Report-Msgid-Bugs-To: anmitalidev@nuros.org\n"
-"POT-Creation-Date: 2026-08-27 15:48+0500\n"
+"POT-Creation-Date: 2026-08-27 15:59+0500\n"
 "PO-Revision-Date: 2026-08-12 16:17+0500\n"
 "Last-Translator: AnmiTaliDev <anmitalidev@nuros.org>\n"
 "Language-Team: Kazakh\n"
@@ -91,65 +91,69 @@ msgstr "конфигурацияны инициализациялау сәтсі
 msgid "could not open the log file, continuing without file logging"
 msgstr "журнал файлын ашу мүмкін болмады, файлға жазбай жалғастырамыз"
 
-#: src/cli/dispatch.c:26
+#: src/cli/dispatch.c:27
 msgid "install one or more packages"
 msgstr "бір немесе бірнеше дестені орнату"
 
-#: src/cli/dispatch.c:27 src/cli/dispatch.c:28
+#: src/cli/dispatch.c:28 src/cli/dispatch.c:29
 msgid "remove an installed package"
 msgstr "орнатылған дестені өшіру"
 
-#: src/cli/dispatch.c:29
+#: src/cli/dispatch.c:30
 msgid "upgrade one or all installed packages"
 msgstr "бір немесе барлық орнатылған дестелерді жаңарту"
 
-#: src/cli/dispatch.c:31
+#: src/cli/dispatch.c:32
 msgid "search local and remote package indexes"
 msgstr "жергілікті және қашықтағы дестелер индекстерінен іздеу"
 
-#: src/cli/dispatch.c:33
+#: src/cli/dispatch.c:34
 msgid "list installed packages"
 msgstr "орнатылған дестелер тізімін көрсету"
 
-#: src/cli/dispatch.c:34 src/cli/dispatch.c:35
+#: src/cli/dispatch.c:35 src/cli/dispatch.c:36
 msgid "show full metadata for a package"
 msgstr "десте үшін толық метадеректерді көрсету"
 
-#: src/cli/dispatch.c:36
+#: src/cli/dispatch.c:37
 msgid "verify installed package files"
 msgstr "орнатылған десте файлдарын тексеру"
 
-#: src/cli/dispatch.c:37 src/cli/dispatch.c:38
+#: src/cli/dispatch.c:38 src/cli/dispatch.c:39
 msgid "list and remove orphaned packages"
 msgstr "жетім дестелерді тізімдеу және өшіру"
 
-#: src/cli/dispatch.c:40
+#: src/cli/dispatch.c:41
 msgid "block a package from upgrade/removal"
 msgstr "дестенің жаңартылуын/өшірілуін бұғаттау"
 
-#: src/cli/dispatch.c:41
+#: src/cli/dispatch.c:42
 msgid "release a held package"
 msgstr "ұсталған дестені босату"
 
-#: src/cli/dispatch.c:42 src/cli/dispatch.c:44 src/cli/dispatch.c:45
+#: src/cli/dispatch.c:43 src/cli/dispatch.c:45 src/cli/dispatch.c:46
 msgid "show past install/remove operations"
 msgstr "өткен орнату/өшіру амалдарын көрсету"
 
-#: src/cli/dispatch.c:46
+#: src/cli/dispatch.c:47
 msgid "manage configured repositories"
 msgstr "теңшелген репозиторийлерді басқару"
 
-#: src/cli/dispatch.c:47
+#: src/cli/dispatch.c:48
 msgid "fetch a package without installing it"
 msgstr "дестені орнатпай жүктеп алу"
 
-#: src/cli/dispatch.c:49
+#: src/cli/dispatch.c:50
 msgid "manage the trusted signing keyring"
 msgstr "сенімді қолтаңба кілттер байламын басқару"
 
-#: src/cli/dispatch.c:50
+#: src/cli/dispatch.c:51
 msgid "export the installed package dependency graph as DOT"
 msgstr "орнатылған дестелердің тәуелділік графигін DOT форматында экспорттау"
+
+#: src/cli/dispatch.c:53 src/cli/dispatch.c:55
+msgid "purge downloaded packages and metadata cache"
+msgstr "жүктелген дестелер мен метадеректер кэшін тазалау"
 
 #: src/cli/ui.c:186 src/cli/ui.c:188
 msgid "[y/N]"
@@ -210,6 +214,19 @@ msgstr "%s өшіру мүмкін емес: %s үшін қажет"
 msgid "%s is held, %s blocked"
 msgstr "%s ұсталған, %s бұғатталған"
 
+#: src/cmd/cmd_clean.c:77
+msgid "Purge downloaded packages and metadata cache"
+msgstr "Жүктелген дестелер мен метадеректер кэшін тазалау"
+
+#: src/cmd/cmd_clean.c:81 src/cmd/cmd_common.c:112 src/cmd/cmd_orphans.c:70
+msgid "aborted"
+msgstr "тоқтатылды"
+
+#: src/cmd/cmd_clean.c:103
+#, c-format
+msgid "cache cleaned: %zu item(s) removed"
+msgstr "кэш тазаланды: %zu элемент өшірілді"
+
 #: src/cmd/cmd_common.c:20
 #, c-format
 msgid "usage: %s\n"
@@ -256,10 +273,6 @@ msgstr "транзакцияны дайындау сәтсіз аяқталды"
 #: src/cmd/cmd_common.c:110
 msgid "Proceed with this transaction?"
 msgstr "Осы транзакцияны орындау керек пе?"
-
-#: src/cmd/cmd_common.c:112 src/cmd/cmd_orphans.c:70
-msgid "aborted"
-msgstr "тоқтатылды"
 
 #: src/cmd/cmd_common.c:129
 msgid "a package failed signature verification and was rejected by policy"

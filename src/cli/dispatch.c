@@ -7,6 +7,7 @@
 
 #include "../i18n.h"
 
+#include "../cmd/cmd_clean.h"
 #include "../cmd/cmd_download.h"
 #include "../cmd/cmd_graph.h"
 #include "../cmd/cmd_history.h"
@@ -49,6 +50,10 @@ const struct command g_commands[] = {
     {"key", 'k', N_("manage the trusted signing keyring"), cmd_key_run},
     {"graph", 'p', N_("export the installed package dependency graph as DOT"),
      cmd_graph_run},
+    {"clean", 'c', N_("purge downloaded packages and metadata cache"),
+     cmd_clean_run},
+    {"autoclean", 'c', N_("purge downloaded packages and metadata cache"),
+     cmd_clean_run},
 };
 
 const size_t g_command_count = sizeof(g_commands) / sizeof(g_commands[0]);

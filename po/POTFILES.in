@@ -1,6 +1,7 @@
 src/main.c
 src/cli/dispatch.c
 src/cli/ui.c
+src/cmd/cmd_clean.c
 src/cmd/cmd_common.c
 src/cmd/cmd_download.c
 src/cmd/cmd_graph.c

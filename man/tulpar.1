@@ -70,6 +70,9 @@ manage the trusted signing keyring
 .TP
 .BR tulpar-graph (1)
 export the installed package dependency graph as DOT
+.TP
+.BR tulpar-clean (1)
+purge downloaded package archives and metadata cache (also: autoclean)
 .SH GLOBAL OPTIONS
 .TP
 .BR \-h ", " \-\-help
@@ -108,21 +111,30 @@ System-wide configuration.
 .I ~/.config/apg/tulpar.conf
 Per-user configuration overrides.
 .TP
-.I /etc/apg/repos
-System-wide repository list.
+.I /etc/apg/repos.list
+System repository list.
 .TP
-.I ~/.config/apg/repos
+.I ~/.config/apg/repos.list
 Per-user repository list.
 .TP
-.I /var/cache/apg/pkgs/
-Downloaded package cache.
+.I /etc/apg/trusted.d/
+Directory containing trusted Ed25519 public keys.
 .TP
-.I /var/cache/apg/repodata/
-Cached repository indexes.
+.I /var/lib/apg/db
+Installed package database.
+.TP
+.I /var/cache/apg/
+Downloaded package and repodata cache.
 .TP
 .I /var/log/tulpar.log
-Default log file.
+Transaction audit log.
+.SH ENVIRONMENT
+.TP
+.B NO_COLOR
+If set and non-empty, disables colored output.
+.SH EXIT STATUS
+0 on success, non-zero on failure.
 .SH SEE ALSO
 .BR tulpar.conf (5),
-.BR tulpar-install (1),
-.BR tulpar-repo (1)
+.BR apg (1),
+.BR apg-build (1)

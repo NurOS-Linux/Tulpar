@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tulpar 0.2.0\n"
 "Report-Msgid-Bugs-To: anmitalidev@nuros.org\n"
-"POT-Creation-Date: 2026-08-27 15:48+0500\n"
+"POT-Creation-Date: 2026-08-27 15:59+0500\n"
 "PO-Revision-Date: 2026-08-11 19:47+0500\n"
 "Last-Translator: AnmiTaliDev <anmitalidev@nuros.org>\n"
 "Language-Team: Russian\n"
@@ -92,65 +92,69 @@ msgstr "не удалось инициализировать конфигура�
 msgid "could not open the log file, continuing without file logging"
 msgstr "не удалось открыть файл журнала, продолжаем без записи в файл"
 
-#: src/cli/dispatch.c:26
+#: src/cli/dispatch.c:27
 msgid "install one or more packages"
 msgstr "установить один или несколько пакетов"
 
-#: src/cli/dispatch.c:27 src/cli/dispatch.c:28
+#: src/cli/dispatch.c:28 src/cli/dispatch.c:29
 msgid "remove an installed package"
 msgstr "удалить установленный пакет"
 
-#: src/cli/dispatch.c:29
+#: src/cli/dispatch.c:30
 msgid "upgrade one or all installed packages"
 msgstr "обновить один или все установленные пакеты"
 
-#: src/cli/dispatch.c:31
+#: src/cli/dispatch.c:32
 msgid "search local and remote package indexes"
 msgstr "искать в локальных и удалённых индексах пакетов"
 
-#: src/cli/dispatch.c:33
+#: src/cli/dispatch.c:34
 msgid "list installed packages"
 msgstr "вывести список установленных пакетов"
 
-#: src/cli/dispatch.c:34 src/cli/dispatch.c:35
+#: src/cli/dispatch.c:35 src/cli/dispatch.c:36
 msgid "show full metadata for a package"
 msgstr "показать полные метаданные пакета"
 
-#: src/cli/dispatch.c:36
+#: src/cli/dispatch.c:37
 msgid "verify installed package files"
 msgstr "проверить файлы установленного пакета"
 
-#: src/cli/dispatch.c:37 src/cli/dispatch.c:38
+#: src/cli/dispatch.c:38 src/cli/dispatch.c:39
 msgid "list and remove orphaned packages"
 msgstr "вывести и удалить осиротевшие пакеты"
 
-#: src/cli/dispatch.c:40
+#: src/cli/dispatch.c:41
 msgid "block a package from upgrade/removal"
 msgstr "заблокировать обновление/удаление пакета"
 
-#: src/cli/dispatch.c:41
+#: src/cli/dispatch.c:42
 msgid "release a held package"
 msgstr "снять блокировку с пакета"
 
-#: src/cli/dispatch.c:42 src/cli/dispatch.c:44 src/cli/dispatch.c:45
+#: src/cli/dispatch.c:43 src/cli/dispatch.c:45 src/cli/dispatch.c:46
 msgid "show past install/remove operations"
 msgstr "показать историю операций установки/удаления"
 
-#: src/cli/dispatch.c:46
+#: src/cli/dispatch.c:47
 msgid "manage configured repositories"
 msgstr "управлять настроенными репозиториями"
 
-#: src/cli/dispatch.c:47
+#: src/cli/dispatch.c:48
 msgid "fetch a package without installing it"
 msgstr "скачать пакет без установки"
 
-#: src/cli/dispatch.c:49
+#: src/cli/dispatch.c:50
 msgid "manage the trusted signing keyring"
 msgstr "управлять доверенной связкой ключей подписи"
 
-#: src/cli/dispatch.c:50
+#: src/cli/dispatch.c:51
 msgid "export the installed package dependency graph as DOT"
 msgstr "экспортировать граф зависимостей установленных пакетов в формате DOT"
+
+#: src/cli/dispatch.c:53 src/cli/dispatch.c:55
+msgid "purge downloaded packages and metadata cache"
+msgstr "очистить кэш скачанных пакетов и метаданных"
 
 #: src/cli/ui.c:186 src/cli/ui.c:188
 msgid "[y/N]"
@@ -211,6 +215,19 @@ msgstr "невозможно удалить %s: требуется для %s"
 msgid "%s is held, %s blocked"
 msgstr "%s удержан, %s заблокировано"
 
+#: src/cmd/cmd_clean.c:77
+msgid "Purge downloaded packages and metadata cache"
+msgstr "Очистить кэш скачанных пакетов и метаданных"
+
+#: src/cmd/cmd_clean.c:81 src/cmd/cmd_common.c:112 src/cmd/cmd_orphans.c:70
+msgid "aborted"
+msgstr "отменено"
+
+#: src/cmd/cmd_clean.c:103
+#, c-format
+msgid "cache cleaned: %zu item(s) removed"
+msgstr "кэш очищен: удалено элементов: %zu"
+
 #: src/cmd/cmd_common.c:20
 #, c-format
 msgid "usage: %s\n"
@@ -256,10 +273,6 @@ msgstr "не удалось подготовить транзакцию"
 #: src/cmd/cmd_common.c:110
 msgid "Proceed with this transaction?"
 msgstr "Выполнить эту транзакцию?"
-
-#: src/cmd/cmd_common.c:112 src/cmd/cmd_orphans.c:70
-msgid "aborted"
-msgstr "отменено"
 
 #: src/cmd/cmd_common.c:129
 msgid "a package failed signature verification and was rejected by policy"

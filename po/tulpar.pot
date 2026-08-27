@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tulpar 0.2.0\n"
 "Report-Msgid-Bugs-To: anmitalidev@nuros.org\n"
-"POT-Creation-Date: 2026-08-27 15:48+0500\n"
+"POT-Creation-Date: 2026-08-27 15:59+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -88,64 +88,68 @@ msgstr ""
 msgid "could not open the log file, continuing without file logging"
 msgstr ""
 
-#: src/cli/dispatch.c:26
+#: src/cli/dispatch.c:27
 msgid "install one or more packages"
 msgstr ""
 
-#: src/cli/dispatch.c:27 src/cli/dispatch.c:28
+#: src/cli/dispatch.c:28 src/cli/dispatch.c:29
 msgid "remove an installed package"
 msgstr ""
 
-#: src/cli/dispatch.c:29
+#: src/cli/dispatch.c:30
 msgid "upgrade one or all installed packages"
 msgstr ""
 
-#: src/cli/dispatch.c:31
+#: src/cli/dispatch.c:32
 msgid "search local and remote package indexes"
 msgstr ""
 
-#: src/cli/dispatch.c:33
+#: src/cli/dispatch.c:34
 msgid "list installed packages"
 msgstr ""
 
-#: src/cli/dispatch.c:34 src/cli/dispatch.c:35
+#: src/cli/dispatch.c:35 src/cli/dispatch.c:36
 msgid "show full metadata for a package"
 msgstr ""
 
-#: src/cli/dispatch.c:36
+#: src/cli/dispatch.c:37
 msgid "verify installed package files"
 msgstr ""
 
-#: src/cli/dispatch.c:37 src/cli/dispatch.c:38
+#: src/cli/dispatch.c:38 src/cli/dispatch.c:39
 msgid "list and remove orphaned packages"
 msgstr ""
 
-#: src/cli/dispatch.c:40
+#: src/cli/dispatch.c:41
 msgid "block a package from upgrade/removal"
 msgstr ""
 
-#: src/cli/dispatch.c:41
+#: src/cli/dispatch.c:42
 msgid "release a held package"
 msgstr ""
 
-#: src/cli/dispatch.c:42 src/cli/dispatch.c:44 src/cli/dispatch.c:45
+#: src/cli/dispatch.c:43 src/cli/dispatch.c:45 src/cli/dispatch.c:46
 msgid "show past install/remove operations"
 msgstr ""
 
-#: src/cli/dispatch.c:46
+#: src/cli/dispatch.c:47
 msgid "manage configured repositories"
 msgstr ""
 
-#: src/cli/dispatch.c:47
+#: src/cli/dispatch.c:48
 msgid "fetch a package without installing it"
 msgstr ""
 
-#: src/cli/dispatch.c:49
+#: src/cli/dispatch.c:50
 msgid "manage the trusted signing keyring"
 msgstr ""
 
-#: src/cli/dispatch.c:50
+#: src/cli/dispatch.c:51
 msgid "export the installed package dependency graph as DOT"
+msgstr ""
+
+#: src/cli/dispatch.c:53 src/cli/dispatch.c:55
+msgid "purge downloaded packages and metadata cache"
 msgstr ""
 
 #: src/cli/ui.c:186 src/cli/ui.c:188
@@ -205,6 +209,19 @@ msgstr ""
 msgid "%s is held, %s blocked"
 msgstr ""
 
+#: src/cmd/cmd_clean.c:77
+msgid "Purge downloaded packages and metadata cache"
+msgstr ""
+
+#: src/cmd/cmd_clean.c:81 src/cmd/cmd_common.c:112 src/cmd/cmd_orphans.c:70
+msgid "aborted"
+msgstr ""
+
+#: src/cmd/cmd_clean.c:103
+#, c-format
+msgid "cache cleaned: %zu item(s) removed"
+msgstr ""
+
 #: src/cmd/cmd_common.c:20
 #, c-format
 msgid "usage: %s\n"
@@ -246,10 +263,6 @@ msgstr ""
 
 #: src/cmd/cmd_common.c:110
 msgid "Proceed with this transaction?"
-msgstr ""
-
-#: src/cmd/cmd_common.c:112 src/cmd/cmd_orphans.c:70
-msgid "aborted"
 msgstr ""
 
 #: src/cmd/cmd_common.c:129

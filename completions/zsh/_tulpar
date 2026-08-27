@@ -25,6 +25,8 @@ _tulpar_commands()
         'download:fetch a package without installing it'
         'key:manage the trusted signing keyring'
         'graph:export the installed package dependency graph as DOT'
+        'clean:purge downloaded package archives and metadata cache'
+        'autoclean:purge downloaded package archives and metadata cache'
     )
     _describe 'command' commands
 }

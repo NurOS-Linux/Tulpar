@@ -1,0 +1,30 @@
+.TH TULPAR-CLEAN 1 "2026" "tulpar 0.2.0" "Tulpar Manual"
+.SH NAME
+tulpar-clean \- purge downloaded package archives and metadata cache
+.SH SYNOPSIS
+.B tulpar clean
+.RI [ options ]
+.br
+.B tulpar c
+.RI [ options ]
+.br
+.B tulpar \-c
+.RI [ options ]
+.br
+.B tulpar autoclean
+.RI [ options ]
+.SH DESCRIPTION
+Purges downloaded package archives, temporary git clone workspaces, and
+cached repository metadata from the package cache directory
+.RI ( /var/cache/apg
+or user cache directory).
+.SH OPTIONS
+.TP
+.BR \-y ", " \-\-yes
+Assume yes and skip the confirmation prompt.
+.SH EXIT STATUS
+0 on success, non-zero on failure.
+.SH SEE ALSO
+.BR tulpar (1),
+.BR tulpar-install (1),
+.BR tulpar-upgrade (1)

@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `tulpar clean` (also `autoclean`) command: purges downloaded package
+  archives, temporary git clone workspaces, and metadata cache files
+  from the package cache directory, with interactive confirmation and
+  `-y`/`--yes` override.
 - `tulpar graph` command: exports the installed package dependency graph
   in Graphviz DOT format via libapg's `dep_graph_new()`/
   `dep_graph_add_installed()`/`dep_graph_export_dot()`, with `-o <file>`
