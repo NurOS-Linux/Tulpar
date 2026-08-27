@@ -17,8 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to write to a file instead of stdout.
 - Internationalization (i18n) via GNU gettext: all user-facing CLI output
   (usage text, command summaries, prompts, errors, warnings, transaction
-  plan/conflict output) is now translatable. Includes a complete Russian
-  translation (`po/ru.po`).
+  plan/conflict output) is now translatable. Includes Russian and Kazakh
+  translations (`po/ru.po`, `po/kk.po`).
 - `tulpar install <url>`: install a package directly from a plain HTTP
   or FTP URL to a `.apg` file, bypassing the configured repository list
   entirely. Downloads straight to the package cache and otherwise
@@ -41,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   clear `--provider name=package` hint instead of guessing.
 - Dependency resolution now honours `provides` and `replaces` against
   packages already queued in the transaction, already installed, and
-  available in remote repodata — not just exact name matches.
+  available in remote repodata, not just exact name matches.
 - Version pinning for `tulpar upgrade`: `tulpar upgrade name=version`
   upgrades (or downgrades) to that exact version instead of the newest
   available one.
@@ -50,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- libapg pinned to v2.0.0 (`2cf0ec8`), then to v2.1.0 (`01d5418`).
+- libapg pinned to v2.0.0 (`2cf0ec8`), v2.1.0 (`01d5418`), and v2.2.0 (`191635f`).
 
 ### Fixed
 

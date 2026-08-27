@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tulpar 0.2.0\n"
 "Report-Msgid-Bugs-To: anmitalidev@nuros.org\n"
-"POT-Creation-Date: 2026-08-11 19:47+0500\n"
+"POT-Creation-Date: 2026-08-27 15:37+0500\n"
 "PO-Revision-Date: 2026-08-12 16:17+0500\n"
 "Last-Translator: AnmiTaliDev <anmitalidev@nuros.org>\n"
 "Language-Team: Kazakh\n"
@@ -224,15 +224,14 @@ msgstr "мақсатты түбір каталог құрылымын дайын
 msgid ""
 "failed to open package database at %s (missing, or locked by another process)"
 msgstr ""
-"%s жолындағы дестелер дерекқорын ашу сәтсіз аяқталды (жоқ немесе "
-"басқа процесс бұғаттаған)"
+"%s жолындағы дестелер дерекқорын ашу сәтсіз аяқталды (жоқ немесе басқа "
+"процесс бұғаттаған)"
 
 #: src/cmd/cmd_common.c:58
 #, c-format
 msgid ""
 "%s has no detached signature (%s); installing without signature verification"
-msgstr ""
-"%s үшін бөлек қолтаңба жоқ (%s); қолтаңбаны тексерусіз орнату"
+msgstr "%s үшін бөлек қолтаңба жоқ (%s); қолтаңбаны тексерусіз орнату"
 
 #: src/cmd/cmd_common.c:65
 #, c-format
@@ -282,7 +281,7 @@ msgstr "транзакция аяқталды"
 msgid "download requires a package name"
 msgstr "жүктеп алу үшін дестенің атауы қажет"
 
-#: src/cmd/cmd_download.c:70 src/cmd/resolve.c:634
+#: src/cmd/cmd_download.c:70 src/cmd/resolve.c:645
 #, c-format
 msgid "package %s not found in any configured repo"
 msgstr "%s дестесі теңшелген репозиторийлердің ешқайсысында табылмады"
@@ -301,7 +300,7 @@ msgstr "%s → %s жүктеп алынды"
 msgid "no detached signature available for this package"
 msgstr "бұл десте үшін бөлек қолтаңба жоқ"
 
-#: src/cmd/cmd_download.c:141 src/cmd/resolve.c:174
+#: src/cmd/cmd_download.c:141 src/cmd/resolve.c:176
 #, c-format
 msgid "failed to download %s"
 msgstr "%s жүктеп алу сәтсіз аяқталды"
@@ -353,7 +352,8 @@ msgstr "info үшін дестенің атауы қажет"
 #: src/cmd/cmd_info.c:121
 #, c-format
 msgid "package %s not found locally or in any configured repo"
-msgstr "%s дестесі жергілікті жерде де, теңшелген репозиторийлерде де табылмады"
+msgstr ""
+"%s дестесі жергілікті жерде де, теңшелген репозиторийлерде де табылмады"
 
 #: src/cmd/cmd_install.c:61
 #, c-format
@@ -367,8 +367,8 @@ msgstr "install үшін кемінде бір десте атауы немес�
 #: src/cmd/cmd_install.c:99
 msgid "--sign requires exactly one local .apg file, URL, or git-url argument"
 msgstr ""
-"--sign нақты бір аргументті талап етеді: жергілікті .apg файлы, URL "
-"немесе git-url"
+"--sign нақты бір аргументті талап етеді: жергілікті .apg файлы, URL немесе "
+"git-url"
 
 #: src/cmd/cmd_install.c:108 src/cmd/cmd_remove.c:48 src/cmd/cmd_upgrade.c:90
 msgid "failed to resolve destination root"
@@ -403,8 +403,7 @@ msgstr "кілт қосылмады; ол қазірдің өзінде сені
 
 #: src/cmd/cmd_key.c:74
 msgid "use your platform's file listing to inspect individual keys"
-msgstr ""
-"жеке кілттерді қарау үшін платформаңыздың файлдар тізімін пайдаланыңыз"
+msgstr "жеке кілттерді қарау үшін платформаңыздың файлдар тізімін пайдаланыңыз"
 
 #: src/cmd/cmd_key.c:85
 msgid "key requires a sub-action: add, list"
@@ -517,48 +516,57 @@ msgstr "барлық орнатылған дестелер сәтті тексе
 msgid "%s: %d missing file(s)"
 msgstr "%s: жоқ файлдар саны: %d"
 
-#: src/cmd/resolve.c:229
+#: src/cmd/resolve.c:231
 #, c-format
 msgid "failed to create a temporary directory for %s"
 msgstr "%s үшін уақытша каталог жасау сәтсіз аяқталды"
 
-#: src/cmd/resolve.c:263
+#: src/cmd/resolve.c:265
 #, c-format
 msgid "failed to clone %s"
 msgstr "%s клондау сәтсіз аяқталды"
 
-#: src/cmd/resolve.c:273
+#: src/cmd/resolve.c:275
 #, c-format
 msgid "%s does not contain a metadata.json at its root"
 msgstr "%s түбірінде metadata.json жоқ"
 
-#: src/cmd/resolve.c:314
+#: src/cmd/resolve.c:316
 #, c-format
 msgid "failed to archive the cloned repository at %s"
 msgstr "%s жолындағы клондалған репозиторийді архивтеу сәтсіз аяқталды"
 
-#: src/cmd/resolve.c:403
+#: src/cmd/resolve.c:405
 #, c-format
 msgid ""
 "'%s' is provided by %d packages; use --provider %s=<package> to pick one"
 msgstr ""
-"'%s' атауын %d десте ұсынады; таңдау үшін --provider %s=<десте> "
-"пайдаланыңыз"
+"'%s' атауын %d десте ұсынады; таңдау үшін --provider %s=<десте> пайдаланыңыз"
 
-#: src/cmd/resolve.c:562
+#: src/cmd/resolve.c:564
 #, c-format
 msgid "could not resolve dependency %s in any configured repo"
-msgstr "%s тәуелділігін теңшелген репозиторийлердің ешқайсысында шешу мүмкін болмады"
+msgstr ""
+"%s тәуелділігін теңшелген репозиторийлердің ешқайсысында шешу мүмкін болмады"
 
-#: src/cmd/resolve.c:602 src/cmd/resolve.c:612
+#: src/cmd/resolve.c:610 src/cmd/resolve.c:621
 #, c-format
 msgid "failed to install from %s"
 msgstr "%s дереккөзінен орнату сәтсіз аяқталды"
 
-#: src/cmd/resolve.c:622
+#: src/cmd/resolve.c:632
 #, c-format
 msgid "failed to read package archive %s"
 msgstr "%s десте архивін оқу сәтсіз аяқталды"
+
+#: src/cmd/resolve.c:723
+#, c-format
+msgid "dependency conflict: %s"
+msgstr "тәуелділіктер қақтығысы: %s"
+
+#: src/cmd/resolve.c:728
+msgid "dependency conflict detected"
+msgstr "тәуелділіктер қақтығысы анықталды"
 
 #: src/util/paths.c:201
 msgid ""

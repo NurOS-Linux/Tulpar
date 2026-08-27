@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tulpar 0.2.0\n"
 "Report-Msgid-Bugs-To: anmitalidev@nuros.org\n"
-"POT-Creation-Date: 2026-08-11 19:47+0500\n"
+"POT-Creation-Date: 2026-08-27 15:37+0500\n"
 "PO-Revision-Date: 2026-08-11 19:47+0500\n"
 "Last-Translator: AnmiTaliDev <anmitalidev@nuros.org>\n"
 "Language-Team: Russian\n"
@@ -14,7 +14,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: src/main.c:24
 #, c-format
@@ -231,8 +232,7 @@ msgstr ""
 #, c-format
 msgid ""
 "%s has no detached signature (%s); installing without signature verification"
-msgstr ""
-"у %s нет отдельной подписи (%s); установка без проверки подписи"
+msgstr "у %s нет отдельной подписи (%s); установка без проверки подписи"
 
 #: src/cmd/cmd_common.c:65
 #, c-format
@@ -281,7 +281,7 @@ msgstr "транзакция завершена"
 msgid "download requires a package name"
 msgstr "для скачивания требуется имя пакета"
 
-#: src/cmd/cmd_download.c:70 src/cmd/resolve.c:634
+#: src/cmd/cmd_download.c:70 src/cmd/resolve.c:645
 #, c-format
 msgid "package %s not found in any configured repo"
 msgstr "пакет %s не найден ни в одном настроенном репозитории"
@@ -289,7 +289,8 @@ msgstr "пакет %s не найден ни в одном настроенно�
 #: src/cmd/cmd_download.c:97
 #, c-format
 msgid "no build of %s matches the requested version/arch/channel"
-msgstr "ни одна сборка %s не соответствует запрошенной версии/архитектуре/каналу"
+msgstr ""
+"ни одна сборка %s не соответствует запрошенной версии/архитектуре/каналу"
 
 #: src/cmd/cmd_download.c:131
 #, c-format
@@ -300,7 +301,7 @@ msgstr "%s скачан в %s"
 msgid "no detached signature available for this package"
 msgstr "для этого пакета нет отдельной подписи"
 
-#: src/cmd/cmd_download.c:141 src/cmd/resolve.c:174
+#: src/cmd/cmd_download.c:141 src/cmd/resolve.c:176
 #, c-format
 msgid "failed to download %s"
 msgstr "не удалось скачать %s"
@@ -402,8 +403,8 @@ msgstr "ключ не добавлен; он должен быть подтве�
 #: src/cmd/cmd_key.c:74
 msgid "use your platform's file listing to inspect individual keys"
 msgstr ""
-"используйте штатный просмотр файлов вашей платформы для просмотра "
-"отдельных ключей"
+"используйте штатный просмотр файлов вашей платформы для просмотра отдельных "
+"ключей"
 
 #: src/cmd/cmd_key.c:85
 msgid "key requires a sub-action: add, list"
@@ -516,53 +517,62 @@ msgstr "все установленные пакеты успешно прове
 msgid "%s: %d missing file(s)"
 msgstr "%s: отсутствует файлов: %d"
 
-#: src/cmd/resolve.c:229
+#: src/cmd/resolve.c:231
 #, c-format
 msgid "failed to create a temporary directory for %s"
 msgstr "не удалось создать временный каталог для %s"
 
-#: src/cmd/resolve.c:263
+#: src/cmd/resolve.c:265
 #, c-format
 msgid "failed to clone %s"
 msgstr "не удалось клонировать %s"
 
-#: src/cmd/resolve.c:273
+#: src/cmd/resolve.c:275
 #, c-format
 msgid "%s does not contain a metadata.json at its root"
 msgstr "%s не содержит metadata.json в корне"
 
-#: src/cmd/resolve.c:314
+#: src/cmd/resolve.c:316
 #, c-format
 msgid "failed to archive the cloned repository at %s"
 msgstr "не удалось заархивировать клонированный репозиторий по пути %s"
 
-#: src/cmd/resolve.c:403
+#: src/cmd/resolve.c:405
 #, c-format
 msgid ""
 "'%s' is provided by %d packages; use --provider %s=<package> to pick one"
 msgstr ""
-"'%s' предоставляется %d пакетами; используйте --provider %s=<пакет>, "
-"чтобы выбрать один"
+"'%s' предоставляется %d пакетами; используйте --provider %s=<пакет>, чтобы "
+"выбрать один"
 
-#: src/cmd/resolve.c:562
+#: src/cmd/resolve.c:564
 #, c-format
 msgid "could not resolve dependency %s in any configured repo"
 msgstr "не удалось разрешить зависимость %s ни в одном настроенном репозитории"
 
-#: src/cmd/resolve.c:602 src/cmd/resolve.c:612
+#: src/cmd/resolve.c:610 src/cmd/resolve.c:621
 #, c-format
 msgid "failed to install from %s"
 msgstr "не удалось установить из %s"
 
-#: src/cmd/resolve.c:622
+#: src/cmd/resolve.c:632
 #, c-format
 msgid "failed to read package archive %s"
 msgstr "не удалось прочитать архив пакета %s"
+
+#: src/cmd/resolve.c:723
+#, c-format
+msgid "dependency conflict: %s"
+msgstr "конфликт зависимостей: %s"
+
+#: src/cmd/resolve.c:728
+msgid "dependency conflict detected"
+msgstr "обнаружен конфликт зависимостей"
 
 #: src/util/paths.c:201
 msgid ""
 "this operation modifies the host root and requires root privileges (use --"
 "dest to target a user-owned root)"
 msgstr ""
-"эта операция изменяет корень хост-системы и требует прав root "
-"(используйте --dest, чтобы указать корень, принадлежащий пользователю)"
+"эта операция изменяет корень хост-системы и требует прав root (используйте --"
+"dest, чтобы указать корень, принадлежащий пользователю)"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tulpar 0.2.0\n"
 "Report-Msgid-Bugs-To: anmitalidev@nuros.org\n"
-"POT-Creation-Date: 2026-08-11 19:47+0500\n"
+"POT-Creation-Date: 2026-08-27 15:37+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -272,7 +272,7 @@ msgstr ""
 msgid "download requires a package name"
 msgstr ""
 
-#: src/cmd/cmd_download.c:70 src/cmd/resolve.c:634
+#: src/cmd/cmd_download.c:70 src/cmd/resolve.c:645
 #, c-format
 msgid "package %s not found in any configured repo"
 msgstr ""
@@ -291,7 +291,7 @@ msgstr ""
 msgid "no detached signature available for this package"
 msgstr ""
 
-#: src/cmd/cmd_download.c:141 src/cmd/resolve.c:174
+#: src/cmd/cmd_download.c:141 src/cmd/resolve.c:176
 #, c-format
 msgid "failed to download %s"
 msgstr ""
@@ -504,45 +504,54 @@ msgstr ""
 msgid "%s: %d missing file(s)"
 msgstr ""
 
-#: src/cmd/resolve.c:229
+#: src/cmd/resolve.c:231
 #, c-format
 msgid "failed to create a temporary directory for %s"
 msgstr ""
 
-#: src/cmd/resolve.c:263
+#: src/cmd/resolve.c:265
 #, c-format
 msgid "failed to clone %s"
 msgstr ""
 
-#: src/cmd/resolve.c:273
+#: src/cmd/resolve.c:275
 #, c-format
 msgid "%s does not contain a metadata.json at its root"
 msgstr ""
 
-#: src/cmd/resolve.c:314
+#: src/cmd/resolve.c:316
 #, c-format
 msgid "failed to archive the cloned repository at %s"
 msgstr ""
 
-#: src/cmd/resolve.c:403
+#: src/cmd/resolve.c:405
 #, c-format
 msgid ""
 "'%s' is provided by %d packages; use --provider %s=<package> to pick one"
 msgstr ""
 
-#: src/cmd/resolve.c:562
+#: src/cmd/resolve.c:564
 #, c-format
 msgid "could not resolve dependency %s in any configured repo"
 msgstr ""
 
-#: src/cmd/resolve.c:602 src/cmd/resolve.c:612
+#: src/cmd/resolve.c:610 src/cmd/resolve.c:621
 #, c-format
 msgid "failed to install from %s"
 msgstr ""
 
-#: src/cmd/resolve.c:622
+#: src/cmd/resolve.c:632
 #, c-format
 msgid "failed to read package archive %s"
+msgstr ""
+
+#: src/cmd/resolve.c:723
+#, c-format
+msgid "dependency conflict: %s"
+msgstr ""
+
+#: src/cmd/resolve.c:728
+msgid "dependency conflict detected"
 msgstr ""
 
 #: src/util/paths.c:201

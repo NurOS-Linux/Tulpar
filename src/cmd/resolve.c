@@ -6,6 +6,8 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#include <apg/graph.h>
+
 #include "resolve.h"
 #include "../cli/ui.h"
 #include "../net/api.h"
@@ -588,6 +590,12 @@ resolve_install_closure(char *const *requested, size_t requested_count,
                         const struct provider_pref *prefs, size_t pref_count,
                         bool assume_yes, struct pkg_set *out)
 {
+    const struct package_metadata **roots =
+        calloc(requested_count, sizeof(*roots));
+    if (!roots)
+        return false;
+    size_t root_count = 0;
+
     for (size_t i = 0; i < requested_count; i++)
     {
         const char *arg = requested[i];
@@ -600,6 +608,7 @@ resolve_install_closure(char *const *requested, size_t requested_count,
             if (!pkg)
             {
                 ui_errorf(_("failed to install from %s"), arg);
+                free(roots);
                 return false;
             }
         }
@@ -610,6 +619,7 @@ resolve_install_closure(char *const *requested, size_t requested_count,
             if (!pkg)
             {
                 ui_errorf(_("failed to install from %s"), arg);
+                free(roots);
                 return false;
             }
         }
@@ -620,6 +630,7 @@ resolve_install_closure(char *const *requested, size_t requested_count,
             if (!pkg)
             {
                 ui_errorf(_("failed to read package archive %s"), arg);
+                free(roots);
                 return false;
             }
         }
@@ -633,12 +644,15 @@ resolve_install_closure(char *const *requested, size_t requested_count,
             {
                 ui_errorf(_("package %s not found in any configured repo"),
                           arg);
+                free(roots);
                 return false;
             }
         }
 
         ui_debugf("resolved %s to %s %s", arg, pkg->meta->name,
                   pkg->meta->version);
+
+        roots[root_count++] = pkg->meta;
 
         if (pkg_set_contains(out, pkg->meta->name))
         {
@@ -649,6 +663,7 @@ resolve_install_closure(char *const *requested, size_t requested_count,
         if (!pkg_set_add(out, pkg))
         {
             package_free(pkg);
+            free(roots);
             return false;
         }
 
@@ -657,8 +672,102 @@ resolve_install_closure(char *const *requested, size_t requested_count,
             if (!resolve_dependency(&pkg->meta->dependencies.items[j], db,
                                     repos, cfg, root_path, prefs, pref_count,
                                     assume_yes, out))
+            {
+                free(roots);
                 return false;
+            }
         }
+    }
+
+    if (out->count > 0 && root_count > 0)
+    {
+        int installed_count = 0;
+        struct package **installed = db_list(db, &installed_count);
+
+        size_t total_candidates = out->count + (size_t)installed_count;
+        const struct package_metadata **candidates =
+            malloc(total_candidates * sizeof(*candidates));
+        if (!candidates)
+        {
+            for (int i = 0; i < installed_count; i++)
+                package_free(installed[i]);
+            free(installed);
+            free(roots);
+            return false;
+        }
+
+        for (size_t i = 0; i < out->count; i++)
+            candidates[i] = out->items[i]->meta;
+
+        for (int i = 0; i < installed_count; i++)
+            candidates[out->count + (size_t)i] = installed[i]->meta;
+
+        struct package_metadata **selected = NULL;
+        size_t selected_count = 0;
+        char *conflict = NULL;
+
+        sat_solve_result_t sat_res = dep_graph_resolve_sat(
+            candidates, total_candidates, roots, root_count, 10000, 4,
+            &selected, &selected_count, &conflict);
+
+        free(candidates);
+        for (int i = 0; i < installed_count; i++)
+            package_free(installed[i]);
+        free(installed);
+        free(roots);
+
+        if (sat_res == SAT_SOLVE_UNSATISFIABLE)
+        {
+            if (conflict)
+            {
+                ui_errorf(_("dependency conflict: %s"), conflict);
+                free(conflict);
+            }
+            else
+            {
+                ui_error(_("dependency conflict detected"));
+            }
+            return false;
+        }
+
+        if (sat_res == SAT_SOLVE_SATISFIABLE && selected)
+        {
+            struct package **filtered = malloc(out->count * sizeof(*filtered));
+            if (filtered)
+            {
+                size_t filtered_count = 0;
+                for (size_t i = 0; i < out->count; i++)
+                {
+                    bool keep = false;
+                    for (size_t j = 0; j < selected_count; j++)
+                    {
+                        if (selected[j] == out->items[i]->meta)
+                        {
+                            keep = true;
+                            break;
+                        }
+                    }
+                    if (keep)
+                        filtered[filtered_count++] = out->items[i];
+                    else
+                        package_free(out->items[i]);
+                }
+                free(out->items);
+                out->items = filtered;
+                out->count = filtered_count;
+                out->cap = filtered_count;
+            }
+            free(selected);
+        }
+        else
+        {
+            free(selected);
+            free(conflict);
+        }
+    }
+    else
+    {
+        free(roots);
     }
 
     return true;
