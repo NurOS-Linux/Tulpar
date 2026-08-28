@@ -8,6 +8,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <apg/copy.h>
+
 #include "cmd_clean.h"
 #include "cmd_common.h"
 #include "../cli/args.h"
@@ -40,8 +42,8 @@ clean_directory_contents(const char *path)
         {
             if (S_ISDIR(st.st_mode))
             {
-                if (remove_dir_recursive(child))
-                    removed_count++;
+                remove_dir_recursive(child);
+                removed_count++;
             }
             else
             {

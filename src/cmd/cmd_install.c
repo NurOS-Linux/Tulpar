@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <apg/copy.h>
 #include <apg/transaction.h>
 
 #include "cmd_install.h"
@@ -21,13 +22,6 @@
     "[--sign <sig-path>] [--provider <name>=<package>]... "                    \
     "<package|file.apg|url|git-url>..."
 
-static bool
-ends_with_apg(const char *s)
-{
-    size_t len = strlen(s);
-    return len >= 4 && strcmp(s + len - 4, ".apg") == 0;
-}
-
 int
 cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
 {
@@ -38,8 +32,9 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
     char *positional[256];
     int positional_count = 0;
     char provider_name_buf[64][256];
+    char provider_pkg_buf[64][256];
     struct provider_pref provider_prefs[64];
-    int provider_count = 0;
+    size_t provider_count = 0;
 
     for (int i = 0; i < argc; i++)
     {
@@ -51,37 +46,42 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
         }
         else if (arg_take_value(argc, argv, &i, "dest", 'd', &value))
             dest_arg = value;
-        else if (arg_take_value(argc, argv, &i, "sign", '\0', &value))
-            sign_path = value;
-        else if (arg_take_value(argc, argv, &i, "provider", '\0', &value))
-        {
-            const char *eq = strchr(value, '=');
-            if (!eq || eq == value || eq[1] == '\0')
-            {
-                ui_errorf(_("--provider requires name=package (got %s)"),
-                          value);
-                cmd_print_usage(USAGE);
-                return 1;
-            }
-            if (provider_count < 64)
-            {
-                size_t namelen = (size_t)(eq - value);
-                if (namelen >= sizeof(provider_name_buf[0]))
-                    namelen = sizeof(provider_name_buf[0]) - 1;
-                memcpy(provider_name_buf[provider_count], value, namelen);
-                provider_name_buf[provider_count][namelen] = '\0';
-                provider_prefs[provider_count].name =
-                    provider_name_buf[provider_count];
-                provider_prefs[provider_count].pkg_name = eq + 1;
-                provider_count++;
-            }
-        }
         else if (arg_is(argv[i], "yes", 'y'))
             assume_yes = true;
         else if (arg_is(argv[i], "require-signature", '\0'))
             require_sig = true;
-        else if (positional_count < 256)
+        else if (arg_take_value(argc, argv, &i, "sign", '\0', &value))
+            sign_path = value;
+        else if (arg_take_value(argc, argv, &i, "provider", '\0', &value))
+        {
+            if (provider_count < 64)
+            {
+                const char *eq = strchr(value, '=');
+                if (!eq || eq == value || *(eq + 1) == '\0')
+                {
+                    ui_errorf(_("--provider requires name=package (got %s)"),
+                              value);
+                    return 1;
+                }
+                size_t nlen = (size_t)(eq - value);
+                if (nlen >= sizeof(provider_name_buf[0]))
+                    nlen = sizeof(provider_name_buf[0]) - 1;
+                memcpy(provider_name_buf[provider_count], value, nlen);
+                provider_name_buf[provider_count][nlen] = '\0';
+                snprintf(provider_pkg_buf[provider_count],
+                         sizeof(provider_pkg_buf[0]), "%s", eq + 1);
+
+                provider_prefs[provider_count].name =
+                    provider_name_buf[provider_count];
+                provider_prefs[provider_count].pkg_name =
+                    provider_pkg_buf[provider_count];
+                provider_count++;
+            }
+        }
+        else if (argv[i][0] != '-' && positional_count < 256)
+        {
             positional[positional_count++] = argv[i];
+        }
     }
 
     if (positional_count == 0)
@@ -91,14 +91,11 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
         return 1;
     }
 
-    if (sign_path &&
-        (positional_count != 1 ||
-         (!ends_with_apg(positional[0]) && !resolve_arg_is_url(positional[0]) &&
-          !resolve_arg_is_git_url(positional[0]))))
+    if (sign_path && positional_count != 1)
     {
-        ui_error(_("--sign requires exactly one local .apg file, URL, or "
-                   "git-url argument"));
-        cmd_print_usage(USAGE);
+        ui_error(
+            _("--sign requires exactly one local .apg file, URL, or git-url "
+              "argument"));
         return 1;
     }
 
@@ -109,10 +106,15 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
         return 1;
     }
 
-    ui_debugf("target root resolved to %s", dest.root);
-
     if (!require_privilege(&dest))
     {
+        dest_ctx_clear(&dest);
+        return 1;
+    }
+
+    if (!dest_ctx_prepare_tree(&dest))
+    {
+        ui_error(_("failed to prepare destination database directory"));
         dest_ctx_clear(&dest);
         return 1;
     }
@@ -175,15 +177,8 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
     for (size_t i = 0; i < set.count; i++)
         trans_add_install(trans, set.items[i]);
 
-    for (int i = 0; i < provider_count; i++)
-    {
-        ui_debugf("preferring %s to resolve %s", provider_prefs[i].pkg_name,
-                  provider_prefs[i].name);
-        trans_prefer_provider(trans, provider_prefs[i].name,
-                              provider_prefs[i].pkg_name);
-    }
-
-    bool ok = cmd_run_transaction(trans, &dest, cfg, assume_yes, require_sig);
+    bool ok = cmd_run_transaction(trans, &dest, cfg, assume_yes,
+                                  require_sig || cfg->require_signature);
 
     trans_free(trans);
     pkg_set_free(&set);

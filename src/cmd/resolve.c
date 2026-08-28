@@ -6,6 +6,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#include <apg/copy.h>
 #include <apg/graph.h>
 
 #include "resolve.h"

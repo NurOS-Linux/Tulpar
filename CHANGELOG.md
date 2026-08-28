@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Replaced internal `copy_file()` and `remove_dir_recursive()` with
+  libapg's `<apg/copy.h>` implementations.
 - libapg pinned to v2.2.0 (`191635f`) with SAT dependency resolver
   integration in `resolve_install_closure()`.
 
