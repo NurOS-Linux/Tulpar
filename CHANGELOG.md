@@ -34,6 +34,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - libapg pinned to v2.2.0 (`191635f`) with SAT dependency resolver
   integration in `resolve_install_closure()`.
 
+### Fixed
+
+- `tulpar remove`: validate package installation before running a
+  transaction, and support resolving `.apg` archive file paths to their
+  installed package names.
+
 ## [0.2.0]
 
 ### Added
