@@ -69,21 +69,37 @@ cmd_remove_run(int argc, char **argv, struct tulpar_config *cfg)
     bool assume_yes = false;
     char *positional[256];
     int positional_count = 0;
+    bool end_of_options = false;
 
     for (int i = 0; i < argc; i++)
     {
         const char *value = NULL;
-        if (arg_is_help(argv[i]))
+        if (!end_of_options && strcmp(argv[i], "--") == 0)
+        {
+            end_of_options = true;
+            continue;
+        }
+        if (!end_of_options && arg_is_help(argv[i]))
         {
             cmd_print_usage(USAGE);
             return 0;
         }
-        else if (arg_take_value(argc, argv, &i, "dest", 'd', &value))
+        else if (!end_of_options &&
+                 arg_take_value(argc, argv, &i, "dest", 'd', &value))
             dest_arg = value;
-        else if (arg_is(argv[i], "yes", 'y'))
+        else if (!end_of_options && arg_is(argv[i], "yes", 'y'))
             assume_yes = true;
-        else if (positional_count < 256)
-            positional[positional_count++] = argv[i];
+        else if (end_of_options || argv[i][0] != '-')
+        {
+            if (positional_count < 256)
+                positional[positional_count++] = argv[i];
+        }
+        else
+        {
+            ui_errorf(_("unknown option: %s"), argv[i]);
+            cmd_print_usage(USAGE);
+            return 1;
+        }
     }
 
     if (positional_count == 0)

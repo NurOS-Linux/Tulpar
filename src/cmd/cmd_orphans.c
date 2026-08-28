@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <apg/transaction.h>
 
@@ -19,19 +20,38 @@ cmd_orphans_run(int argc, char **argv, struct tulpar_config *cfg)
 {
     const char *dest_arg = NULL;
     bool assume_yes = false;
+    bool end_of_options = false;
 
     for (int i = 0; i < argc; i++)
     {
         const char *value = NULL;
-        if (arg_is_help(argv[i]))
+        if (!end_of_options && strcmp(argv[i], "--") == 0)
+        {
+            end_of_options = true;
+            continue;
+        }
+        if (!end_of_options && arg_is_help(argv[i]))
         {
             cmd_print_usage(USAGE);
             return 0;
         }
-        else if (arg_take_value(argc, argv, &i, "dest", 'd', &value))
+        else if (!end_of_options &&
+                 arg_take_value(argc, argv, &i, "dest", 'd', &value))
             dest_arg = value;
-        else if (arg_is(argv[i], "yes", 'y'))
+        else if (!end_of_options && arg_is(argv[i], "yes", 'y'))
             assume_yes = true;
+        else if (!end_of_options && argv[i][0] == '-')
+        {
+            ui_errorf(_("unknown option: %s"), argv[i]);
+            cmd_print_usage(USAGE);
+            return 1;
+        }
+        else
+        {
+            ui_errorf(_("unexpected argument: %s"), argv[i]);
+            cmd_print_usage(USAGE);
+            return 1;
+        }
     }
 
     struct dest_ctx dest = {0};
@@ -61,20 +81,7 @@ cmd_orphans_run(int argc, char **argv, struct tulpar_config *cfg)
         return 0;
     }
 
-    printf("Orphaned packages:\n");
-    for (int i = 0; i < count; i++)
-        printf("  %s\n", orphans[i]);
-
-    if (!ui_confirm("Remove these packages?", assume_yes))
-    {
-        ui_info(_("aborted"));
-        for (int i = 0; i < count; i++)
-            free(orphans[i]);
-        free(orphans);
-        db_close(db);
-        dest_ctx_clear(&dest);
-        return 0;
-    }
+    ui_warnf(_("%d orphaned package(s) found"), count);
 
     struct apg_trans *trans = trans_new(db);
     if (!trans)
@@ -89,14 +96,15 @@ cmd_orphans_run(int argc, char **argv, struct tulpar_config *cfg)
     }
 
     for (int i = 0; i < count; i++)
+    {
         trans_add_remove(trans, orphans[i]);
+        free(orphans[i]);
+    }
+    free(orphans);
 
-    bool ok = cmd_run_transaction(trans, &dest, cfg, true, false);
+    bool ok = cmd_run_transaction(trans, &dest, cfg, assume_yes, false);
 
     trans_free(trans);
-    for (int i = 0; i < count; i++)
-        free(orphans[i]);
-    free(orphans);
     db_close(db);
     dest_ctx_clear(&dest);
 

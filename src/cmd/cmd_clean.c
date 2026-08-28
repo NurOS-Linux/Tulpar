@@ -62,16 +62,34 @@ int
 cmd_clean_run(int argc, char **argv, struct tulpar_config *cfg)
 {
     bool assume_yes = false;
+    bool end_of_options = false;
 
     for (int i = 0; i < argc; i++)
     {
-        if (arg_is_help(argv[i]))
+        if (!end_of_options && strcmp(argv[i], "--") == 0)
+        {
+            end_of_options = true;
+            continue;
+        }
+        if (!end_of_options && arg_is_help(argv[i]))
         {
             cmd_print_usage(USAGE);
             return 0;
         }
-        else if (arg_is(argv[i], "yes", 'y'))
+        else if (!end_of_options && arg_is(argv[i], "yes", 'y'))
             assume_yes = true;
+        else if (!end_of_options && argv[i][0] == '-')
+        {
+            ui_errorf(_("unknown option: %s"), argv[i]);
+            cmd_print_usage(USAGE);
+            return 1;
+        }
+        else
+        {
+            ui_errorf(_("unexpected argument: %s"), argv[i]);
+            cmd_print_usage(USAGE);
+            return 1;
+        }
     }
 
     char prompt[512];

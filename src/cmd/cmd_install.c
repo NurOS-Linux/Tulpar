@@ -35,24 +35,33 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
     char provider_pkg_buf[64][256];
     struct provider_pref provider_prefs[64];
     size_t provider_count = 0;
+    bool end_of_options = false;
 
     for (int i = 0; i < argc; i++)
     {
         const char *value = NULL;
-        if (arg_is_help(argv[i]))
+        if (!end_of_options && strcmp(argv[i], "--") == 0)
+        {
+            end_of_options = true;
+            continue;
+        }
+        if (!end_of_options && arg_is_help(argv[i]))
         {
             cmd_print_usage(USAGE);
             return 0;
         }
-        else if (arg_take_value(argc, argv, &i, "dest", 'd', &value))
+        else if (!end_of_options &&
+                 arg_take_value(argc, argv, &i, "dest", 'd', &value))
             dest_arg = value;
-        else if (arg_is(argv[i], "yes", 'y'))
+        else if (!end_of_options && arg_is(argv[i], "yes", 'y'))
             assume_yes = true;
-        else if (arg_is(argv[i], "require-signature", '\0'))
+        else if (!end_of_options && arg_is(argv[i], "require-signature", '\0'))
             require_sig = true;
-        else if (arg_take_value(argc, argv, &i, "sign", '\0', &value))
+        else if (!end_of_options &&
+                 arg_take_value(argc, argv, &i, "sign", '\0', &value))
             sign_path = value;
-        else if (arg_take_value(argc, argv, &i, "provider", '\0', &value))
+        else if (!end_of_options &&
+                 arg_take_value(argc, argv, &i, "provider", '\0', &value))
         {
             if (provider_count < 64)
             {
@@ -78,9 +87,22 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
                 provider_count++;
             }
         }
-        else if (argv[i][0] != '-' && positional_count < 256)
+        else if (end_of_options || argv[i][0] != '-')
         {
-            positional[positional_count++] = argv[i];
+            if (positional_count < 256)
+                positional[positional_count++] = argv[i];
+            else
+            {
+                ui_errorf(_("unexpected argument: %s"), argv[i]);
+                cmd_print_usage(USAGE);
+                return 1;
+            }
+        }
+        else
+        {
+            ui_errorf(_("unknown option: %s"), argv[i]);
+            cmd_print_usage(USAGE);
+            return 1;
         }
     }
 

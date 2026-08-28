@@ -51,25 +51,47 @@ cmd_search_run(int argc, char **argv, struct tulpar_config *cfg)
     bool only_installed = false;
     bool only_remote = false;
     const char *query = NULL;
+    bool end_of_options = false;
 
     for (int i = 0; i < argc; i++)
     {
         const char *value = NULL;
-        if (arg_is_help(argv[i]))
+        if (!end_of_options && strcmp(argv[i], "--") == 0)
+        {
+            end_of_options = true;
+            continue;
+        }
+        if (!end_of_options && arg_is_help(argv[i]))
         {
             cmd_print_usage(USAGE);
             return 0;
         }
-        else if (arg_take_value(argc, argv, &i, "dest", 'd', &value))
+        else if (!end_of_options &&
+                 arg_take_value(argc, argv, &i, "dest", 'd', &value))
             dest_arg = value;
-        else if (arg_is(argv[i], "json", 'j'))
+        else if (!end_of_options && arg_is(argv[i], "json", 'j'))
             json_output = true;
-        else if (strcmp(argv[i], "--installed") == 0)
+        else if (!end_of_options && strcmp(argv[i], "--installed") == 0)
             only_installed = true;
-        else if (strcmp(argv[i], "--remote") == 0)
+        else if (!end_of_options && strcmp(argv[i], "--remote") == 0)
             only_remote = true;
-        else if (!query)
-            query = argv[i];
+        else if (end_of_options || argv[i][0] != '-')
+        {
+            if (!query)
+                query = argv[i];
+            else
+            {
+                ui_errorf(_("unexpected argument: %s"), argv[i]);
+                cmd_print_usage(USAGE);
+                return 1;
+            }
+        }
+        else
+        {
+            ui_errorf(_("unknown option: %s"), argv[i]);
+            cmd_print_usage(USAGE);
+            return 1;
+        }
     }
 
     if (!query)

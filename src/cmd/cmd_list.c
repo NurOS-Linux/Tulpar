@@ -22,21 +22,43 @@ cmd_list_run(int argc, char **argv, struct tulpar_config *cfg)
     const char *dest_arg = NULL;
     const char *pattern = NULL;
     bool json_output = false;
+    bool end_of_options = false;
 
     for (int i = 0; i < argc; i++)
     {
         const char *value = NULL;
-        if (arg_is_help(argv[i]))
+        if (!end_of_options && strcmp(argv[i], "--") == 0)
+        {
+            end_of_options = true;
+            continue;
+        }
+        if (!end_of_options && arg_is_help(argv[i]))
         {
             cmd_print_usage(USAGE);
             return 0;
         }
-        else if (arg_take_value(argc, argv, &i, "dest", 'd', &value))
+        else if (!end_of_options &&
+                 arg_take_value(argc, argv, &i, "dest", 'd', &value))
             dest_arg = value;
-        else if (arg_is(argv[i], "json", 'j'))
+        else if (!end_of_options && arg_is(argv[i], "json", 'j'))
             json_output = true;
-        else if (!pattern)
-            pattern = argv[i];
+        else if (end_of_options || argv[i][0] != '-')
+        {
+            if (!pattern)
+                pattern = argv[i];
+            else
+            {
+                ui_errorf(_("unexpected argument: %s"), argv[i]);
+                cmd_print_usage(USAGE);
+                return 1;
+            }
+        }
+        else
+        {
+            ui_errorf(_("unknown option: %s"), argv[i]);
+            cmd_print_usage(USAGE);
+            return 1;
+        }
     }
 
     struct dest_ctx dest = {0};
@@ -61,17 +83,18 @@ cmd_list_run(int argc, char **argv, struct tulpar_config *cfg)
 
         for (int i = 0; i < count; i++)
         {
-            struct package *pkg = pkgs[i];
-            if (pattern && strstr(pkg->meta->name, pattern) == NULL)
+            if (pattern && strstr(pkgs[i]->meta->name, pattern) == NULL)
                 continue;
-
-            yyjson_mut_val *obj = yyjson_mut_obj(doc);
-            yyjson_mut_obj_add_strcpy(doc, obj, "name", pkg->meta->name);
-            yyjson_mut_obj_add_strcpy(doc, obj, "version", pkg->meta->version);
-            yyjson_mut_obj_add_bool(doc, obj, "held", pkg->held);
-            yyjson_mut_obj_add_bool(doc, obj, "explicit",
-                                    pkg->installed_by_hand);
-            yyjson_mut_arr_add_val(arr, obj);
+            yyjson_mut_val *obj = yyjson_mut_arr_add_obj(doc, arr);
+            yyjson_mut_obj_add_strcpy(doc, obj, "name", pkgs[i]->meta->name);
+            yyjson_mut_obj_add_strcpy(doc, obj, "version",
+                                      pkgs[i]->meta->version);
+            yyjson_mut_obj_add_strcpy(
+                doc, obj, "description",
+                pkgs[i]->meta->description ? pkgs[i]->meta->description : "");
+            yyjson_mut_obj_add_bool(doc, obj, "installed_by_hand",
+                                    pkgs[i]->installed_by_hand);
+            yyjson_mut_obj_add_bool(doc, obj, "held", pkgs[i]->held);
         }
 
         char *json = yyjson_mut_write(doc, 0, NULL);
@@ -82,32 +105,35 @@ cmd_list_run(int argc, char **argv, struct tulpar_config *cfg)
         }
         yyjson_mut_doc_free(doc);
     }
-    else if (matched_count == 0)
-    {
-        if (pattern)
-            ui_info(_("no matching packages installed"));
-        else
-            ui_info(_("no packages installed"));
-    }
     else
     {
-        for (int i = 0; i < count; i++)
+        if (matched_count == 0)
         {
-            struct package *pkg = pkgs[i];
-            if (pattern && strstr(pkg->meta->name, pattern) == NULL)
-                continue;
-
-            printf("%s %s%s\n", pkg->meta->name, pkg->meta->version,
-                   pkg->held ? " [held]" : "");
+            if (pattern)
+                ui_info(_("no installed packages matched the pattern"));
+            else
+                ui_info(_("no packages installed"));
+        }
+        else
+        {
+            for (int i = 0; i < count; i++)
+            {
+                if (pattern && strstr(pkgs[i]->meta->name, pattern) == NULL)
+                    continue;
+                printf("  %-16s %-12s %s\n", pkgs[i]->meta->name,
+                       pkgs[i]->meta->version,
+                       pkgs[i]->meta->description ? pkgs[i]->meta->description
+                                                  : "");
+            }
         }
     }
 
     for (int i = 0; i < count; i++)
         package_free(pkgs[i]);
     free(pkgs);
+
     if (db)
         db_close(db);
     dest_ctx_clear(&dest);
-
     return 0;
 }

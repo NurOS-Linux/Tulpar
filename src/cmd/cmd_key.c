@@ -25,18 +25,39 @@ run_add(int argc, char **argv)
 {
     const char *new_key_path = NULL;
     const char *key_sig_path = NULL;
+    bool end_of_options = false;
 
     for (int i = 0; i < argc; i++)
     {
-        if (arg_is_help(argv[i]))
+        if (!end_of_options && strcmp(argv[i], "--") == 0)
+        {
+            end_of_options = true;
+            continue;
+        }
+        if (!end_of_options && arg_is_help(argv[i]))
         {
             cmd_print_usage(USAGE);
             return 0;
         }
-        else if (!new_key_path)
-            new_key_path = argv[i];
-        else if (!key_sig_path)
-            key_sig_path = argv[i];
+        else if (end_of_options || argv[i][0] != '-')
+        {
+            if (!new_key_path)
+                new_key_path = argv[i];
+            else if (!key_sig_path)
+                key_sig_path = argv[i];
+            else
+            {
+                ui_errorf(_("unexpected argument: %s"), argv[i]);
+                cmd_print_usage(USAGE);
+                return 1;
+            }
+        }
+        else
+        {
+            ui_errorf(_("unknown option: %s"), argv[i]);
+            cmd_print_usage(USAGE);
+            return 1;
+        }
     }
 
     if (!new_key_path)
@@ -79,31 +100,34 @@ int
 cmd_key_run(int argc, char **argv, struct tulpar_config *cfg)
 {
     (void)cfg;
-
-    if (argc == 0)
-    {
-        ui_error(_("key requires a sub-action: add, list"));
-        cmd_print_usage(USAGE);
-        return 1;
-    }
-
-    const char *action = argv[0];
-
-    if (arg_is_help(action))
+    if (argc < 1 || arg_is_help(argv[0]))
     {
         cmd_print_usage(USAGE);
         return 0;
     }
 
-    bool is_add = strcmp(action, "add") == 0 || strcmp(action, "a") == 0;
-    bool is_list = strcmp(action, "list") == 0 || strcmp(action, "l") == 0;
-
-    if (is_add)
+    if (strcmp(argv[0], "add") == 0)
         return run_add(argc - 1, argv + 1);
-    if (is_list)
+    if (strcmp(argv[0], "list") == 0)
+    {
+        for (int i = 1; i < argc; i++)
+        {
+            if (arg_is_help(argv[i]))
+            {
+                cmd_print_usage(USAGE);
+                return 0;
+            }
+            else
+            {
+                ui_errorf(_("unknown option: %s"), argv[i]);
+                cmd_print_usage(USAGE);
+                return 1;
+            }
+        }
         return run_list();
+    }
 
-    ui_errorf(_("unknown key sub-action: %s"), action);
+    ui_error(_("unknown key subcommand; expected add or list"));
     cmd_print_usage(USAGE);
     return 1;
 }

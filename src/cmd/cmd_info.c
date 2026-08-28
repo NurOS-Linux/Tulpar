@@ -86,12 +86,13 @@ print_pkg_human(const struct package_metadata *m, const struct str_list *req_by)
     printf("Maintainer:  %s\n", m->maintainer ? m->maintainer : "");
     printf("License:     %s\n", m->license ? m->license : "");
     printf("Homepage:    %s\n", m->homepage ? m->homepage : "");
+
     print_dependencies(&m->dependencies);
-    print_str_list("Provides:   ", &m->provides);
-    print_str_list("Conflicts:  ", &m->conflicts);
-    print_str_list("Replaces:   ", &m->replaces);
-    if (req_by && req_by->count > 0)
-        print_str_list("Required By:", req_by);
+    print_str_list("Provides:    ", &m->provides);
+    print_str_list("Conflicts:   ", &m->conflicts);
+    print_str_list("Replaces:    ", &m->replaces);
+    print_str_list("Required By: ", req_by);
+
     printf("Description: %s\n", m->description ? m->description : "");
 }
 
@@ -164,6 +165,22 @@ print_pkg_json(const struct package_metadata *m, const struct str_list *req_by)
         for (int i = 0; i < m->provides.count; i++)
             yyjson_mut_arr_add_strcpy(doc, prov_arr, m->provides.items[i]);
         yyjson_mut_obj_add_val(doc, obj, "provides", prov_arr);
+    }
+
+    if (m->conflicts.count > 0)
+    {
+        yyjson_mut_val *conf_arr = yyjson_mut_arr(doc);
+        for (int i = 0; i < m->conflicts.count; i++)
+            yyjson_mut_arr_add_strcpy(doc, conf_arr, m->conflicts.items[i]);
+        yyjson_mut_obj_add_val(doc, obj, "conflicts", conf_arr);
+    }
+
+    if (m->replaces.count > 0)
+    {
+        yyjson_mut_val *repl_arr = yyjson_mut_arr(doc);
+        for (int i = 0; i < m->replaces.count; i++)
+            yyjson_mut_arr_add_strcpy(doc, repl_arr, m->replaces.items[i]);
+        yyjson_mut_obj_add_val(doc, obj, "replaces", repl_arr);
     }
 
     if (req_by && req_by->count > 0)
@@ -246,21 +263,43 @@ cmd_info_run(int argc, char **argv, struct tulpar_config *cfg)
     const char *dest_arg = NULL;
     bool json_output = false;
     const char *name = NULL;
+    bool end_of_options = false;
 
     for (int i = 0; i < argc; i++)
     {
         const char *value = NULL;
-        if (arg_is_help(argv[i]))
+        if (!end_of_options && strcmp(argv[i], "--") == 0)
+        {
+            end_of_options = true;
+            continue;
+        }
+        if (!end_of_options && arg_is_help(argv[i]))
         {
             cmd_print_usage(USAGE);
             return 0;
         }
-        else if (arg_take_value(argc, argv, &i, "dest", 'd', &value))
+        else if (!end_of_options &&
+                 arg_take_value(argc, argv, &i, "dest", 'd', &value))
             dest_arg = value;
-        else if (arg_is(argv[i], "json", 'j'))
+        else if (!end_of_options && arg_is(argv[i], "json", 'j'))
             json_output = true;
-        else if (!name)
-            name = argv[i];
+        else if (end_of_options || argv[i][0] != '-')
+        {
+            if (!name)
+                name = argv[i];
+            else
+            {
+                ui_errorf(_("unexpected argument: %s"), argv[i]);
+                cmd_print_usage(USAGE);
+                return 1;
+            }
+        }
+        else
+        {
+            ui_errorf(_("unknown option: %s"), argv[i]);
+            cmd_print_usage(USAGE);
+            return 1;
+        }
     }
 
     if (!name)
@@ -302,13 +341,14 @@ cmd_info_run(int argc, char **argv, struct tulpar_config *cfg)
 
     struct repo_list *repos = repo_list_load();
     struct repo_index *idx = NULL;
-    for (int i = 0; i < repos->count && !idx; i++)
+    for (int i = 0; repos && i < repos->count && !idx; i++)
         idx = api_get_package(repos->urls[i], name);
     repo_list_free(repos);
 
     if (!idx || idx->count == 0)
     {
-        ui_errorf(_("package %s not found locally or in any configured repo"),
+        ui_errorf(_("package %s not found in local database or remote "
+                    "repositories"),
                   name);
         if (idx)
             repo_index_free(idx);

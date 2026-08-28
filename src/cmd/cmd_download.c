@@ -26,25 +26,50 @@ cmd_download_run(int argc, char **argv, struct tulpar_config *cfg)
     const char *arch = NULL;
     const char *channel = NULL;
     const char *name = NULL;
+    bool end_of_options = false;
 
     for (int i = 0; i < argc; i++)
     {
         const char *value = NULL;
-        if (arg_is_help(argv[i]))
+        if (!end_of_options && strcmp(argv[i], "--") == 0)
+        {
+            end_of_options = true;
+            continue;
+        }
+        if (!end_of_options && arg_is_help(argv[i]))
         {
             cmd_print_usage(USAGE);
             return 0;
         }
-        else if (arg_take_value(argc, argv, &i, "output", 'o', &value))
+        else if (!end_of_options &&
+                 arg_take_value(argc, argv, &i, "output", 'o', &value))
             output = value;
-        else if (arg_take_value(argc, argv, &i, "version", '\0', &value))
+        else if (!end_of_options &&
+                 arg_take_value(argc, argv, &i, "version", '\0', &value))
             version = value;
-        else if (arg_take_value(argc, argv, &i, "arch", '\0', &value))
+        else if (!end_of_options &&
+                 arg_take_value(argc, argv, &i, "arch", '\0', &value))
             arch = value;
-        else if (arg_take_value(argc, argv, &i, "channel", '\0', &value))
+        else if (!end_of_options &&
+                 arg_take_value(argc, argv, &i, "channel", '\0', &value))
             channel = value;
-        else if (!name)
-            name = argv[i];
+        else if (end_of_options || argv[i][0] != '-')
+        {
+            if (!name)
+                name = argv[i];
+            else
+            {
+                ui_errorf(_("unexpected argument: %s"), argv[i]);
+                cmd_print_usage(USAGE);
+                return 1;
+            }
+        }
+        else
+        {
+            ui_errorf(_("unknown option: %s"), argv[i]);
+            cmd_print_usage(USAGE);
+            return 1;
+        }
     }
 
     if (!name)
@@ -58,16 +83,22 @@ cmd_download_run(int argc, char **argv, struct tulpar_config *cfg)
     struct repo_index *idx = NULL;
     const char *found_base_url = NULL;
 
-    for (int i = 0; i < repos->count && !idx; i++)
+    if (repos)
     {
-        idx = api_get_package(repos->urls[i], name);
-        if (idx)
-            found_base_url = repos->urls[i];
+        for (int i = 0; i < repos->count; i++)
+        {
+            idx = api_get_package(repos->urls[i], name);
+            if (idx)
+            {
+                found_base_url = repos->urls[i];
+                break;
+            }
+        }
     }
 
     if (!idx || idx->count == 0)
     {
-        ui_errorf(_("package %s not found in any configured repo"), name);
+        ui_errorf(_("package %s not found in any configured repository"), name);
         if (idx)
             repo_index_free(idx);
         repo_list_free(repos);
@@ -80,12 +111,9 @@ cmd_download_run(int argc, char **argv, struct tulpar_config *cfg)
         const struct repo_package *cand = &idx->items[i];
         if (version && strcmp(cand->version, version) != 0)
             continue;
-        if (arch &&
-            strcmp(cand->architecture[0] ? cand->architecture : "noarch",
-                   arch) != 0)
+        if (arch && strcmp(cand->architecture, arch) != 0)
             continue;
-        if (channel &&
-            strcmp(cand->channel[0] ? cand->channel : "stable", channel) != 0)
+        if (channel && strcmp(cand->channel, channel) != 0)
             continue;
         best = cand;
         break;
@@ -93,56 +121,42 @@ cmd_download_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (!best)
     {
-        ui_errorf(
-            _("no build of %s matches the requested version/arch/channel"),
-            name);
+        ui_errorf(_("no build of %s matches the requested criteria"), name);
         repo_index_free(idx);
         repo_list_free(repos);
         return 1;
     }
 
-    const char *use_arch = arch                    ? arch
-                           : best->architecture[0] ? best->architecture
-                                                   : "noarch";
-    const char *use_channel = channel            ? channel
-                              : best->channel[0] ? best->channel
-                                                 : "stable";
+    char default_out[512];
+    snprintf(default_out, sizeof(default_out), "%s-%s-%s.apg", best->name,
+             best->version,
+             best->architecture[0] ? best->architecture : "noarch");
+    const char *target = output ? output : default_out;
 
-    char default_path[512];
-    if (!output)
-    {
-        char *pkgs_dir = path_join(cfg->cache_dir, "pkgs");
-        mkdir_p(pkgs_dir);
-        char filename[256];
-        snprintf(filename, sizeof(filename), "%s-%s-%s.apg", best->name,
-                 best->version, use_arch);
-        char *joined = path_join(pkgs_dir, filename);
-        free(pkgs_dir);
-        snprintf(default_path, sizeof(default_path), "%s", joined);
-        free(joined);
-        output = default_path;
-    }
+    const char *use_channel = best->channel[0] ? best->channel : "stable";
+    const char *use_arch =
+        best->architecture[0] ? best->architecture : "noarch";
+
+    ui_infof(_("downloading %s %s to %s"), best->name, best->version, target);
 
     bool ok = api_download(found_base_url, use_channel, best->name,
-                           best->version, use_arch, output, NULL, NULL);
+                           best->version, use_arch, target, NULL, NULL);
 
     if (ok)
     {
-        ui_successf(_("downloaded %s to %s"), name, output);
-
         char sig_path[600];
-        snprintf(sig_path, sizeof(sig_path), "%s.sig", output);
-        if (!api_download_sig(found_base_url, use_channel, best->name,
-                              best->version, use_arch, sig_path))
-            ui_warn(_("no detached signature available for this package"));
+        snprintf(sig_path, sizeof(sig_path), "%s.sig", target);
+        api_download_sig(found_base_url, use_channel, best->name, best->version,
+                         use_arch, sig_path);
+        ui_successf(_("downloaded %s"), target);
     }
     else
     {
-        ui_errorf(_("failed to download %s"), name);
+        ui_errorf(_("failed to download %s"), target);
     }
 
     repo_index_free(idx);
     repo_list_free(repos);
-
+    (void)cfg;
     return ok ? 0 : 1;
 }

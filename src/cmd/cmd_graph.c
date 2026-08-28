@@ -21,21 +21,44 @@ cmd_graph_run(int argc, char **argv, struct tulpar_config *cfg)
     const char *dest_arg = NULL;
     const char *out_path = NULL;
     const char *target_pkg = NULL;
+    bool end_of_options = false;
 
     for (int i = 0; i < argc; i++)
     {
         const char *value = NULL;
-        if (arg_is_help(argv[i]))
+        if (!end_of_options && strcmp(argv[i], "--") == 0)
+        {
+            end_of_options = true;
+            continue;
+        }
+        if (!end_of_options && arg_is_help(argv[i]))
         {
             cmd_print_usage(USAGE);
             return 0;
         }
-        else if (arg_take_value(argc, argv, &i, "dest", 'd', &value))
+        else if (!end_of_options &&
+                 arg_take_value(argc, argv, &i, "dest", 'd', &value))
             dest_arg = value;
-        else if (arg_take_value(argc, argv, &i, "output", 'o', &value))
+        else if (!end_of_options &&
+                 arg_take_value(argc, argv, &i, "output", 'o', &value))
             out_path = value;
-        else if (!target_pkg)
-            target_pkg = argv[i];
+        else if (end_of_options || argv[i][0] != '-')
+        {
+            if (!target_pkg)
+                target_pkg = argv[i];
+            else
+            {
+                ui_errorf(_("unexpected argument: %s"), argv[i]);
+                cmd_print_usage(USAGE);
+                return 1;
+            }
+        }
+        else
+        {
+            ui_errorf(_("unknown option: %s"), argv[i]);
+            cmd_print_usage(USAGE);
+            return 1;
+        }
     }
 
     struct dest_ctx dest = {0};
@@ -153,16 +176,16 @@ cmd_graph_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (out_path)
     {
-        FILE *f = fopen(out_path, "wb");
+        FILE *f = fopen(out_path, "w");
         if (!f)
         {
-            ui_errorf(_("failed to open %s for writing"), out_path);
+            ui_errorf(_("failed to open output file: %s"), out_path);
             free(dot);
             return 1;
         }
         fputs(dot, f);
         fclose(f);
-        ui_successf(_("wrote dependency graph to %s"), out_path);
+        ui_successf(_("exported dependency graph to %s"), out_path);
     }
     else
     {

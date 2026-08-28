@@ -33,18 +33,39 @@ run_add(int argc, char **argv)
 {
     bool force_user = false;
     const char *url = NULL;
+    bool end_of_options = false;
 
     for (int i = 0; i < argc; i++)
     {
-        if (arg_is_help(argv[i]))
+        if (!end_of_options && strcmp(argv[i], "--") == 0)
+        {
+            end_of_options = true;
+            continue;
+        }
+        if (!end_of_options && arg_is_help(argv[i]))
         {
             cmd_print_usage(USAGE);
             return 0;
         }
-        else if (arg_is(argv[i], "user", '\0'))
+        else if (!end_of_options && arg_is(argv[i], "user", '\0'))
             force_user = true;
-        else if (!url)
-            url = argv[i];
+        else if (end_of_options || argv[i][0] != '-')
+        {
+            if (!url)
+                url = argv[i];
+            else
+            {
+                ui_errorf(_("unexpected argument: %s"), argv[i]);
+                cmd_print_usage(USAGE);
+                return 1;
+            }
+        }
+        else
+        {
+            ui_errorf(_("unknown option: %s"), argv[i]);
+            cmd_print_usage(USAGE);
+            return 1;
+        }
     }
 
     if (!url)
@@ -76,18 +97,39 @@ run_remove(int argc, char **argv)
 {
     bool force_user = false;
     const char *url = NULL;
+    bool end_of_options = false;
 
     for (int i = 0; i < argc; i++)
     {
-        if (arg_is_help(argv[i]))
+        if (!end_of_options && strcmp(argv[i], "--") == 0)
+        {
+            end_of_options = true;
+            continue;
+        }
+        if (!end_of_options && arg_is_help(argv[i]))
         {
             cmd_print_usage(USAGE);
             return 0;
         }
-        else if (arg_is(argv[i], "user", '\0'))
+        else if (!end_of_options && arg_is(argv[i], "user", '\0'))
             force_user = true;
-        else if (!url)
-            url = argv[i];
+        else if (end_of_options || argv[i][0] != '-')
+        {
+            if (!url)
+                url = argv[i];
+            else
+            {
+                ui_errorf(_("unexpected argument: %s"), argv[i]);
+                cmd_print_usage(USAGE);
+                return 1;
+            }
+        }
+        else
+        {
+            ui_errorf(_("unknown option: %s"), argv[i]);
+            cmd_print_usage(USAGE);
+            return 1;
+        }
     }
 
     if (!url)
@@ -177,9 +219,41 @@ cmd_repo_run(int argc, char **argv, struct tulpar_config *cfg)
     if (is_remove)
         return run_remove(argc - 1, argv + 1);
     if (is_list)
+    {
+        for (int i = 1; i < argc; i++)
+        {
+            if (arg_is_help(argv[i]))
+            {
+                cmd_print_usage(USAGE);
+                return 0;
+            }
+            else
+            {
+                ui_errorf(_("unknown option: %s"), argv[i]);
+                cmd_print_usage(USAGE);
+                return 1;
+            }
+        }
         return run_list();
+    }
     if (is_update)
+    {
+        for (int i = 1; i < argc; i++)
+        {
+            if (arg_is_help(argv[i]))
+            {
+                cmd_print_usage(USAGE);
+                return 0;
+            }
+            else
+            {
+                ui_errorf(_("unknown option: %s"), argv[i]);
+                cmd_print_usage(USAGE);
+                return 1;
+            }
+        }
         return run_update(cfg);
+    }
 
     ui_errorf(_("unknown repo sub-action: %s"), action);
     cmd_print_usage(USAGE);

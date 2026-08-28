@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // SPDX-FileCopyrightText: 2026 AnmiTaliDev <anmitalidev@nuros.org>
 
+#include <string.h>
+
 #include "cmd_hold.h"
 #include "cmd_common.h"
 #include "../cli/args.h"
@@ -14,19 +16,41 @@ run_set_hold(int argc, char **argv, struct tulpar_config *cfg, bool held)
                              : "tulpar unhold [--dest <path>] <name>";
     const char *dest_arg = NULL;
     const char *name = NULL;
+    bool end_of_options = false;
 
     for (int i = 0; i < argc; i++)
     {
         const char *value = NULL;
-        if (arg_is_help(argv[i]))
+        if (!end_of_options && strcmp(argv[i], "--") == 0)
+        {
+            end_of_options = true;
+            continue;
+        }
+        if (!end_of_options && arg_is_help(argv[i]))
         {
             cmd_print_usage(usage);
             return 0;
         }
-        else if (arg_take_value(argc, argv, &i, "dest", 'd', &value))
+        else if (!end_of_options &&
+                 arg_take_value(argc, argv, &i, "dest", 'd', &value))
             dest_arg = value;
-        else if (!name)
-            name = argv[i];
+        else if (end_of_options || argv[i][0] != '-')
+        {
+            if (!name)
+                name = argv[i];
+            else
+            {
+                ui_errorf(_("unexpected argument: %s"), argv[i]);
+                cmd_print_usage(usage);
+                return 1;
+            }
+        }
+        else
+        {
+            ui_errorf(_("unknown option: %s"), argv[i]);
+            cmd_print_usage(usage);
+            return 1;
+        }
     }
 
     if (!name)
@@ -61,7 +85,6 @@ run_set_hold(int argc, char **argv, struct tulpar_config *cfg, bool held)
 
     db_close(db);
     dest_ctx_clear(&dest);
-
     return ok ? 0 : 1;
 }
 

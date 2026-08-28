@@ -5,9 +5,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tulpar 0.2.0\n"
-"Report-Msgid-Bugs-To: anmitalidev@nuros.org\n"
-"POT-Creation-Date: 2026-08-27 16:18+0500\n"
-"PO-Revision-Date: 2026-08-11 19:47+0500\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-28 15:17+0500\n"
+"PO-Revision-Date: 2026-08-28 15:20+0500\n"
 "Last-Translator: AnmiTaliDev <anmitalidev@nuros.org>\n"
 "Language-Team: Russian\n"
 "Language: ru\n"
@@ -150,7 +150,7 @@ msgstr "управлять доверенной связкой ключей по
 
 #: src/cli/dispatch.c:52
 msgid "export the installed package dependency graph as DOT"
-msgstr "экспортировать граф зависимостей установленных пакетов в формате DOT"
+msgstr "экспортировать граф зависимостей установленных пакетов в DOT"
 
 #: src/cli/dispatch.c:54 src/cli/dispatch.c:56
 msgid "purge downloaded packages and metadata cache"
@@ -186,9 +186,9 @@ msgstr "обновление"
 msgid "remove"
 msgstr "удаление"
 
-#: src/cli/ui.c:314
+#: src/cli/ui.c:314 src/cmd/cmd_install.c:164
 msgid "nothing to do"
-msgstr "нечего делать"
+msgstr "нечего выполнять"
 
 #: src/cli/ui.c:318
 #, c-format
@@ -207,7 +207,7 @@ msgstr "%s конфликтует с установленным пакетом %
 #: src/cli/ui.c:352
 #, c-format
 msgid "file %s requested by %s is already owned by %s"
-msgstr "файл %s, запрошенный %s, уже принадлежит %s"
+msgstr "файл %s, запрашиваемый %s, уже принадлежит %s"
 
 #: src/cli/ui.c:374
 #, c-format
@@ -219,15 +219,26 @@ msgstr "невозможно удалить %s: требуется для %s"
 msgid "%s is held, %s blocked"
 msgstr "%s удержан, %s заблокировано"
 
-#: src/cmd/cmd_clean.c:77
+#: src/cmd/cmd_clean.c:77 src/cmd/cmd_download.c:69 src/cmd/cmd_graph.c:58
+#: src/cmd/cmd_history.c:62 src/cmd/cmd_hold.c:50 src/cmd/cmd_info.c:295
+#: src/cmd/cmd_install.c:98 src/cmd/cmd_key.c:57 src/cmd/cmd_key.c:122
+#: src/cmd/cmd_list.c:58 src/cmd/cmd_orphans.c:37 src/cmd/cmd_remove.c:99
+#: src/cmd/cmd_repo.c:65 src/cmd/cmd_repo.c:129 src/cmd/cmd_repo.c:234
+#: src/cmd/cmd_repo.c:252 src/cmd/cmd_rollback.c:43 src/cmd/cmd_search.c:91
+#: src/cmd/cmd_upgrade.c:97 src/cmd/cmd_verify.c:32
+#, c-format
+msgid "unknown option: %s"
+msgstr "неизвестный параметр: %s"
+
+#: src/cmd/cmd_clean.c:85
 msgid "Purge downloaded packages and metadata cache"
 msgstr "Очистить кэш скачанных пакетов и метаданных"
 
-#: src/cmd/cmd_clean.c:81 src/cmd/cmd_common.c:112 src/cmd/cmd_orphans.c:70
+#: src/cmd/cmd_clean.c:89 src/cmd/cmd_common.c:112
 msgid "aborted"
 msgstr "отменено"
 
-#: src/cmd/cmd_clean.c:103
+#: src/cmd/cmd_clean.c:111
 #, c-format
 msgid "cache cleaned: %zu item(s) removed"
 msgstr "кэш очищен: удалено элементов: %zu"
@@ -239,28 +250,29 @@ msgstr "использование: %s\n"
 
 #: src/cmd/cmd_common.c:31 src/cmd/cmd_common.c:118
 msgid "failed to prepare target root directory structure"
-msgstr "не удалось подготовить структуру каталогов целевого корня"
+msgstr "не удалось подготовить структуру целевого корневого каталога"
 
 #: src/cmd/cmd_common.c:39
 #, c-format
 msgid ""
 "failed to open package database at %s (missing, or locked by another process)"
 msgstr ""
-"не удалось открыть базу данных пакетов по пути %s (отсутствует или "
-"заблокирована другим процессом)"
+"не удалось открыть базу данных пакетов в %s (отсутствует или заблокирована "
+"другим процессом)"
 
 #: src/cmd/cmd_common.c:58
 #, c-format
 msgid ""
 "%s has no detached signature (%s); installing without signature verification"
-msgstr "у %s нет отдельной подписи (%s); установка без проверки подписи"
+msgstr ""
+"%s не имеет отдельной подписи (%s); установка без проверки подписи"
 
 #: src/cmd/cmd_common.c:65
 #, c-format
 msgid ""
 "%s signature at %s could not be verified; installing an unverified package"
 msgstr ""
-"подпись %s по пути %s не удалось проверить; установка непроверенного пакета"
+"подпись %s в %s не может быть проверена; устанавливается непроверенный пакет"
 
 #: src/cmd/cmd_common.c:96
 msgid "circular dependency detected"
@@ -268,7 +280,7 @@ msgstr "обнаружена циклическая зависимость"
 
 #: src/cmd/cmd_common.c:99
 msgid "a required dependency could not be resolved"
-msgstr "не удалось разрешить требуемую зависимость"
+msgstr "не удалось разрешить необходимую зависимость"
 
 #: src/cmd/cmd_common.c:102
 msgid "failed to prepare the transaction"
@@ -276,15 +288,15 @@ msgstr "не удалось подготовить транзакцию"
 
 #: src/cmd/cmd_common.c:110
 msgid "Proceed with this transaction?"
-msgstr "Выполнить эту транзакцию?"
+msgstr "Продолжить выполнение транзакции?"
 
 #: src/cmd/cmd_common.c:129
 msgid "a package failed signature verification and was rejected by policy"
-msgstr "пакет не прошёл проверку подписи и был отклонён политикой"
+msgstr "пакет не прошёл проверку подписи и отклонён политикой безопасности"
 
 #: src/cmd/cmd_common.c:133
 msgid "installation failed; already-applied changes were rolled back"
-msgstr "установка не удалась; уже применённые изменения откачены"
+msgstr "установка не удалась; уже применённые изменения были откатаны"
 
 #: src/cmd/cmd_common.c:137
 msgid "failed to commit the transaction"
@@ -294,330 +306,407 @@ msgstr "не удалось зафиксировать транзакцию"
 msgid "transaction complete"
 msgstr "транзакция завершена"
 
-#: src/cmd/cmd_download.c:52
+#: src/cmd/cmd_download.c:62 src/cmd/cmd_graph.c:51 src/cmd/cmd_hold.c:43
+#: src/cmd/cmd_info.c:288 src/cmd/cmd_key.c:50 src/cmd/cmd_list.c:51
+#: src/cmd/cmd_repo.c:58 src/cmd/cmd_repo.c:122 src/cmd/cmd_search.c:84
+#: src/cmd/cmd_upgrade.c:90
+#, c-format
+msgid "unexpected argument: %s"
+msgstr "неожиданный аргумент: %s"
+
+#: src/cmd/cmd_download.c:77
 msgid "download requires a package name"
 msgstr "для скачивания требуется имя пакета"
 
-#: src/cmd/cmd_download.c:70 src/cmd/resolve.c:645
+#: src/cmd/cmd_download.c:101
 #, c-format
-msgid "package %s not found in any configured repo"
+msgid "package %s not found in any configured repository"
 msgstr "пакет %s не найден ни в одном настроенном репозитории"
 
-#: src/cmd/cmd_download.c:97
+#: src/cmd/cmd_download.c:124
 #, c-format
-msgid "no build of %s matches the requested version/arch/channel"
-msgstr ""
-"ни одна сборка %s не соответствует запрошенной версии/архитектуре/каналу"
+msgid "no build of %s matches the requested criteria"
+msgstr "ни одна сборка %s не соответствует запрошенным критериям"
 
-#: src/cmd/cmd_download.c:131
+#: src/cmd/cmd_download.c:140
 #, c-format
-msgid "downloaded %s to %s"
-msgstr "%s скачан в %s"
+msgid "downloading %s %s to %s"
+msgstr "скачивание %s %s в %s"
 
-#: src/cmd/cmd_download.c:137
-msgid "no detached signature available for this package"
-msgstr "для этого пакета нет отдельной подписи"
+#: src/cmd/cmd_download.c:151
+#, c-format
+msgid "downloaded %s"
+msgstr "скачан %s"
 
-#: src/cmd/cmd_download.c:141 src/cmd/resolve.c:176
+#: src/cmd/cmd_download.c:155 src/cmd/resolve.c:177
 #, c-format
 msgid "failed to download %s"
 msgstr "не удалось скачать %s"
 
-#: src/cmd/cmd_graph.c:57 src/cmd/cmd_graph.c:107
+#: src/cmd/cmd_graph.c:80
 msgid "failed to allocate dependency graph"
 msgstr "не удалось выделить память под граф зависимостей"
 
-#: src/cmd/cmd_graph.c:76
+#: src/cmd/cmd_graph.c:108 src/cmd/cmd_remove.c:139 src/cmd/cmd_upgrade.c:160
 #, c-format
 msgid "package %s is not installed"
 msgstr "пакет %s не установлен"
 
-#: src/cmd/cmd_graph.c:93
+#: src/cmd/cmd_graph.c:127
+msgid "failed to generate dependency graph"
+msgstr "не удалось сгенерировать граф зависимостей"
+
+#: src/cmd/cmd_graph.c:136
 #, c-format
-msgid "failed to resolve dependency graph for %s"
-msgstr "не удалось разрешить граф зависимостей для %s"
+msgid "failed to open output file: %s"
+msgstr "не удалось открыть файл вывода: %s"
 
-#: src/cmd/cmd_graph.c:150
-msgid "failed to export the dependency graph"
-msgstr "не удалось экспортировать граф зависимостей"
-
-#: src/cmd/cmd_graph.c:159
+#: src/cmd/cmd_graph.c:142
 #, c-format
-msgid "failed to open %s for writing"
-msgstr "не удалось открыть %s для записи"
+msgid "graph exported to %s"
+msgstr "граф экспортирован в %s"
 
-#: src/cmd/cmd_graph.c:165
-#, c-format
-msgid "wrote dependency graph to %s"
-msgstr "граф зависимостей записан в %s"
-
-#: src/cmd/cmd_history.c:68 src/cmd/cmd_rollback.c:58 src/cmd/cmd_verify.c:38
+#: src/cmd/cmd_history.c:74 src/cmd/cmd_rollback.c:65 src/cmd/cmd_verify.c:44
 msgid "no package database found"
 msgstr "база данных пакетов не найдена"
 
-#: src/cmd/cmd_history.c:113
-msgid "no history recorded"
-msgstr "история не записана"
+#: src/cmd/cmd_history.c:115
+msgid "no transaction history found"
+msgstr "история транзакций не найдена"
 
-#: src/cmd/cmd_hold.c:34
+#: src/cmd/cmd_hold.c:58
 msgid "a package name is required"
 msgstr "требуется имя пакета"
 
-#: src/cmd/cmd_hold.c:57
+#: src/cmd/cmd_hold.c:81
 #, c-format
 msgid "%s is now %s"
 msgstr "%s теперь %s"
 
-#: src/cmd/cmd_hold.c:59
+#: src/cmd/cmd_hold.c:83
 #, c-format
 msgid "failed to update hold state for %s (not installed?)"
-msgstr "не удалось изменить состояние удержания для %s (не установлен?)"
+msgstr "не удалось обновить состояние блокировки %s (не установлен?)"
 
-#: src/cmd/cmd_info.c:268
+#: src/cmd/cmd_info.c:37 src/cmd/cmd_info.c:373
+#, c-format
+msgid "Package:      %s\n"
+msgstr "Пакет:        %s\n"
+
+#: src/cmd/cmd_info.c:38 src/cmd/cmd_info.c:374
+#, c-format
+msgid "Version:      %s\n"
+msgstr "Версия:       %s\n"
+
+#: src/cmd/cmd_info.c:39 src/cmd/cmd_info.c:375
+#, c-format
+msgid "Type:         %s\n"
+msgstr "Тип:          %s\n"
+
+#: src/cmd/cmd_info.c:40 src/cmd/cmd_info.c:376
+#, c-format
+msgid "Architecture: %s\n"
+msgstr "Архитектура:  %s\n"
+
+#: src/cmd/cmd_info.c:41
+#, c-format
+msgid "Maintainer:   %s\n"
+msgstr "Мейнтейнер:   %s\n"
+
+#: src/cmd/cmd_info.c:42
+#, c-format
+msgid "License:      %s\n"
+msgstr "Лицензия:     %s\n"
+
+#: src/cmd/cmd_info.c:43
+#, c-format
+msgid "Homepage:     %s\n"
+msgstr "Сайт:         %s\n"
+
+#: src/cmd/cmd_info.c:47
+msgid "Dependencies:"
+msgstr "Зависимости:"
+
+#: src/cmd/cmd_info.c:87
+msgid "Provides:"
+msgstr "Предоставляет:"
+
+#: src/cmd/cmd_info.c:88
+msgid "Conflicts:"
+msgstr "Конфликтует с:"
+
+#: src/cmd/cmd_info.c:89
+msgid "Replaces:"
+msgstr "Заменяет:"
+
+#: src/cmd/cmd_info.c:90
+msgid "Required By:"
+msgstr "Требуется для:"
+
+#: src/cmd/cmd_info.c:92 src/cmd/cmd_info.c:377
+#, c-format
+msgid "Description:  %s\n"
+msgstr "Описание:     %s\n"
+
+#: src/cmd/cmd_info.c:303
 msgid "info requires a package name"
 msgstr "для info требуется имя пакета"
 
-#: src/cmd/cmd_info.c:311
+#: src/cmd/cmd_info.c:340
 #, c-format
-msgid "package %s not found locally or in any configured repo"
-msgstr "пакет %s не найден ни локально, ни в настроенных репозиториях"
+msgid "package %s not found (no repositories configured)"
+msgstr "пакет %s не найден (нет настроенных репозиториев)"
 
-#: src/cmd/cmd_install.c:61
+#: src/cmd/cmd_info.c:389
+#, c-format
+msgid "package %s not found in local database or remote repositories"
+msgstr "пакет %s не найден ни в локальной базе, ни в репозиториях"
+
+#: src/cmd/cmd_install.c:72
 #, c-format
 msgid "--provider requires name=package (got %s)"
 msgstr "--provider требует имя=пакет (получено %s)"
 
-#: src/cmd/cmd_install.c:89
+#: src/cmd/cmd_install.c:106
 msgid "install requires at least one package name or .apg file"
 msgstr "install требует как минимум одно имя пакета или .apg файл"
 
-#: src/cmd/cmd_install.c:99
+#: src/cmd/cmd_install.c:114
 msgid "--sign requires exactly one local .apg file, URL, or git-url argument"
 msgstr ""
 "--sign требует ровно один аргумент: локальный .apg файл, URL или git-url"
 
-#: src/cmd/cmd_install.c:108 src/cmd/cmd_remove.c:48 src/cmd/cmd_rollback.c:45
-#: src/cmd/cmd_upgrade.c:90
+#: src/cmd/cmd_install.c:122 src/cmd/cmd_remove.c:115 src/cmd/cmd_rollback.c:52
+#: src/cmd/cmd_upgrade.c:112
 msgid "failed to resolve destination root"
 msgstr "не удалось определить целевой корень"
 
-#: src/cmd/cmd_install.c:150
-#, c-format
-msgid "failed to place signature from %s at %s"
-msgstr "не удалось разместить подпись из %s в %s"
+#: src/cmd/cmd_install.c:142
+msgid "no repositories configured; falling back to local search only"
+msgstr "репозитории не настроены; выполняется только локальный поиск"
 
-#: src/cmd/cmd_install.c:167 src/cmd/cmd_orphans.c:82 src/cmd/cmd_remove.c:68
-#: src/cmd/cmd_rollback.c:111 src/cmd/cmd_upgrade.c:186
+#: src/cmd/cmd_install.c:155
+msgid "dependency resolution failed"
+msgstr "не удалось разрешить зависимости"
+
+#: src/cmd/cmd_install.c:177 src/cmd/cmd_orphans.c:75 src/cmd/cmd_remove.c:151
+#: src/cmd/cmd_rollback.c:142 src/cmd/cmd_upgrade.c:238
 msgid "failed to allocate transaction"
 msgstr "не удалось выделить память под транзакцию"
 
-#: src/cmd/cmd_key.c:44
+#: src/cmd/cmd_key.c:65
 msgid "key add requires a path to the new public key"
 msgstr "key add требует путь к новому публичному ключу"
 
-#: src/cmd/cmd_key.c:52
+#: src/cmd/cmd_key.c:73
 #, c-format
 msgid "failed to load trusted keyring from %s"
 msgstr "не удалось загрузить доверенную связку ключей из %s"
 
-#: src/cmd/cmd_key.c:62
+#: src/cmd/cmd_key.c:83
 msgid "key added to the trusted keyring"
 msgstr "ключ добавлен в доверенную связку"
 
-#: src/cmd/cmd_key.c:64
+#: src/cmd/cmd_key.c:85
 msgid "key was not added; it must be endorsed by an already trusted key"
 msgstr "ключ не добавлен; он должен быть подтверждён уже доверенным ключом"
 
-#: src/cmd/cmd_key.c:74
+#: src/cmd/cmd_key.c:95
 msgid "use your platform's file listing to inspect individual keys"
 msgstr ""
 "используйте штатный просмотр файлов вашей платформы для просмотра отдельных "
 "ключей"
 
-#: src/cmd/cmd_key.c:85
-msgid "key requires a sub-action: add, list"
-msgstr "key требует подкоманду: add, list"
+#: src/cmd/cmd_key.c:130
+msgid "unknown key subcommand; expected add or list"
+msgstr "неизвестная подкоманда key; ожидается add или list"
 
-#: src/cmd/cmd_key.c:106
-#, c-format
-msgid "unknown key sub-action: %s"
-msgstr "неизвестная подкоманда key: %s"
+#: src/cmd/cmd_list.c:113
+msgid "no installed packages matched the pattern"
+msgstr "нет установленных пакетов, соответствующих шаблону"
 
-#: src/cmd/cmd_list.c:88
-msgid "no matching packages installed"
-msgstr "нет подходящих установленных пакетов"
-
-#: src/cmd/cmd_list.c:90
+#: src/cmd/cmd_list.c:115 src/cmd/cmd_upgrade.c:133
 msgid "no packages installed"
 msgstr "нет установленных пакетов"
 
-#: src/cmd/cmd_orphans.c:58
+#: src/cmd/cmd_orphans.c:64
 msgid "no orphaned packages found"
 msgstr "осиротевшие пакеты не найдены"
 
-#: src/cmd/cmd_remove.c:40
+#: src/cmd/cmd_orphans.c:70
+#, c-format
+msgid "%d orphaned package(s) found"
+msgstr "найдено осиротевших пакетов: %d"
+
+#: src/cmd/cmd_remove.c:107
 msgid "remove requires at least one package name"
 msgstr "remove требует как минимум одно имя пакета"
 
-#: src/cmd/cmd_repo.c:52
+#: src/cmd/cmd_repo.c:73
 msgid "repo add requires a URL"
 msgstr "repo add требует URL"
 
-#: src/cmd/cmd_repo.c:60 src/cmd/cmd_repo.c:103
+#: src/cmd/cmd_repo.c:81 src/cmd/cmd_repo.c:145
 msgid "could not determine a repo list file to write to"
 msgstr "не удалось определить файл списка репозиториев для записи"
 
-#: src/cmd/cmd_repo.c:66
+#: src/cmd/cmd_repo.c:87
 #, c-format
-msgid "added repo %s to %s"
+msgid "repository %s added to %s"
 msgstr "репозиторий %s добавлен в %s"
 
-#: src/cmd/cmd_repo.c:68
+#: src/cmd/cmd_repo.c:89
 #, c-format
-msgid "failed to add repo to %s"
-msgstr "не удалось добавить репозиторий в %s"
+msgid "failed to add repository %s to %s"
+msgstr "не удалось добавить репозиторий %s в %s"
 
-#: src/cmd/cmd_repo.c:95
+#: src/cmd/cmd_repo.c:137
 msgid "repo remove requires a URL"
 msgstr "repo remove требует URL"
 
-#: src/cmd/cmd_repo.c:109
+#: src/cmd/cmd_repo.c:151
 #, c-format
-msgid "removed repo %s from %s"
+msgid "repository %s removed from %s"
 msgstr "репозиторий %s удалён из %s"
 
-#: src/cmd/cmd_repo.c:111
+#: src/cmd/cmd_repo.c:153
 #, c-format
-msgid "repo %s was not found in %s"
-msgstr "репозиторий %s не найден в %s"
+msgid "failed to remove repository %s from %s"
+msgstr "не удалось удалить репозиторий %s из %s"
 
-#: src/cmd/cmd_repo.c:122
+#: src/cmd/cmd_repo.c:165
 msgid "no repositories configured"
 msgstr "репозитории не настроены"
 
-#: src/cmd/cmd_repo.c:140
+#: src/cmd/cmd_repo.c:182
+msgid "no repositories configured; nothing to update"
+msgstr "репозитории не настроены; нечего обновлять"
+
+#: src/cmd/cmd_repo.c:190
 #, c-format
-msgid "updated %s"
-msgstr "%s обновлён"
+msgid "updating %s..."
+msgstr "обновление %s..."
 
-#: src/cmd/cmd_repo.c:143
+#: src/cmd/cmd_repo.c:195
 #, c-format
-msgid "failed to update %s"
-msgstr "не удалось обновить %s"
+msgid "%s: %zu packages available"
+msgstr "%s: доступно пакетов: %zu"
 
-#: src/cmd/cmd_repo.c:157
-msgid "repo requires a sub-action: add, remove, list, update"
-msgstr "repo требует подкоманду: add, remove, list, update"
-
-#: src/cmd/cmd_repo.c:184
+#: src/cmd/cmd_repo.c:200
 #, c-format
-msgid "unknown repo sub-action: %s"
-msgstr "неизвестная подкоманда repo: %s"
+msgid "failed to refresh repodata for %s"
+msgstr "не удалось обновить repodata для %s"
 
-#: src/cmd/cmd_rollback.c:78
-msgid "no past successful operations to undo"
-msgstr "нет успешных прошлых операций для отмены"
+#: src/cmd/cmd_repo.c:261
+msgid "unknown repo subcommand; expected add, remove, list, or update"
+msgstr "неизвестная подкоманда repo; ожидается add, remove, list или update"
 
-#: src/cmd/cmd_rollback.c:158
+#: src/cmd/cmd_rollback.c:74
+msgid "no transaction history available to roll back"
+msgstr "нет доступной истории транзакций для отката"
+
+#: src/cmd/cmd_rollback.c:92
+msgid "no reversible operations found in history"
+msgstr "в истории не найдено обратимых операций"
+
+#: src/cmd/cmd_rollback.c:187
 #, c-format
-msgid "could not resolve package %s for rollback"
-msgstr "не удалось разрешить пакет %s для отката"
+msgid "failed to re-fetch removed package %s for rollback"
+msgstr "не удалось повторно получить удалённый пакет %s для отката"
 
-#: src/cmd/cmd_rollback.c:169
-msgid "nothing to rollback"
-msgstr "нечего откатывать"
-
-#: src/cmd/cmd_search.c:77
+#: src/cmd/cmd_search.c:99
 msgid "search requires a query string"
 msgstr "search требует строку запроса"
 
-#: src/cmd/cmd_upgrade.c:81
-msgid "--exclude only applies to a full upgrade (no target package)"
-msgstr "--exclude применим только к полному обновлению (без целевого пакета)"
+#: src/cmd/cmd_search.c:106
+msgid "--installed and --remote cannot be used together"
+msgstr "--installed и --remote не могут использоваться вместе"
 
-#: src/cmd/cmd_upgrade.c:118
-#, c-format
-msgid "%s is not installed"
-msgstr "%s не установлен"
+#: src/cmd/cmd_search.c:215
+msgid "no matching packages found"
+msgstr "подходящих пакетов не найдено"
 
-#: src/cmd/cmd_upgrade.c:138
-#, c-format
-msgid "%s %s not found in any configured repo"
-msgstr "%s %s не найден ни в одном настроенном репозитории"
+#: src/cmd/cmd_upgrade.c:105
+msgid "--exclude cannot be used when upgrading a single package"
+msgstr "--exclude применим только при полном обновлении (без целевого пакета)"
 
 #: src/cmd/cmd_upgrade.c:141
-msgid "already up to date"
-msgstr "уже актуально"
+msgid "no repositories configured; upgrade will check local files only"
+msgstr "репозитории не настроены; обновление проверит только локальные файлы"
 
-#: src/cmd/cmd_upgrade.c:170
-msgid "nothing to upgrade"
-msgstr "нечего обновлять"
+#: src/cmd/cmd_upgrade.c:179
+msgid "package is already up to date"
+msgstr "пакет уже актуален"
 
-#: src/cmd/cmd_verify.c:48
+#: src/cmd/cmd_upgrade.c:225
+msgid "all packages are up to date"
+msgstr "все пакеты уже актуальны"
+
+#: src/cmd/cmd_verify.c:54
 msgid "all installed packages verified successfully"
 msgstr "все установленные пакеты успешно проверены"
 
-#: src/cmd/cmd_verify.c:58
+#: src/cmd/cmd_verify.c:64
 #, c-format
 msgid "%s: %d missing file(s)"
-msgstr "%s: отсутствует файлов: %d"
+msgstr "%s: отсутствующих файлов: %d"
 
-#: src/cmd/resolve.c:231
+#: src/cmd/resolve.c:232
 #, c-format
 msgid "failed to create a temporary directory for %s"
 msgstr "не удалось создать временный каталог для %s"
 
-#: src/cmd/resolve.c:265
+#: src/cmd/resolve.c:266
 #, c-format
 msgid "failed to clone %s"
 msgstr "не удалось клонировать %s"
 
-#: src/cmd/resolve.c:275
+#: src/cmd/resolve.c:276
 #, c-format
 msgid "%s does not contain a metadata.json at its root"
 msgstr "%s не содержит metadata.json в корне"
 
-#: src/cmd/resolve.c:316
+#: src/cmd/resolve.c:317
 #, c-format
 msgid "failed to archive the cloned repository at %s"
-msgstr "не удалось заархивировать клонированный репозиторий по пути %s"
+msgstr "не удалось архивировать клонированный репозиторий в %s"
 
-#: src/cmd/resolve.c:405
+#: src/cmd/resolve.c:406
 #, c-format
 msgid ""
 "'%s' is provided by %d packages; use --provider %s=<package> to pick one"
 msgstr ""
-"'%s' предоставляется %d пакетами; используйте --provider %s=<пакет>, чтобы "
-"выбрать один"
+"'%s' предоставляется %d пакетами; используйте --provider %s=<пакет> для выбора"
 
-#: src/cmd/resolve.c:564
+#: src/cmd/resolve.c:565
 #, c-format
 msgid "could not resolve dependency %s in any configured repo"
 msgstr "не удалось разрешить зависимость %s ни в одном настроенном репозитории"
 
-#: src/cmd/resolve.c:610 src/cmd/resolve.c:621
+#: src/cmd/resolve.c:611 src/cmd/resolve.c:622
 #, c-format
 msgid "failed to install from %s"
 msgstr "не удалось установить из %s"
 
-#: src/cmd/resolve.c:632
+#: src/cmd/resolve.c:633
 #, c-format
 msgid "failed to read package archive %s"
 msgstr "не удалось прочитать архив пакета %s"
 
-#: src/cmd/resolve.c:723
+#: src/cmd/resolve.c:646
+#, c-format
+msgid "package %s not found in any configured repo"
+msgstr "пакет %s не найден ни в одном настроенном репозитории"
+
+#: src/cmd/resolve.c:724
 #, c-format
 msgid "dependency conflict: %s"
 msgstr "конфликт зависимостей: %s"
 
-#: src/cmd/resolve.c:728
+#: src/cmd/resolve.c:729
 msgid "dependency conflict detected"
 msgstr "обнаружен конфликт зависимостей"
 
-#: src/util/paths.c:201
-msgid ""
-"this operation modifies the host root and requires root privileges (use --"
-"dest to target a user-owned root)"
-msgstr ""
-"эта операция изменяет корень хост-системы и требует прав root (используйте --"
-"dest, чтобы указать корень, принадлежащий пользователю)"
+#: src/util/paths.c:144
+msgid "operation requires root privileges (try with sudo)"
+msgstr "операция требует прав root (попробуйте с sudo)"
