@@ -59,6 +59,7 @@ _tulpar()
                         '--require-signature[reject unsigned packages]' \
                         '--sign[detached signature path]:path:_files' \
                         '*--provider[force a provider for a dependency]:name=package' \
+                        '--nodeps[install exactly what was requested, skip dependency resolution]' \
                         '*--exclude[skip a package during a full upgrade]:name' \
                         '--installed[search installed packages only]' \
                         '--remote[search remote packages only]' \

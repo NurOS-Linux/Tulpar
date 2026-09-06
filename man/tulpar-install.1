@@ -82,6 +82,12 @@ name, force it to resolve to
 instead of the default choice (an already-installed provider, or
 otherwise whichever provider was added to the transaction first).
 Repeatable.
+.TP
+.B \-\-nodeps
+Install exactly the requested package(s) and nothing else: skip
+resolving, downloading, and queuing transitive dependencies entirely.
+The underlying transaction may still refuse to commit if libapg's own
+dependency graph considers the result broken.
 .SH EXIT STATUS
 0 on success, non-zero if resolution, download, or the transaction
 fails.

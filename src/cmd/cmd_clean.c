@@ -8,7 +8,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include <apg/copy.h>
+#include <util.h>
 
 #include "cmd_clean.h"
 #include "cmd_common.h"

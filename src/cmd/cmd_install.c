@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <apg/copy.h>
 #include <apg/transaction.h>
+#include <util.h>
 
 #include "cmd_install.h"
 #include "cmd_common.h"
@@ -19,7 +19,7 @@
 
 #define USAGE                                                                  \
     "tulpar install [--dest <path>] [-y] [--require-signature] "               \
-    "[--sign <sig-path>] [--provider <name>=<package>]... "                    \
+    "[--sign <sig-path>] [--provider <name>=<package>]... [--nodeps] "         \
     "<package|file.apg|url|git-url>..."
 
 int
@@ -29,6 +29,7 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
     const char *sign_path = NULL;
     bool assume_yes = false;
     bool require_sig = false;
+    bool nodeps = false;
     char *positional[256];
     int positional_count = 0;
     char provider_name_buf[64][256];
@@ -57,6 +58,8 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
             assume_yes = true;
         else if (!end_of_options && arg_is(argv[i], "require-signature", '\0'))
             require_sig = true;
+        else if (!end_of_options && arg_is(argv[i], "nodeps", '\0'))
+            nodeps = true;
         else if (!end_of_options &&
                  arg_take_value(argc, argv, &i, "sign", '\0', &value))
             sign_path = value;
@@ -152,9 +155,13 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
     ui_debugf("loaded %d configured repo(s)", repos->count);
     struct pkg_set set = {0};
 
-    if (!resolve_install_closure(positional, (size_t)positional_count, db,
-                                 repos, cfg, dest.root, provider_prefs,
-                                 (size_t)provider_count, assume_yes, &set))
+    if (nodeps)
+        ui_debug("--nodeps: installing exactly the requested package(s), "
+                 "skipping dependency resolution");
+
+    if (!resolve_install_closure(
+            positional, (size_t)positional_count, db, repos, cfg, dest.root,
+            provider_prefs, (size_t)provider_count, assume_yes, nodeps, &set))
     {
         pkg_set_free(&set);
         repo_list_free(repos);

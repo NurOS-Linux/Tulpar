@@ -6,8 +6,8 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#include <apg/copy.h>
 #include <apg/graph.h>
+#include <util.h>
 
 #include "resolve.h"
 #include "../cli/ui.h"
@@ -589,7 +589,7 @@ resolve_install_closure(char *const *requested, size_t requested_count,
                         struct db_handle *db, const struct repo_list *repos,
                         const struct tulpar_config *cfg, const char *root_path,
                         const struct provider_pref *prefs, size_t pref_count,
-                        bool assume_yes, struct pkg_set *out)
+                        bool assume_yes, bool nodeps, struct pkg_set *out)
 {
     const struct package_metadata **roots =
         calloc(requested_count, sizeof(*roots));
@@ -668,6 +668,13 @@ resolve_install_closure(char *const *requested, size_t requested_count,
             return false;
         }
 
+        if (nodeps)
+        {
+            ui_debugf("--nodeps: skipping dependency resolution for %s",
+                      pkg->meta->name);
+            continue;
+        }
+
         for (int j = 0; j < pkg->meta->dependencies.count; j++)
         {
             if (!resolve_dependency(&pkg->meta->dependencies.items[j], db,
@@ -678,6 +685,12 @@ resolve_install_closure(char *const *requested, size_t requested_count,
                 return false;
             }
         }
+    }
+
+    if (nodeps)
+    {
+        free(roots);
+        return true;
     }
 
     if (out->count > 0 && root_count > 0)

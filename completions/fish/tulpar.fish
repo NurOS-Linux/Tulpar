@@ -54,6 +54,7 @@ complete -c tulpar -l verbose -d "enable debug output"
 complete -c tulpar -l require-signature -d "reject unsigned packages"
 complete -c tulpar -l sign -d "detached signature path" -r
 complete -c tulpar -l provider -d "force a provider for a dependency (name=package)" -r
+complete -c tulpar -l nodeps -d "install exactly what was requested, skip dependency resolution"
 complete -c tulpar -l exclude -d "skip a package during a full upgrade" -r
 complete -c tulpar -l installed -d "search installed packages only"
 complete -c tulpar -l remote -d "search remote packages only"
