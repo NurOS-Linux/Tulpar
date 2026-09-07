@@ -20,4 +20,4 @@ void cmd_warn_if_unsigned(const struct package *pkg);
 
 bool cmd_run_transaction(struct apg_trans *trans, const struct dest_ctx *dest,
                          const struct tulpar_config *cfg, bool assume_yes,
-                         bool require_signature_flag);
+                         bool require_signature_flag, bool nodeps);

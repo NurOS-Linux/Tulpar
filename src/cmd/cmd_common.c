@@ -70,14 +70,16 @@ cmd_warn_if_unsigned(const struct package *pkg)
 bool
 cmd_run_transaction(struct apg_trans *trans, const struct dest_ctx *dest,
                     const struct tulpar_config *cfg, bool assume_yes,
-                    bool require_signature_flag)
+                    bool require_signature_flag, bool nodeps)
 {
     install_policy policy = {
         .require_signature = require_signature_flag || cfg->require_signature,
         .keyring_dir = NULL,
+        .skip_dependency_check = nodeps,
     };
-    ui_debugf("policy: require_signature=%s",
-              policy.require_signature ? "true" : "false");
+    ui_debugf("policy: require_signature=%s, skip_dependency_check=%s",
+              policy.require_signature ? "true" : "false",
+              policy.skip_dependency_check ? "true" : "false");
     trans_set_policy(trans, &policy);
 
     ui_debug("preparing transaction (dependency resolution, conflict checks)");

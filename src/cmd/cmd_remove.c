@@ -162,7 +162,7 @@ cmd_remove_run(int argc, char **argv, struct tulpar_config *cfg)
         free(resolved_names[i]);
     }
 
-    bool ok = cmd_run_transaction(trans, &dest, cfg, assume_yes, false);
+    bool ok = cmd_run_transaction(trans, &dest, cfg, assume_yes, false, false);
 
     trans_free(trans);
     db_close(db);
