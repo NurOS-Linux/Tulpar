@@ -44,6 +44,6 @@
 
 - [ ] additional platform support beyond Linux and FreeBSD, following
       libapg's own portability as it expands
-- [ ] a transaction history rollback command built on top of the
+- [x] a transaction history rollback command built on top of the
       existing journal/rollback primitives already exposed by libapg
 - [ ] richer `--json` schemas with a documented stability guarantee
