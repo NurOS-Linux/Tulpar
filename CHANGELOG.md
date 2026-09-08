@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0]
+
 ### Added
 
 - `tulpar rollback` (also `undo`) command: undoes the most recent successful
@@ -26,13 +28,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   optional substring pattern in text and `--json` modes.
 - `tulpar graph [package]`: export only the transitive dependency
   subgraph for a specific package instead of the entire database.
+- `--nodeps` flag on `tulpar install`: installs exactly the requested
+  package(s), skipping tulpar's own dependency resolution/download step
+  entirely, backed by libapg's new `install_policy.skip_dependency_check`.
 
 ### Changed
 
 - Replaced internal `copy_file()` and `remove_dir_recursive()` with
-  libapg's `<apg/copy.h>` implementations.
+  libapg's `<util.h>` implementations.
 - libapg pinned to v2.2.0 (`191635f`) with SAT dependency resolver
-  integration in `resolve_install_closure()`.
+  integration in `resolve_install_closure()`, then to v2.3.0 (`df125f0`)
+  for `install_policy.skip_dependency_check`.
 - Strict option and positional argument validation across all CLI commands:
   unrecognized flags and excess arguments are rejected with an error
   and usage display instead of being ignored; added `--` delimiter support.

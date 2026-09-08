@@ -1,5 +1,5 @@
 project('tulpar', 'c',
-  version: '0.2.0',
+  version: '0.3.0',
   license: 'GPL-3.0-only',
   meson_version: '>=1.4.0',
   default_options: [
@@ -63,11 +63,12 @@ endif
 i18n = import('i18n')
 subdir('po')
 
-libapg_proj = subproject('libapg')
-libapg_dep = libapg_proj.get_variable('libapg_dep')
+libapg_dep = dependency('libapg', fallback: ['libapg', 'libapg_dep'])
 
-curl_dep = dependency('libcurl', fallback: ['curl', 'curl_dep'])
-yyjson_dep = dependency('yyjson', fallback: ['yyjson', 'yyjson_dep'])
+curl_dep = dependency('libcurl', fallback: ['curl', 'curl_dep'],
+  default_options: ['default_library=static'])
+yyjson_dep = dependency('yyjson', fallback: ['yyjson', 'yyjson_dep'],
+  default_options: ['default_library=static'])
 threads_dep = dependency('threads')
 
 tulpar_sources = files(
