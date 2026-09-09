@@ -6,7 +6,7 @@
 #include <string.h>
 
 #include <apg/transaction.h>
-#include <util.h>
+#include <apg/util.h>
 
 #include "cmd_install.h"
 #include "cmd_common.h"

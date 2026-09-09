@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 
 #include <apg/graph.h>
-#include <util.h>
+#include <apg/util.h>
 
 #include "resolve.h"
 #include "../cli/ui.h"

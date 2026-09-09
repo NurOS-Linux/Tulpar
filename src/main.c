@@ -15,7 +15,7 @@
 #include "net/http.h"
 
 #ifndef TULPAR_VERSION
-#define TULPAR_VERSION "0.3.0"
+#define TULPAR_VERSION "0.3.1"
 #endif
 
 static void
