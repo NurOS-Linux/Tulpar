@@ -209,10 +209,9 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
     for (size_t i = 0; i < set.count; i++)
         trans_add_install(trans, set.items[i]);
 
-    bool ok =
-        cmd_run_transaction(trans, &dest, cfg, assume_yes,
-                            require_sig || cfg->require_signature, nodeps,
-                            false, dry_run);
+    bool ok = cmd_run_transaction(trans, &dest, cfg, assume_yes,
+                                  require_sig || cfg->require_signature, nodeps,
+                                  false, dry_run);
 
     trans_free(trans);
     pkg_set_free(&set);

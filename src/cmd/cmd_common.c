@@ -144,7 +144,7 @@ cmd_run_transaction(struct apg_trans *trans, const struct dest_ctx *dest,
             const char *detail = archive_last_error();
             if (detail)
                 ui_errorf(_("installation failed: %s; already-applied "
-                           "changes were rolled back"),
+                            "changes were rolled back"),
                           detail);
             else
                 ui_error(_("installation failed; already-applied changes "
