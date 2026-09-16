@@ -16,7 +16,7 @@
 #include "../cli/ui.h"
 #include "../i18n.h"
 
-#define USAGE "tulpar remove [--dest <path>] [-y] [--dry-run] <package>..."
+#define USAGE "tulpar remove [--dest <path>] [-y] [-n|--dry-run] <package>..."
 
 static bool
 ends_with(const char *s, const char *suffix)
@@ -90,7 +90,7 @@ cmd_remove_run(int argc, char **argv, struct tulpar_config *cfg)
             dest_arg = value;
         else if (!end_of_options && arg_is(argv[i], "yes", 'y'))
             assume_yes = true;
-        else if (!end_of_options && arg_is(argv[i], "dry-run", '\0'))
+        else if (!end_of_options && arg_is(argv[i], "dry-run", 'n'))
             dry_run = true;
         else if (end_of_options || argv[i][0] != '-')
         {

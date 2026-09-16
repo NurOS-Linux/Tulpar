@@ -20,7 +20,7 @@
 #define USAGE                                                                  \
     "tulpar install [--dest <path>] [-y] [--require-signature] "               \
     "[--sign <sig-path>] [--provider <name>=<package>]... [--nodeps] "         \
-    "[--dry-run] <package|file.apg|url|git-url>..."
+    "[-n|--dry-run] <package|file.apg|url|git-url>..."
 
 int
 cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
@@ -61,7 +61,7 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
             require_sig = true;
         else if (!end_of_options && arg_is(argv[i], "nodeps", '\0'))
             nodeps = true;
-        else if (!end_of_options && arg_is(argv[i], "dry-run", '\0'))
+        else if (!end_of_options && arg_is(argv[i], "dry-run", 'n'))
             dry_run = true;
         else if (!end_of_options &&
                  arg_take_value(argc, argv, &i, "sign", '\0', &value))
