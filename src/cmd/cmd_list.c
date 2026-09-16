@@ -65,8 +65,15 @@ cmd_list_run(int argc, char **argv, struct tulpar_config *cfg)
     dest_ctx_resolve(dest_arg, cfg->db_dir, &dest);
 
     struct db_handle *db = db_open_readonly(dest.db_path);
+    if (!db)
+    {
+        ui_error(_("no package database found"));
+        dest_ctx_clear(&dest);
+        return 1;
+    }
+
     int count = 0;
-    struct package **pkgs = db ? db_list(db, &count) : NULL;
+    struct package **pkgs = db_list(db, &count);
 
     size_t matched_count = 0;
     for (int i = 0; i < count; i++)
@@ -132,8 +139,7 @@ cmd_list_run(int argc, char **argv, struct tulpar_config *cfg)
         package_free(pkgs[i]);
     free(pkgs);
 
-    if (db)
-        db_close(db);
+    db_close(db);
     dest_ctx_clear(&dest);
     return 0;
 }
