@@ -16,7 +16,9 @@
 #include "../cli/ui.h"
 #include "../i18n.h"
 
-#define USAGE "tulpar remove [--dest <path>] [-y] [-n|--dry-run] <package>..."
+#define USAGE                                                                  \
+    "tulpar remove [--dest <path>] [-y] [-n|--dry-run] [--nodeps] "            \
+    "<package>..."
 
 static bool
 ends_with(const char *s, const char *suffix)
@@ -68,6 +70,7 @@ cmd_remove_run(int argc, char **argv, struct tulpar_config *cfg)
     const char *dest_arg = NULL;
     bool assume_yes = false;
     bool dry_run = false;
+    bool nodeps = false;
     char *positional[256];
     int positional_count = 0;
     bool end_of_options = false;
@@ -92,6 +95,8 @@ cmd_remove_run(int argc, char **argv, struct tulpar_config *cfg)
             assume_yes = true;
         else if (!end_of_options && arg_is(argv[i], "dry-run", 'n'))
             dry_run = true;
+        else if (!end_of_options && arg_is(argv[i], "nodeps", '\0'))
+            nodeps = true;
         else if (end_of_options || argv[i][0] != '-')
         {
             if (positional_count < 256)
@@ -165,8 +170,8 @@ cmd_remove_run(int argc, char **argv, struct tulpar_config *cfg)
         free(resolved_names[i]);
     }
 
-    bool ok =
-        cmd_run_transaction(trans, &dest, cfg, assume_yes, false, false, dry_run);
+    bool ok = cmd_run_transaction(trans, &dest, cfg, assume_yes, false, false,
+                                  nodeps, dry_run);
 
     trans_free(trans);
     db_close(db);

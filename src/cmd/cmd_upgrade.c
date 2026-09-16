@@ -224,7 +224,7 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
         trans_add_upgrade(trans, set.items[i]);
 
     bool ok = cmd_run_transaction(trans, &dest, cfg, assume_yes, require_sig,
-                                  false, dry_run);
+                                  false, false, dry_run);
 
     trans_free(trans);
     pkg_set_free(&set);

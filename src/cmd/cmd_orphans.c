@@ -105,8 +105,8 @@ cmd_orphans_run(int argc, char **argv, struct tulpar_config *cfg)
     }
     free(orphans);
 
-    bool ok =
-        cmd_run_transaction(trans, &dest, cfg, assume_yes, false, false, dry_run);
+    bool ok = cmd_run_transaction(trans, &dest, cfg, assume_yes, false, false,
+                                  false, dry_run);
 
     trans_free(trans);
     db_close(db);

@@ -212,7 +212,7 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
     bool ok =
         cmd_run_transaction(trans, &dest, cfg, assume_yes,
                             require_sig || cfg->require_signature, nodeps,
-                            dry_run);
+                            false, dry_run);
 
     trans_free(trans);
     pkg_set_free(&set);

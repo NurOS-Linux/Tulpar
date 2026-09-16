@@ -6,14 +6,19 @@ All notable changes to tulpar are documented in this file.
 
 ### Added
 
-- `--dry-run` flag on `install`, `upgrade`, `remove`, `orphans`, and
+- `--dry-run`/`-n` flag on `install`, `upgrade`, `remove`, `orphans`, and
   `rollback`: resolves and prints the transaction plan, verifies
   signatures where applicable, then stops without writing anything to
-  disk, backed by libapg's new `trans_set_dry_run()`.
+  disk, backed by libapg's new `trans_set_dry_run()`. The `-n` short
+  form is only wired up for `install` and `remove`.
+- `--nodeps` flag on `tulpar remove`: removes the requested package(s)
+  even if other installed packages still depend on them, instead of
+  refusing with `TRANS_ERR_HAS_DEPENDENTS`, backed by libapg's new
+  `install_policy.skip_dependents_check`.
 
 ### Changed
 
-- libapg pinned to v2.4.0 (`6b69d2a`)
+- libapg pinned to v2.5.0 (`1ecebf7`)
 - On an install/upgrade failure inside a transaction, the reported
   error now includes the underlying extraction failure detail from
   libapg's new `archive_last_error()` when available.

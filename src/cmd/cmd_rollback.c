@@ -207,8 +207,8 @@ cmd_rollback_run(int argc, char **argv, struct tulpar_config *cfg)
         return 1;
     }
 
-    bool ok =
-        cmd_run_transaction(trans, &dest, cfg, assume_yes, false, false, dry_run);
+    bool ok = cmd_run_transaction(trans, &dest, cfg, assume_yes, false, false,
+                                  false, dry_run);
 
     trans_free(trans);
     pkg_set_free(&closure);
