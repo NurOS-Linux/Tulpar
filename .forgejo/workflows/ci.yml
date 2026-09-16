@@ -46,9 +46,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            meson ninja-build pkg-config gettext \
+            ninja-build pkg-config gettext python3-pip \
             libcurl4-openssl-dev \
             libarchive-dev liblmdb-dev libseccomp-dev libsodium-dev
+          sudo pip3 install -U 'meson>=1.4.0'
 
       - name: Build
         run: |
