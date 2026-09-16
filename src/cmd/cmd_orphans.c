@@ -13,13 +13,14 @@
 #include "../cli/ui.h"
 #include "../i18n.h"
 
-#define USAGE "tulpar orphans [--dest <path>] [-y]"
+#define USAGE "tulpar orphans [--dest <path>] [-y] [--dry-run]"
 
 int
 cmd_orphans_run(int argc, char **argv, struct tulpar_config *cfg)
 {
     const char *dest_arg = NULL;
     bool assume_yes = false;
+    bool dry_run = false;
     bool end_of_options = false;
 
     for (int i = 0; i < argc; i++)
@@ -40,6 +41,8 @@ cmd_orphans_run(int argc, char **argv, struct tulpar_config *cfg)
             dest_arg = value;
         else if (!end_of_options && arg_is(argv[i], "yes", 'y'))
             assume_yes = true;
+        else if (!end_of_options && arg_is(argv[i], "dry-run", '\0'))
+            dry_run = true;
         else if (!end_of_options && argv[i][0] == '-')
         {
             ui_errorf(_("unknown option: %s"), argv[i]);
@@ -102,7 +105,8 @@ cmd_orphans_run(int argc, char **argv, struct tulpar_config *cfg)
     }
     free(orphans);
 
-    bool ok = cmd_run_transaction(trans, &dest, cfg, assume_yes, false, false);
+    bool ok =
+        cmd_run_transaction(trans, &dest, cfg, assume_yes, false, false, dry_run);
 
     trans_free(trans);
     db_close(db);

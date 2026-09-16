@@ -18,13 +18,14 @@
 #include "../repo/repo.h"
 #include "../util/paths.h"
 
-#define USAGE "tulpar rollback [--dest <path>] [-y]"
+#define USAGE "tulpar rollback [--dest <path>] [-y] [--dry-run]"
 
 int
 cmd_rollback_run(int argc, char **argv, struct tulpar_config *cfg)
 {
     const char *dest_arg = NULL;
     bool assume_yes = false;
+    bool dry_run = false;
     bool end_of_options = false;
 
     for (int i = 0; i < argc; i++)
@@ -45,6 +46,8 @@ cmd_rollback_run(int argc, char **argv, struct tulpar_config *cfg)
             dest_arg = value;
         else if (!end_of_options && arg_is(argv[i], "yes", 'y'))
             assume_yes = true;
+        else if (!end_of_options && arg_is(argv[i], "dry-run", '\0'))
+            dry_run = true;
         else if (!end_of_options && argv[i][0] == '-')
         {
             ui_errorf(_("unknown option: %s"), argv[i]);
@@ -204,7 +207,8 @@ cmd_rollback_run(int argc, char **argv, struct tulpar_config *cfg)
         return 1;
     }
 
-    bool ok = cmd_run_transaction(trans, &dest, cfg, assume_yes, false, false);
+    bool ok =
+        cmd_run_transaction(trans, &dest, cfg, assume_yes, false, false, dry_run);
 
     trans_free(trans);
     pkg_set_free(&closure);

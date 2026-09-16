@@ -2,6 +2,22 @@
 
 All notable changes to tulpar are documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- `--dry-run` flag on `install`, `upgrade`, `remove`, `orphans`, and
+  `rollback`: resolves and prints the transaction plan, verifies
+  signatures where applicable, then stops without writing anything to
+  disk, backed by libapg's new `trans_set_dry_run()`.
+
+### Changed
+
+- libapg pinned to v2.4.0 (`6b69d2a`)
+- On an install/upgrade failure inside a transaction, the reported
+  error now includes the underlying extraction failure detail from
+  libapg's new `archive_last_error()` when available.
+
 ## [0.3.1] - 2026-09-09
 
 ### Changed

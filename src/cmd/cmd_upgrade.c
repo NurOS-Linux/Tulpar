@@ -16,7 +16,7 @@
 
 #define USAGE                                                                  \
     "tulpar upgrade [--dest <path>] [-y] [--require-signature] "               \
-    "[--exclude <name>]... [package[=version]]"
+    "[--exclude <name>]... [--dry-run] [package[=version]]"
 
 static bool
 is_excluded(const char *name, char *const *exclude, int exclude_count)
@@ -33,6 +33,7 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
     const char *dest_arg = NULL;
     bool assume_yes = false;
     bool require_sig = false;
+    bool dry_run = false;
     char target_name_buf[256];
     const char *target_name = NULL;
     const char *target_version = NULL;
@@ -66,6 +67,8 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
             assume_yes = true;
         else if (!end_of_options && arg_is(argv[i], "require-signature", '\0'))
             require_sig = true;
+        else if (!end_of_options && arg_is(argv[i], "dry-run", '\0'))
+            dry_run = true;
         else if (end_of_options || argv[i][0] != '-')
         {
             if (!target_name)
@@ -220,8 +223,8 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
     for (size_t i = 0; i < set.count; i++)
         trans_add_upgrade(trans, set.items[i]);
 
-    bool ok =
-        cmd_run_transaction(trans, &dest, cfg, assume_yes, require_sig, false);
+    bool ok = cmd_run_transaction(trans, &dest, cfg, assume_yes, require_sig,
+                                  false, dry_run);
 
     trans_free(trans);
     pkg_set_free(&set);

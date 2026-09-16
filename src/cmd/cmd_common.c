@@ -6,6 +6,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#include <apg/archive.h>
 #include <apg/config.h>
 #include <apg/sign.h>
 
@@ -70,7 +71,7 @@ cmd_warn_if_unsigned(const struct package *pkg)
 bool
 cmd_run_transaction(struct apg_trans *trans, const struct dest_ctx *dest,
                     const struct tulpar_config *cfg, bool assume_yes,
-                    bool require_signature_flag, bool nodeps)
+                    bool require_signature_flag, bool nodeps, bool dry_run)
 {
     install_policy policy = {
         .require_signature = require_signature_flag || cfg->require_signature,
@@ -81,6 +82,7 @@ cmd_run_transaction(struct apg_trans *trans, const struct dest_ctx *dest,
               policy.require_signature ? "true" : "false",
               policy.skip_dependency_check ? "true" : "false");
     trans_set_policy(trans, &policy);
+    trans_set_dry_run(trans, dry_run);
 
     ui_debug("preparing transaction (dependency resolution, conflict checks)");
     trans_error_t err = trans_prepare(trans);
@@ -109,7 +111,8 @@ cmd_run_transaction(struct apg_trans *trans, const struct dest_ctx *dest,
 
     ui_print_plan(trans);
 
-    if (!ui_confirm(_("Proceed with this transaction?"), assume_yes))
+    if (!dry_run &&
+        !ui_confirm(_("Proceed with this transaction?"), assume_yes))
     {
         ui_info(_("aborted"));
         return false;
@@ -121,7 +124,8 @@ cmd_run_transaction(struct apg_trans *trans, const struct dest_ctx *dest,
         return false;
     }
 
-    ui_debugf("committing transaction against root %s", dest->root);
+    ui_debugf("committing transaction against root %s%s", dest->root,
+              dry_run ? " (dry run)" : "");
     trans_error_t commit_err = trans_commit(trans, dest->root);
     if (commit_err != TRANS_OK)
     {
@@ -132,15 +136,29 @@ cmd_run_transaction(struct apg_trans *trans, const struct dest_ctx *dest,
                        "rejected by policy"));
             break;
         case TRANS_ERR_INSTALL_FAILED:
-            ui_error(_("installation failed; already-applied changes were "
-                       "rolled back"));
+        {
+            const char *detail = archive_last_error();
+            if (detail)
+                ui_errorf(_("installation failed: %s; already-applied "
+                           "changes were rolled back"),
+                          detail);
+            else
+                ui_error(_("installation failed; already-applied changes "
+                           "were rolled back"));
             break;
+        }
         default:
             ui_error(_("failed to commit the transaction"));
             break;
         }
         log_write(TULPAR_LOG_ERROR, "transaction commit failed");
         return false;
+    }
+
+    if (dry_run)
+    {
+        ui_success(_("dry run complete; no changes were made"));
+        return true;
     }
 
     ui_success(_("transaction complete"));

@@ -88,6 +88,11 @@ Install exactly the requested package(s) and nothing else: skip
 resolving, downloading, and queuing transitive dependencies entirely.
 The underlying transaction may still refuse to commit if libapg's own
 dependency graph considers the result broken.
+.TP
+.B \-\-dry\-run
+Resolve and print the transaction plan, verify package signatures if
+required, then stop without writing anything to disk. Skips the
+confirmation prompt.
 .SH EXIT STATUS
 0 on success, non-zero if resolution, download, or the transaction
 fails.

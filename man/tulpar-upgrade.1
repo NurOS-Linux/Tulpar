@@ -41,6 +41,11 @@ during a full upgrade (no target package given). Repeatable. Only
 valid without a
 .I package
 argument.
+.TP
+.B \-\-dry\-run
+Resolve and print the transaction plan, verify package signatures if
+required, then stop without writing anything to disk. Skips the
+confirmation prompt.
 .SH EXIT STATUS
 0 on success (including when there is nothing to upgrade), non-zero
 if the transaction fails.

@@ -20,7 +20,7 @@
 #define USAGE                                                                  \
     "tulpar install [--dest <path>] [-y] [--require-signature] "               \
     "[--sign <sig-path>] [--provider <name>=<package>]... [--nodeps] "         \
-    "<package|file.apg|url|git-url>..."
+    "[--dry-run] <package|file.apg|url|git-url>..."
 
 int
 cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
@@ -30,6 +30,7 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
     bool assume_yes = false;
     bool require_sig = false;
     bool nodeps = false;
+    bool dry_run = false;
     char *positional[256];
     int positional_count = 0;
     char provider_name_buf[64][256];
@@ -60,6 +61,8 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
             require_sig = true;
         else if (!end_of_options && arg_is(argv[i], "nodeps", '\0'))
             nodeps = true;
+        else if (!end_of_options && arg_is(argv[i], "dry-run", '\0'))
+            dry_run = true;
         else if (!end_of_options &&
                  arg_take_value(argc, argv, &i, "sign", '\0', &value))
             sign_path = value;
@@ -208,7 +211,8 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
 
     bool ok =
         cmd_run_transaction(trans, &dest, cfg, assume_yes,
-                            require_sig || cfg->require_signature, nodeps);
+                            require_sig || cfg->require_signature, nodeps,
+                            dry_run);
 
     trans_free(trans);
     pkg_set_free(&set);
