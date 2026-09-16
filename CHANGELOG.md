@@ -2,7 +2,7 @@
 
 All notable changes to tulpar are documented in this file.
 
-## [Unreleased]
+## [0.4.0] - 2026-09-16
 
 ### Added
 

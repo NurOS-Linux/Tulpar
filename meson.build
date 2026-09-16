@@ -1,5 +1,5 @@
 project('tulpar', 'c',
-  version: '0.3.2',
+  version: '0.4.0',
   license: 'GPL-3.0-only',
   meson_version: '>=1.4.0',
   default_options: [
