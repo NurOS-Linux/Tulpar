@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     libapg = {
-      url = "git+https://git.nuros.org/core/libapg.git?rev=191635fce90f4c9bdc70f974db9cf8f6c2e3eb0c";
+      url = "git+https://git.nuros.org/core/libapg.git?rev=527756db34efb17211327ea164df9d3f08f78e74";
       flake = false;
     };
   };
