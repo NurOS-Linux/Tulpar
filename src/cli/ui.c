@@ -60,6 +60,40 @@ accent_from_theme(const char *theme)
     return COL_CYAN;
 }
 
+static size_t
+text_width(const char *s)
+{
+    size_t width = 0;
+    for (; *s; s++)
+        if (((unsigned char)*s & 0xC0) != 0x80)
+            width++;
+    return width;
+}
+
+static void
+print_verb(const char *verb)
+{
+    for (size_t w = text_width(verb); w < STATUS_WIDTH; w++)
+        fputc(' ', stderr);
+    if (g_colors_err)
+        fprintf(stderr, "%s%s%s%s ", COL_BOLD, g_accent, verb, COL_RESET);
+    else
+        fprintf(stderr, "%s ", verb);
+}
+
+static void
+print_truncated(const char *text, size_t max_width)
+{
+    size_t width = 0;
+    for (const char *p = text; *p; p++)
+    {
+        bool starts_char = ((unsigned char)*p & 0xC0) != 0x80;
+        if (starts_char && ++width > max_width)
+            break;
+        fputc(*p, stderr);
+    }
+}
+
 bool
 ui_parse_color_mode(const char *value, ui_color_mode *out)
 {
@@ -260,11 +294,8 @@ ui_status(const char *verb, const char *fmt, ...)
     va_end(ap);
 
     progress_clear();
-    if (g_colors_err)
-        fprintf(stderr, "%s%s%*s%s %s\n", COL_BOLD, g_accent, STATUS_WIDTH,
-                verb, COL_RESET, buf);
-    else
-        fprintf(stderr, "%*s %s\n", STATUS_WIDTH, verb, buf);
+    print_verb(verb);
+    fprintf(stderr, "%s\n", buf);
     fflush(stderr);
     if (g_progress_active)
         progress_draw();
@@ -429,17 +460,16 @@ progress_draw(void)
     }
 
     int width = terminal_width();
+    size_t label_width = text_width(g_progress_label);
+    if (label_width > 24)
+        label_width = 24;
     int bar_width = width - STATUS_WIDTH - (int)strlen(counts) -
-                    (int)strlen(rate) - (int)strlen(g_progress_label) - 7;
+                    (int)strlen(rate) - (int)label_width - 7;
     if (bar_width > 40)
         bar_width = 40;
 
     fputs("\r\x1b[2K", stderr);
-    if (g_colors_err)
-        fprintf(stderr, "%s%s%*s%s ", COL_BOLD, g_accent, STATUS_WIDTH,
-                g_progress_verb, COL_RESET);
-    else
-        fprintf(stderr, "%*s ", STATUS_WIDTH, g_progress_verb);
+    print_verb(g_progress_verb);
 
     if (g_progress_total > 0 && bar_width >= 10)
     {
@@ -466,10 +496,16 @@ progress_draw(void)
     if (g_progress_label[0] != '\0' && room > 4)
     {
         if (g_colors_err)
-            fprintf(stderr, "  %s%.*s%s", COL_DIM, room, g_progress_label,
-                    COL_RESET);
+        {
+            fprintf(stderr, "  %s", COL_DIM);
+            print_truncated(g_progress_label, (size_t)room);
+            fputs(COL_RESET, stderr);
+        }
         else
-            fprintf(stderr, "  %.*s", room, g_progress_label);
+        {
+            fputs("  ", stderr);
+            print_truncated(g_progress_label, (size_t)room);
+        }
     }
     fflush(stderr);
     g_progress_drawn = true;
@@ -547,16 +583,6 @@ op_color(trans_op_t op)
     default:
         return COL_RESET;
     }
-}
-
-static size_t
-text_width(const char *s)
-{
-    size_t width = 0;
-    for (; *s; s++)
-        if (((unsigned char)*s & 0xC0) != 0x80)
-            width++;
-    return width;
 }
 
 static void
