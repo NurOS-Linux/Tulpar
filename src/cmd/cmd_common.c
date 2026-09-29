@@ -173,6 +173,8 @@ cmd_run_transaction(struct apg_trans *trans, const struct dest_ctx *dest,
     }
 
     ui_print_plan(trans);
+    if (trans_plan_count(trans) == 0)
+        return true;
 
     if (!dry_run &&
         !ui_confirm(_("Proceed with this transaction?"), assume_yes))

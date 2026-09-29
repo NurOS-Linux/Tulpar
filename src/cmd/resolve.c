@@ -36,13 +36,19 @@ metadata_satisfies_name(const struct package_metadata *meta, const char *name)
     return false;
 }
 
-bool
-pkg_set_contains(const struct pkg_set *set, const char *name)
+static const struct package *
+pkg_set_find(const struct pkg_set *set, const char *name)
 {
     for (size_t i = 0; i < set->count; i++)
         if (strcmp(set->items[i]->meta->name, name) == 0)
-            return true;
-    return false;
+            return set->items[i];
+    return NULL;
+}
+
+bool
+pkg_set_contains(const struct pkg_set *set, const char *name)
+{
+    return pkg_set_find(set, name) != NULL;
 }
 
 static bool
@@ -423,12 +429,10 @@ resolve_choose_provider(const char *virtual_name, const struct repo_list *repos,
     return true;
 }
 
-struct package *
-resolve_fetch_by_name(const char *name, ver_op_t op, const char *version,
-                      const struct repo_list *repos,
-                      const struct tulpar_config *cfg, const char *root_path,
-                      const struct provider_pref *prefs, size_t pref_count,
-                      bool assume_yes)
+static struct package *
+fetch_from_repos(const char *name, ver_op_t op, const char *version,
+                 const struct repo_list *repos, const struct tulpar_config *cfg,
+                 const char *root_path)
 {
     ui_debugf("resolving %s against %d configured repo(s)", name, repos->count);
 
@@ -511,6 +515,30 @@ resolve_fetch_by_name(const char *name, ver_op_t op, const char *version,
         if (pkg)
             return pkg;
     }
+
+    return NULL;
+}
+
+struct package *
+resolve_fetch_newer(const char *name, const char *installed_version,
+                    const struct repo_list *repos,
+                    const struct tulpar_config *cfg, const char *root_path)
+{
+    return fetch_from_repos(name, VER_OP_GT, installed_version, repos, cfg,
+                            root_path);
+}
+
+struct package *
+resolve_fetch_by_name(const char *name, ver_op_t op, const char *version,
+                      const struct repo_list *repos,
+                      const struct tulpar_config *cfg, const char *root_path,
+                      const struct provider_pref *prefs, size_t pref_count,
+                      bool assume_yes)
+{
+    struct package *found =
+        fetch_from_repos(name, op, version, repos, cfg, root_path);
+    if (found)
+        return found;
 
     char provider_name[256];
     if (!resolve_choose_provider(name, repos, cfg, prefs, pref_count,
@@ -605,6 +633,28 @@ resolve_dependency(const char *required_by, const struct dep_constraint *dep,
     return true;
 }
 
+static bool
+installed_is_current(struct db_handle *db, const struct package *pkg)
+{
+    struct package *installed = db_get(db, pkg->meta->name);
+    if (!installed)
+        return false;
+
+    int cmp = ver_compare(pkg->meta->version, installed->meta->version);
+    if (cmp == 0)
+        ui_infof(_("%s %s is already installed"), pkg->meta->name,
+                 pkg->meta->version);
+    else if (cmp < 0)
+        ui_warnf(_("skipping %s %s: the installed version %s is newer"),
+                 pkg->meta->name, pkg->meta->version, installed->meta->version);
+    else
+        ui_debugf("%s is installed at %s, upgrading to %s", pkg->meta->name,
+                  installed->meta->version, pkg->meta->version);
+
+    package_free(installed);
+    return cmp <= 0;
+}
+
 bool
 resolve_install_closure(char *const *requested, size_t requested_count,
                         struct db_handle *db, const struct repo_list *repos,
@@ -622,6 +672,7 @@ resolve_install_closure(char *const *requested, size_t requested_count,
     {
         const char *arg = requested[i];
         struct package *pkg = NULL;
+        struct package *installed = NULL;
 
         if (resolve_arg_is_git_url(arg))
         {
@@ -657,6 +708,17 @@ resolve_install_closure(char *const *requested, size_t requested_count,
                 return false;
             }
         }
+        else if ((installed = db_get(db, arg)) != NULL)
+        {
+            pkg = resolve_fetch_newer(arg, installed->meta->version, repos, cfg,
+                                      root_path);
+            if (!pkg)
+                ui_infof(_("%s %s is already installed and up to date"),
+                         installed->meta->name, installed->meta->version);
+            package_free(installed);
+            if (!pkg)
+                continue;
+        }
         else
         {
             ui_debugf("%s is not a local archive, resolving by name", arg);
@@ -678,13 +740,21 @@ resolve_install_closure(char *const *requested, size_t requested_count,
         ui_debugf("resolved %s to %s %s", arg, pkg->meta->name,
                   pkg->meta->version);
 
-        roots[root_count++] = pkg->meta;
+        const struct package *queued = pkg_set_find(out, pkg->meta->name);
+        if (queued)
+        {
+            roots[root_count++] = queued->meta;
+            package_free(pkg);
+            continue;
+        }
 
-        if (pkg_set_contains(out, pkg->meta->name))
+        if (installed_is_current(db, pkg))
         {
             package_free(pkg);
             continue;
         }
+
+        roots[root_count++] = pkg->meta;
 
         if (!pkg_set_add(out, pkg))
         {

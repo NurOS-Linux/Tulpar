@@ -55,6 +55,15 @@ dependency list using libapg's dependency graph, and missing
 dependencies are downloaded from the configured repositories before
 the transaction is prepared. The resolved plan is printed and
 confirmed before anything is written to disk.
+.PP
+If a requested package is already installed, it is upgraded when the
+repositories, archive, or URL provide a newer version, in the same way as
+.BR tulpar\-upgrade (1).
+When the installed version is the same, the package is reported as
+already installed, and nothing is downloaded if it was requested by
+name; when the installed version is newer, the request
+is skipped with a warning. If nothing is left to do, no confirmation is
+asked.
 .SH OPTIONS
 .TP
 .BR \-d ", " \-\-dest " " \fIpath\fR

@@ -175,6 +175,15 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
 
     ui_debugf("resolved closure of %zu package(s) to install", set.count);
 
+    if (set.count == 0)
+    {
+        pkg_set_free(&set);
+        repo_list_free(repos);
+        db_close(db);
+        dest_ctx_clear(&dest);
+        return 0;
+    }
+
     if (sign_path && set.count > 0)
     {
         char sig_dest[4096];
@@ -207,7 +216,14 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
     }
 
     for (size_t i = 0; i < set.count; i++)
-        trans_add_install(trans, set.items[i]);
+    {
+        struct package *installed = db_get(db, set.items[i]->meta->name);
+        if (installed)
+            trans_add_upgrade(trans, set.items[i]);
+        else
+            trans_add_install(trans, set.items[i]);
+        package_free(installed);
+    }
 
     bool ok = cmd_run_transaction(trans, &dest, cfg, assume_yes,
                                   require_sig || cfg->require_signature, nodeps,

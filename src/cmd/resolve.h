@@ -41,6 +41,12 @@ struct package *resolve_fetch_by_name(const char *name, ver_op_t op,
                                       const struct provider_pref *prefs,
                                       size_t pref_count, bool assume_yes);
 
+struct package *resolve_fetch_newer(const char *name,
+                                    const char *installed_version,
+                                    const struct repo_list *repos,
+                                    const struct tulpar_config *cfg,
+                                    const char *root_path);
+
 bool
 resolve_install_closure(char *const *requested, size_t requested_count,
                         struct db_handle *db, const struct repo_list *repos,
