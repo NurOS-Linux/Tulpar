@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <yyjson.h>
 
@@ -122,14 +123,38 @@ cmd_list_run(int argc, char **argv, struct tulpar_config *cfg)
         }
         else
         {
+            size_t name_width = 0;
+            size_t version_width = 0;
+            size_t tag_width = 0;
             for (int i = 0; i < count; i++)
             {
                 if (pattern && strstr(pkgs[i]->meta->name, pattern) == NULL)
                     continue;
-                printf("  %-16s %-12s %s\n", pkgs[i]->meta->name,
-                       pkgs[i]->meta->version,
-                       pkgs[i]->meta->description ? pkgs[i]->meta->description
-                                                  : "");
+                size_t w = ui_text_width(pkgs[i]->meta->name);
+                if (w > name_width)
+                    name_width = w;
+                w = ui_text_width(pkgs[i]->meta->version);
+                if (w > version_width)
+                    version_width = w;
+                if (pkgs[i]->held && ui_text_width(_("held")) > tag_width)
+                    tag_width = ui_text_width(_("held"));
+            }
+
+            for (int i = 0; i < count; i++)
+            {
+                if (pattern && strstr(pkgs[i]->meta->name, pattern) == NULL)
+                    continue;
+                ui_print_package_row(pkgs[i]->meta->name, name_width,
+                                     pkgs[i]->meta->version, version_width,
+                                     pkgs[i]->held ? _("held") : NULL,
+                                     tag_width, pkgs[i]->meta->description);
+            }
+
+            if (isatty(STDOUT_FILENO) != 0)
+            {
+                printf("\n");
+                ui_infof(ngettext("%zu package", "%zu packages", matched_count),
+                         matched_count);
             }
         }
     }

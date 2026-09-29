@@ -107,102 +107,79 @@ cmd_search_run(int argc, char **argv, struct tulpar_config *cfg)
     struct dest_ctx dest = {0};
     dest_ctx_resolve(dest_arg, cfg->db_dir, &dest);
 
-    struct db_handle *db =
-        show_installed ? db_open_readonly(dest.db_path) : NULL;
+    struct db_handle *db = db_open_readonly(dest.db_path);
     int local_count = 0;
-    struct package **local = db ? db_search(db, query, &local_count) : NULL;
+    struct package **local =
+        db && show_installed ? db_search(db, query, &local_count) : NULL;
 
     struct repo_list *repos = show_remote ? repo_list_load() : NULL;
+    int repo_count = repos ? repos->count : 0;
+    struct repo_index **indexes =
+        repo_count > 0 ? calloc((size_t)repo_count, sizeof(*indexes)) : NULL;
+    const struct repo_package **matches = NULL;
+    size_t match_count = 0;
+    size_t match_cap = 0;
 
-    yyjson_mut_doc *doc = NULL;
-    yyjson_mut_val *arr = NULL;
-    if (json_output)
+    for (int r = 0; indexes && r < repo_count; r++)
     {
-        doc = yyjson_mut_doc_new(NULL);
-        arr = yyjson_mut_arr(doc);
-        yyjson_mut_doc_set_root(doc, arr);
+        bool refresh_failed = false;
+        indexes[r] = repodata_load(repos->urls[r], cfg->cache_dir,
+                                   cfg->repodata_ttl, false, &refresh_failed);
+        if (refresh_failed)
+            cmd_warn_repo_unreachable(repos->urls[r], indexes[r] != NULL);
+        if (!indexes[r])
+            continue;
+
+        for (size_t i = 0; i < indexes[r]->count; i++)
+        {
+            const struct repo_package *pkg = &indexes[r]->items[i];
+            if (!substr_ci(pkg->name, query) &&
+                !substr_ci(pkg->description, query))
+                continue;
+            if (match_count == match_cap)
+            {
+                size_t cap = match_cap ? match_cap * 2 : 32;
+                const struct repo_package **tmp =
+                    realloc(matches, cap * sizeof(*matches));
+                if (!tmp)
+                    break;
+                matches = tmp;
+                match_cap = cap;
+            }
+            matches[match_count++] = pkg;
+        }
     }
 
-    if (show_installed)
+    if (json_output)
     {
-        if (!json_output)
-            printf("Installed:\n");
+        yyjson_mut_doc *doc = yyjson_mut_doc_new(NULL);
+        yyjson_mut_val *arr = yyjson_mut_arr(doc);
+        yyjson_mut_doc_set_root(doc, arr);
 
         for (int i = 0; i < local_count; i++)
         {
             struct package *pkg = local[i];
-            if (json_output)
-            {
-                yyjson_mut_val *obj = yyjson_mut_obj(doc);
-                yyjson_mut_obj_add_str(doc, obj, "source", "local");
-                yyjson_mut_obj_add_strcpy(doc, obj, "name", pkg->meta->name);
-                yyjson_mut_obj_add_strcpy(doc, obj, "version",
-                                          pkg->meta->version);
-                yyjson_mut_obj_add_strcpy(
-                    doc, obj, "description",
-                    pkg->meta->description ? pkg->meta->description : "");
-                yyjson_mut_arr_add_val(arr, obj);
-            }
-            else
-            {
-                printf("  %s %s\n    %s\n", pkg->meta->name, pkg->meta->version,
-                       pkg->meta->description ? pkg->meta->description : "");
-            }
+            yyjson_mut_val *obj = yyjson_mut_obj(doc);
+            yyjson_mut_obj_add_str(doc, obj, "source", "local");
+            yyjson_mut_obj_add_strcpy(doc, obj, "name", pkg->meta->name);
+            yyjson_mut_obj_add_strcpy(doc, obj, "version", pkg->meta->version);
+            yyjson_mut_obj_add_strcpy(
+                doc, obj, "description",
+                pkg->meta->description ? pkg->meta->description : "");
+            yyjson_mut_arr_add_val(arr, obj);
         }
-    }
-
-    if (show_remote)
-    {
-        if (!json_output)
+        for (size_t i = 0; i < match_count; i++)
         {
-            if (show_installed)
-                printf("\nAvailable:\n");
-            else
-                printf("Available:\n");
+            const struct repo_package *pkg = matches[i];
+            yyjson_mut_val *obj = yyjson_mut_obj(doc);
+            yyjson_mut_obj_add_str(doc, obj, "source", "remote");
+            yyjson_mut_obj_add_strcpy(doc, obj, "name", pkg->name);
+            yyjson_mut_obj_add_strcpy(doc, obj, "version", pkg->version);
+            yyjson_mut_obj_add_strcpy(doc, obj, "description",
+                                      pkg->description);
+            yyjson_mut_arr_add_val(arr, obj);
         }
 
-        for (int r = 0; repos && r < repos->count; r++)
-        {
-            bool refresh_failed = false;
-            struct repo_index *idx =
-                repodata_load(repos->urls[r], cfg->cache_dir, cfg->repodata_ttl,
-                              false, &refresh_failed);
-            if (refresh_failed)
-                cmd_warn_repo_unreachable(repos->urls[r], idx != NULL);
-            if (!idx)
-                continue;
-
-            for (size_t i = 0; i < idx->count; i++)
-            {
-                struct repo_package *pkg = &idx->items[i];
-                if (!substr_ci(pkg->name, query) &&
-                    !substr_ci(pkg->description, query))
-                    continue;
-
-                if (json_output)
-                {
-                    yyjson_mut_val *obj = yyjson_mut_obj(doc);
-                    yyjson_mut_obj_add_str(doc, obj, "source", "remote");
-                    yyjson_mut_obj_add_strcpy(doc, obj, "name", pkg->name);
-                    yyjson_mut_obj_add_strcpy(doc, obj, "version",
-                                              pkg->version);
-                    yyjson_mut_obj_add_strcpy(doc, obj, "description",
-                                              pkg->description);
-                    yyjson_mut_arr_add_val(arr, obj);
-                }
-                else
-                {
-                    printf("  %s %s\n    %s\n", pkg->name, pkg->version,
-                           pkg->description);
-                }
-            }
-
-            repo_index_free(idx);
-        }
-    }
-
-    if (json_output)
-    {
         char *json = yyjson_mut_write(doc, 0, NULL);
         if (json)
         {
@@ -211,6 +188,79 @@ cmd_search_run(int argc, char **argv, struct tulpar_config *cfg)
         }
         yyjson_mut_doc_free(doc);
     }
+    else if (local_count == 0 && match_count == 0)
+    {
+        ui_infof(_("no packages match '%s'"), query);
+    }
+    else
+    {
+        size_t name_width = 0;
+        size_t version_width = 0;
+        for (int i = 0; i < local_count; i++)
+        {
+            size_t w = ui_text_width(local[i]->meta->name);
+            if (w > name_width)
+                name_width = w;
+            w = ui_text_width(local[i]->meta->version);
+            if (w > version_width)
+                version_width = w;
+        }
+        for (size_t i = 0; i < match_count; i++)
+        {
+            size_t w = ui_text_width(matches[i]->name);
+            if (w > name_width)
+                name_width = w;
+            w = ui_text_width(matches[i]->version);
+            if (w > version_width)
+                version_width = w;
+        }
+
+        if (local_count > 0)
+        {
+            ui_print_heading(_("Installed (%d)"), local_count);
+            for (int i = 0; i < local_count; i++)
+                ui_print_package_row(local[i]->meta->name, name_width,
+                                     local[i]->meta->version, version_width,
+                                     NULL, 0, local[i]->meta->description);
+        }
+
+        char (*tags)[128] =
+            match_count > 0 ? calloc(match_count, sizeof(*tags)) : NULL;
+        size_t tag_width = 0;
+        for (size_t i = 0; tags && i < match_count; i++)
+        {
+            struct package *installed =
+                db ? db_get(db, matches[i]->name) : NULL;
+            if (installed &&
+                strcmp(installed->meta->version, matches[i]->version) == 0)
+                snprintf(tags[i], sizeof(tags[i]), "%s", _("installed"));
+            else if (installed)
+                snprintf(tags[i], sizeof(tags[i]), _("installed %s"),
+                         installed->meta->version);
+            package_free(installed);
+            size_t w = ui_text_width(tags[i]);
+            if (w > tag_width)
+                tag_width = w;
+        }
+
+        if (match_count > 0)
+        {
+            if (local_count > 0)
+                printf("\n");
+            ui_print_heading(_("Available (%zu)"), match_count);
+            for (size_t i = 0; i < match_count; i++)
+                ui_print_package_row(matches[i]->name, name_width,
+                                     matches[i]->version, version_width,
+                                     tags ? tags[i] : NULL, tag_width,
+                                     matches[i]->description);
+        }
+        free(tags);
+    }
+
+    free(matches);
+    for (int r = 0; indexes && r < repo_count; r++)
+        repo_index_free(indexes[r]);
+    free(indexes);
 
     for (int i = 0; i < local_count; i++)
         package_free(local[i]);

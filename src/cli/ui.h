@@ -55,6 +55,14 @@ void ui_note(const char *fmt, ...) TULPAR_PRINTF(1, 2);
 
 void ui_format_bytes(size_t bytes, char *buf, size_t size);
 
+size_t ui_text_width(const char *s);
+
+void ui_print_heading(const char *fmt, ...) TULPAR_PRINTF(1, 2);
+void ui_print_package_row(const char *name, size_t name_width,
+                          const char *version, size_t version_width,
+                          const char *tag, size_t tag_width,
+                          const char *description);
+
 bool ui_confirm(const char *prompt, bool assume_yes);
 
 int ui_select(const char *prompt, const char *const *options, int count,

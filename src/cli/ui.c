@@ -60,8 +60,8 @@ accent_from_theme(const char *theme)
     return COL_CYAN;
 }
 
-static size_t
-text_width(const char *s)
+size_t
+ui_text_width(const char *s)
 {
     size_t width = 0;
     for (; *s; s++)
@@ -73,7 +73,7 @@ text_width(const char *s)
 static void
 print_verb(const char *verb)
 {
-    for (size_t w = text_width(verb); w < STATUS_WIDTH; w++)
+    for (size_t w = ui_text_width(verb); w < STATUS_WIDTH; w++)
         fputc(' ', stderr);
     if (g_colors_err)
         fprintf(stderr, "%s%s%s%s ", COL_BOLD, g_accent, verb, COL_RESET);
@@ -82,7 +82,7 @@ print_verb(const char *verb)
 }
 
 static void
-print_truncated(const char *text, size_t max_width)
+print_truncated(FILE *stream, const char *text, size_t max_width)
 {
     size_t width = 0;
     for (const char *p = text; *p; p++)
@@ -90,8 +90,19 @@ print_truncated(const char *text, size_t max_width)
         bool starts_char = ((unsigned char)*p & 0xC0) != 0x80;
         if (starts_char && ++width > max_width)
             break;
-        fputc(*p, stderr);
+        fputc(*p, stream);
     }
+}
+
+static void
+print_padded(const char *color, const char *text, size_t width)
+{
+    if (g_colors_enabled && color)
+        printf("%s%s%s", color, text, COL_RESET);
+    else
+        fputs(text, stdout);
+    for (size_t w = ui_text_width(text); w < width; w++)
+        putchar(' ');
 }
 
 bool
@@ -431,6 +442,62 @@ elapsed_ns(const struct timespec *from, const struct timespec *to)
 }
 
 static int
+stdout_width(void)
+{
+    struct winsize ws;
+    if (isatty(STDOUT_FILENO) != 0 &&
+        ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0 && ws.ws_col > 0)
+        return ws.ws_col;
+    return 0;
+}
+
+void
+ui_print_heading(const char *fmt, ...)
+{
+    char buf[512];
+    va_list ap;
+    va_start(ap, fmt);
+    vsnprintf(buf, sizeof(buf), fmt, ap);
+    va_end(ap);
+
+    if (g_colors_enabled)
+        printf("%s%s%s\n", COL_BOLD, buf, COL_RESET);
+    else
+        printf("%s\n", buf);
+}
+
+void
+ui_print_package_row(const char *name, size_t name_width, const char *version,
+                     size_t version_width, const char *tag, size_t tag_width,
+                     const char *description)
+{
+    fputs("  ", stdout);
+    print_padded(COL_BOLD, name, name_width + 2);
+    print_padded(COL_GREEN, version ? version : "", version_width + 2);
+    size_t used = 2 + name_width + 2 + version_width + 2;
+
+    if (tag_width > 0)
+    {
+        print_padded(COL_YELLOW, tag ? tag : "", tag_width + 2);
+        used += tag_width + 2;
+    }
+
+    if (description && description[0] != '\0')
+    {
+        int width = stdout_width();
+        if (g_colors_enabled)
+            fputs(COL_DIM, stdout);
+        if (width == 0)
+            fputs(description, stdout);
+        else if ((size_t)width > used + 4)
+            print_truncated(stdout, description, (size_t)width - used - 1);
+        if (g_colors_enabled)
+            fputs(COL_RESET, stdout);
+    }
+    putchar('\n');
+}
+
+static int
 terminal_width(void)
 {
     struct winsize ws;
@@ -478,7 +545,7 @@ progress_draw(void)
     }
 
     int width = terminal_width();
-    size_t label_width = text_width(g_progress_label);
+    size_t label_width = ui_text_width(g_progress_label);
     if (label_width > 24)
         label_width = 24;
     int bar_width = width - STATUS_WIDTH - (int)strlen(counts) -
@@ -516,13 +583,13 @@ progress_draw(void)
         if (g_colors_err)
         {
             fprintf(stderr, "  %s", COL_DIM);
-            print_truncated(g_progress_label, (size_t)room);
+            print_truncated(stderr, g_progress_label, (size_t)room);
             fputs(COL_RESET, stderr);
         }
         else
         {
             fputs("  ", stderr);
-            print_truncated(g_progress_label, (size_t)room);
+            print_truncated(stderr, g_progress_label, (size_t)room);
         }
     }
     fflush(stderr);
@@ -603,17 +670,6 @@ op_color(trans_op_t op)
     }
 }
 
-static void
-print_padded(const char *color, const char *text, size_t width)
-{
-    if (g_colors_enabled && color)
-        printf("%s%s%s", color, text, COL_RESET);
-    else
-        fputs(text, stdout);
-    for (size_t w = text_width(text); w < width; w++)
-        putchar(' ');
-}
-
 static char *
 installed_version(struct db_handle *db, const char *name)
 {
@@ -646,10 +702,10 @@ ui_print_plan(const struct apg_trans *trans, struct db_handle *db)
     for (size_t i = 0; i < count; i++)
     {
         const struct trans_step *s = trans_plan_at(trans, i);
-        size_t w = text_width(op_label(trans_step_op(s)));
+        size_t w = ui_text_width(op_label(trans_step_op(s)));
         if (w > op_width)
             op_width = w;
-        w = text_width(trans_step_pkg_name(s));
+        w = ui_text_width(trans_step_pkg_name(s));
         if (w > name_width)
             name_width = w;
         switch (trans_step_op(s))
