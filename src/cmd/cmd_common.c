@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // SPDX-FileCopyrightText: 2026 AnmiTaliDev <anmitalidev@nuros.org>
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 
-#include <apg/archive.h>
 #include <apg/config.h>
+#include <apg/error.h>
 #include <apg/sign.h>
 
 #include "cmd_common.h"
@@ -19,6 +20,22 @@ void
 cmd_print_usage(const char *usage)
 {
     printf(_("usage: %s\n"), usage);
+}
+
+const char *
+cmd_libapg_reason(void)
+{
+    const char *err = apg_last_error();
+    return err ? err : _("no further detail available");
+}
+
+static bool
+db_exists(const char *db_path)
+{
+    char data_path[4096];
+    snprintf(data_path, sizeof(data_path), "%s/data.mdb", db_path);
+    struct stat st;
+    return stat(data_path, &st) == 0;
 }
 
 struct db_handle *
@@ -33,13 +50,24 @@ cmd_open_db(const struct dest_ctx *dest, bool writable)
         return NULL;
     }
 
+    if (!writable && !db_exists(dest->db_path))
+    {
+        ui_errorf(_("no package database at %s"), dest->db_path);
+        ui_hint(_("nothing has been installed into %s yet"), dest->root);
+        return NULL;
+    }
+
     struct db_handle *db =
         writable ? db_open(dest->db_path) : db_open_readonly(dest->db_path);
 
     if (!db)
-        ui_errorf(_("failed to open package database at %s "
-                    "(missing, or locked by another process)"),
-                  dest->db_path);
+    {
+        const char *reason = cmd_libapg_reason();
+        ui_error(reason);
+        if (strstr(reason, "locked by another process"))
+            ui_hint(_("wait for the other package operation to finish, "
+                      "then try again"));
+    }
 
     return db;
 }
@@ -95,19 +123,28 @@ cmd_run_transaction(struct apg_trans *trans, const struct dest_ctx *dest,
         switch (err)
         {
         case TRANS_ERR_CONFLICT:
-        case TRANS_ERR_HAS_DEPENDENTS:
         case TRANS_ERR_FILE_CONFLICT:
+            ui_print_conflicts(trans);
+            break;
+        case TRANS_ERR_HAS_DEPENDENTS:
+            ui_print_conflicts(trans);
+            ui_hint(_("remove the dependent packages too, or pass --nodeps "
+                      "to remove anyway"));
+            break;
         case TRANS_ERR_HELD:
             ui_print_conflicts(trans);
+            ui_hint(_("release a held package with 'tulpar unhold <name>'"));
             break;
         case TRANS_ERR_CYCLE:
             ui_error(_("circular dependency detected"));
             break;
         case TRANS_ERR_MISSING_DEP:
-            ui_error(_("a required dependency could not be resolved"));
+            ui_errorf(_("cannot resolve dependencies: %s"),
+                      cmd_libapg_reason());
             break;
         default:
-            ui_error(_("failed to prepare the transaction"));
+            ui_errorf(_("failed to prepare the transaction: %s"),
+                      cmd_libapg_reason());
             break;
         }
         return false;
@@ -136,23 +173,34 @@ cmd_run_transaction(struct apg_trans *trans, const struct dest_ctx *dest,
         switch (commit_err)
         {
         case TRANS_ERR_UNSIGNED:
-            ui_error(_("a package failed signature verification and was "
-                       "rejected by policy"));
+            ui_errorf(_("signature verification failed: %s"),
+                      cmd_libapg_reason());
+            ui_hint(_("import the signing key with 'tulpar key add <file>'"));
             break;
         case TRANS_ERR_INSTALL_FAILED:
         {
-            const char *detail = archive_last_error();
-            if (detail)
-                ui_errorf(_("installation failed: %s; already-applied "
-                            "changes were rolled back"),
-                          detail);
-            else
-                ui_error(_("installation failed; already-applied changes "
-                           "were rolled back"));
+            const char *reason = cmd_libapg_reason();
+            ui_errorf(_("installation failed: %s"), reason);
+            ui_hint(_("changes made by this transaction were rolled back"));
+            if (strstr(reason, strerror(ENOSPC)))
+                ui_hint(_("free space on the target filesystem; packages are "
+                          "unpacked into a temporary directory first, which "
+                          "uses RAM when /tmp is a tmpfs"));
+            break;
+        }
+        case TRANS_ERR_DB:
+        {
+            const char *reason = cmd_libapg_reason();
+            ui_errorf(_("cannot record the installation: %s"), reason);
+            ui_hint(_("changes made by this transaction were rolled back"));
+            if (strstr(reason, "MDB_MAP_FULL"))
+                ui_hint(_("the package database has reached its size limit; "
+                          "libapg must be built with a larger db_mapsize"));
             break;
         }
         default:
-            ui_error(_("failed to commit the transaction"));
+            ui_errorf(_("failed to commit the transaction: %s"),
+                      cmd_libapg_reason());
             break;
         }
         log_write(TULPAR_LOG_ERROR, "transaction commit failed");

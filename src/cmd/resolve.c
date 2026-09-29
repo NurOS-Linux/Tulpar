@@ -10,6 +10,7 @@
 #include <apg/util.h>
 
 #include "resolve.h"
+#include "cmd_common.h"
 #include "../cli/ui.h"
 #include "../net/api.h"
 #include "../net/http.h"
@@ -188,6 +189,8 @@ fetch_from_url(const char *url, const struct tulpar_config *cfg,
 
     ui_debugf("parsing %s", dest_path);
     struct package *pkg = parse_package(dest_path, root_path);
+    if (!pkg)
+        ui_errorf(_("%s is not a valid package: %s"), url, cmd_libapg_reason());
     free(dest_path);
     return pkg;
 }
@@ -321,6 +324,9 @@ fetch_from_git(const char *arg, const struct tulpar_config *cfg,
 
     ui_debugf("parsing %s", dest_path);
     struct package *pkg = parse_package(dest_path, root_path);
+    if (!pkg)
+        ui_errorf(_("%s did not produce a valid package: %s"), arg,
+                  cmd_libapg_reason());
     free(dest_path);
     return pkg;
 }
@@ -488,13 +494,14 @@ resolve_fetch_by_name(const char *name, ver_op_t op, const char *version,
 
         ui_debugf("parsing %s", dest_path);
         struct package *pkg = parse_package(dest_path, root_path);
+        if (!pkg)
+            ui_warnf(_("%s %s from %s is not a valid package: %s"), best->name,
+                     best->version, base_url, cmd_libapg_reason());
         free(dest_path);
         repo_index_free(idx);
 
         if (pkg)
             return pkg;
-
-        ui_debugf("failed to parse the downloaded archive for %s", name);
     }
 
     char provider_name[256];
@@ -527,8 +534,8 @@ db_find_provider(struct db_handle *db, const char *name)
 }
 
 static bool
-resolve_dependency(const struct dep_constraint *dep, struct db_handle *db,
-                   const struct repo_list *repos,
+resolve_dependency(const char *required_by, const struct dep_constraint *dep,
+                   struct db_handle *db, const struct repo_list *repos,
                    const struct tulpar_config *cfg, const char *root_path,
                    const struct provider_pref *prefs, size_t pref_count,
                    bool assume_yes, struct pkg_set *out)
@@ -562,8 +569,14 @@ resolve_dependency(const struct dep_constraint *dep, struct db_handle *db,
                               root_path, prefs, pref_count, assume_yes);
     if (!fetched)
     {
-        ui_errorf(_("could not resolve dependency %s in any configured repo"),
-                  dep->name);
+        char *want = dep_constraint_to_str(dep);
+        ui_errorf(_("%s requires %s, which was not found in any configured "
+                    "repository"),
+                  required_by, want ? want : dep->name);
+        free(want);
+        if (repos->count == 0)
+            ui_hint(_("no repositories are configured; add one with "
+                      "'tulpar repo add <url>'"));
         return false;
     }
 
@@ -575,9 +588,9 @@ resolve_dependency(const struct dep_constraint *dep, struct db_handle *db,
 
     for (int i = 0; i < fetched->meta->dependencies.count; i++)
     {
-        if (!resolve_dependency(&fetched->meta->dependencies.items[i], db,
-                                repos, cfg, root_path, prefs, pref_count,
-                                assume_yes, out))
+        if (!resolve_dependency(
+                fetched->meta->name, &fetched->meta->dependencies.items[i], db,
+                repos, cfg, root_path, prefs, pref_count, assume_yes, out))
             return false;
     }
 
@@ -630,7 +643,8 @@ resolve_install_closure(char *const *requested, size_t requested_count,
             pkg = parse_package(arg, root_path);
             if (!pkg)
             {
-                ui_errorf(_("failed to read package archive %s"), arg);
+                ui_errorf(_("failed to read package archive %s: %s"), arg,
+                          cmd_libapg_reason());
                 free(roots);
                 return false;
             }
@@ -645,6 +659,9 @@ resolve_install_closure(char *const *requested, size_t requested_count,
             {
                 ui_errorf(_("package %s not found in any configured repo"),
                           arg);
+                if (repos->count == 0)
+                    ui_hint(_("no repositories are configured; add one with "
+                              "'tulpar repo add <url>'"));
                 free(roots);
                 return false;
             }
@@ -677,9 +694,9 @@ resolve_install_closure(char *const *requested, size_t requested_count,
 
         for (int j = 0; j < pkg->meta->dependencies.count; j++)
         {
-            if (!resolve_dependency(&pkg->meta->dependencies.items[j], db,
-                                    repos, cfg, root_path, prefs, pref_count,
-                                    assume_yes, out))
+            if (!resolve_dependency(
+                    pkg->meta->name, &pkg->meta->dependencies.items[j], db,
+                    repos, cfg, root_path, prefs, pref_count, assume_yes, out))
             {
                 free(roots);
                 return false;

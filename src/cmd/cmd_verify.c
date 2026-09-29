@@ -52,10 +52,9 @@ cmd_verify_run(int argc, char **argv, struct tulpar_config *cfg)
     struct dest_ctx dest = {0};
     dest_ctx_resolve(dest_arg, cfg->db_dir, &dest);
 
-    struct db_handle *db = db_open_readonly(dest.db_path);
+    struct db_handle *db = cmd_open_db(&dest, false);
     if (!db)
     {
-        ui_error(_("no package database found"));
         dest_ctx_clear(&dest);
         return 1;
     }
