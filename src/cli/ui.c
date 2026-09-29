@@ -200,14 +200,6 @@ emit(FILE *stream, const char *color, const char *label, const char *msg)
 }
 
 void
-ui_success(const char *msg)
-{
-    if (g_quiet)
-        return;
-    emit(stdout, COL_GREEN, "==>", msg);
-}
-
-void
 ui_error(const char *msg)
 {
     emit(stderr, COL_RED, _("error:"), msg);
@@ -226,7 +218,14 @@ ui_info(const char *msg)
 {
     if (g_quiet)
         return;
-    emit(stdout, g_accent, "::", msg);
+    progress_clear();
+    if (g_colors_enabled)
+        printf("%s%s%s\n", COL_DIM, msg, COL_RESET);
+    else
+        printf("%s\n", msg);
+    fflush(stdout);
+    if (g_progress_active)
+        progress_draw();
 }
 
 void
@@ -235,17 +234,6 @@ ui_debug(const char *msg)
     if (!g_verbose)
         return;
     emit(stderr, COL_BLUE, _("debug:"), msg);
-}
-
-void
-ui_successf(const char *fmt, ...)
-{
-    char buf[1024];
-    va_list ap;
-    va_start(ap, fmt);
-    vsnprintf(buf, sizeof(buf), fmt, ap);
-    va_end(ap);
-    ui_success(buf);
 }
 
 void

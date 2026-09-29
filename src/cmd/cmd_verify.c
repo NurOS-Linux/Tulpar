@@ -64,7 +64,7 @@ cmd_verify_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (count == 0)
     {
-        ui_success(_("all installed packages verified successfully"));
+        ui_status(_("Verified"), _("all installed packages are intact"));
     }
     else
     {
@@ -74,11 +74,13 @@ cmd_verify_run(int argc, char **argv, struct tulpar_config *cfg)
                 db_verify_issue_at(issues, count, i);
             int missing_count = db_verify_issue_missing_count(issue);
 
-            ui_errorf(_("%s: %d missing file(s)"),
+            ui_errorf(ngettext("%s: %d file is missing",
+                               "%s: %d files are missing", missing_count),
                       db_verify_issue_pkg_name(issue), missing_count);
             for (int j = 0; j < missing_count; j++)
                 printf("    %s\n", db_verify_issue_missing_file_at(issue, j));
         }
+        ui_hint(_("reinstall the affected packages to restore their files"));
     }
 
     db_verify_free(issues, count);

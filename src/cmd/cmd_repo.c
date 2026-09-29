@@ -85,7 +85,7 @@ run_add(int argc, char **argv)
 
     bool ok = repo_list_add(file, url);
     if (ok)
-        ui_successf(_("added repo %s to %s"), url, file);
+        ui_status(_("Added"), _("repository %s to %s"), url, file);
     else
         ui_errorf(_("failed to add repo to %s"), file);
 
@@ -149,7 +149,7 @@ run_remove(int argc, char **argv)
 
     bool ok = repo_list_remove(file, url);
     if (ok)
-        ui_successf(_("removed repo %s from %s"), url, file);
+        ui_status(_("Removed"), _("repository %s from %s"), url, file);
     else
         ui_errorf(_("repo %s was not found in %s"), url, file);
 
@@ -180,7 +180,7 @@ run_update(struct tulpar_config *cfg)
     for (int i = 0; i < list->count; i++)
     {
         if (repodata_refresh(list->urls[i], cfg->cache_dir))
-            ui_successf(_("updated %s"), list->urls[i]);
+            ui_status(_("Updated"), _("index of %s"), list->urls[i]);
         else
         {
             ui_warnf(_("failed to update %s: %s"), list->urls[i],

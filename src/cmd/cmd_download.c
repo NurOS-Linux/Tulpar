@@ -154,7 +154,7 @@ cmd_download_run(int argc, char **argv, struct tulpar_config *cfg)
         snprintf(sig_path, sizeof(sig_path), "%s.sig", target);
         api_download_sig(found_base_url, use_channel, best->name, best->version,
                          use_arch, sig_path);
-        ui_successf(_("downloaded %s"), target);
+        cmd_report_downloaded(target, target);
     }
     else
     {

@@ -37,13 +37,11 @@ bool ui_colors_enabled(void);
 
 void ui_set_verbosity(bool verbose, bool quiet);
 
-void ui_success(const char *msg);
 void ui_error(const char *msg);
 void ui_warn(const char *msg);
 void ui_info(const char *msg);
 void ui_debug(const char *msg);
 
-void ui_successf(const char *fmt, ...) TULPAR_PRINTF(1, 2);
 void ui_errorf(const char *fmt, ...) TULPAR_PRINTF(1, 2);
 void ui_warnf(const char *fmt, ...) TULPAR_PRINTF(1, 2);
 void ui_infof(const char *fmt, ...) TULPAR_PRINTF(1, 2);

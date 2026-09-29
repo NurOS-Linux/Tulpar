@@ -120,6 +120,8 @@ cmd_clean_run(int argc, char **argv, struct tulpar_config *cfg)
 
     total_removed += clean_directory_contents(cfg->cache_dir);
 
-    ui_successf(_("cache cleaned: %zu item(s) removed"), total_removed);
+    ui_status(_("Cleaned"),
+              ngettext("%zu item from %s", "%zu items from %s", total_removed),
+              total_removed, cfg->cache_dir);
     return 0;
 }

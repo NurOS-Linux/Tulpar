@@ -78,7 +78,7 @@ run_set_hold(int argc, char **argv, struct tulpar_config *cfg, bool held)
 
     bool ok = db_set_hold(db, name, held);
     if (ok)
-        ui_successf(_("%s is now %s"), name, held ? "held" : "unheld");
+        ui_status(held ? _("Held") : _("Released"), "%s", name);
     else
         ui_errorf(_("failed to update hold state for %s (not installed?)"),
                   name);

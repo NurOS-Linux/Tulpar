@@ -80,7 +80,8 @@ run_add(int argc, char **argv)
     keyring_free(trusted);
 
     if (ok)
-        ui_success(_("key added to the trusted keyring"));
+        ui_status(_("Imported"), _("key %s into %s"), new_key_path,
+                  TULPAR_KEYRING_DIR);
     else
         ui_error(_("key was not added; it must be endorsed by an already "
                    "trusted key"));
@@ -91,7 +92,7 @@ run_add(int argc, char **argv)
 static int
 run_list(void)
 {
-    printf("Trusted keyring directory: %s\n", TULPAR_KEYRING_DIR);
+    printf(_("Trusted keyring directory: %s\n"), TULPAR_KEYRING_DIR);
     ui_info(_("use your platform's file listing to inspect individual keys"));
     return 0;
 }

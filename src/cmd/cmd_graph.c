@@ -185,7 +185,7 @@ cmd_graph_run(int argc, char **argv, struct tulpar_config *cfg)
         }
         fputs(dot, f);
         fclose(f);
-        ui_successf(_("exported dependency graph to %s"), out_path);
+        ui_status(_("Exported"), _("dependency graph to %s"), out_path);
     }
     else
     {
