@@ -130,6 +130,7 @@ ui_set_verbosity(bool verbose, bool quiet)
 static void
 progress_clear(void)
 {
+    fflush(stdout);
     if (!g_progress_drawn)
         return;
     fputs("\r\x1b[2K", stderr);
@@ -548,8 +549,42 @@ op_color(trans_op_t op)
     }
 }
 
+static size_t
+text_width(const char *s)
+{
+    size_t width = 0;
+    for (; *s; s++)
+        if (((unsigned char)*s & 0xC0) != 0x80)
+            width++;
+    return width;
+}
+
+static void
+print_padded(const char *color, const char *text, size_t width)
+{
+    if (g_colors_enabled && color)
+        printf("%s%s%s", color, text, COL_RESET);
+    else
+        fputs(text, stdout);
+    for (size_t w = text_width(text); w < width; w++)
+        putchar(' ');
+}
+
+static char *
+installed_version(struct db_handle *db, const char *name)
+{
+    if (!db)
+        return NULL;
+    struct package *pkg = db_get(db, name);
+    if (!pkg)
+        return NULL;
+    char *version = pkg->meta->version ? strdup(pkg->meta->version) : NULL;
+    package_free(pkg);
+    return version;
+}
+
 void
-ui_print_plan(const struct apg_trans *trans)
+ui_print_plan(const struct apg_trans *trans, struct db_handle *db)
 {
     size_t count = trans_plan_count(trans);
 
@@ -558,24 +593,97 @@ ui_print_plan(const struct apg_trans *trans)
         ui_info(_("nothing to do"));
         return;
     }
+    if (g_quiet)
+        return;
 
-    printf(_("\nTransaction plan:\n"));
+    size_t op_width = 0;
+    size_t name_width = 0;
+    size_t per_op[3] = {0, 0, 0};
+    for (size_t i = 0; i < count; i++)
+    {
+        const struct trans_step *s = trans_plan_at(trans, i);
+        size_t w = text_width(op_label(trans_step_op(s)));
+        if (w > op_width)
+            op_width = w;
+        w = text_width(trans_step_pkg_name(s));
+        if (w > name_width)
+            name_width = w;
+        switch (trans_step_op(s))
+        {
+        case TRANS_OP_INSTALL:
+            per_op[0]++;
+            break;
+        case TRANS_OP_UPGRADE:
+            per_op[1]++;
+            break;
+        case TRANS_OP_REMOVE:
+            per_op[2]++;
+            break;
+        }
+    }
+
+    printf("\n");
+    if (g_colors_enabled)
+        printf("%s%s (%zu)%s\n", COL_BOLD, _("Packages"), count, COL_RESET);
+    else
+        printf("%s (%zu)\n", _("Packages"), count);
+
     for (size_t i = 0; i < count; i++)
     {
         const struct trans_step *s = trans_plan_at(trans, i);
         trans_op_t op = trans_step_op(s);
         const char *name = trans_step_pkg_name(s);
         const char *ver = trans_step_pkg_version(s);
-        if (!ver)
-            ver = "";
 
-        if (g_colors_enabled)
-            printf("  %s%-8s%s %s %s\n", op_color(op), op_label(op), COL_RESET,
-                   name, ver);
+        fputs("  ", stdout);
+        print_padded(op_color(op), op_label(op), op_width + 2);
+        print_padded(COL_BOLD, name, name_width + 2);
+
+        char *old = op == TRANS_OP_INSTALL ? NULL : installed_version(db, name);
+        if (op == TRANS_OP_UPGRADE && old)
+        {
+            if (g_colors_enabled)
+                printf("%s%s%s -> %s", COL_DIM, old, COL_RESET, ver ? ver : "");
+            else
+                printf("%s -> %s", old, ver ? ver : "");
+        }
+        else if (op == TRANS_OP_REMOVE)
+            fputs(old ? old : "", stdout);
         else
-            printf("  %-8s %s %s\n", op_label(op), name, ver);
+            fputs(ver ? ver : "", stdout);
+        free(old);
+        putchar('\n');
     }
-    printf("\n");
+
+    const char *parts[3];
+    char buf[3][64];
+    size_t part_count = 0;
+    if (per_op[0] > 0)
+    {
+        snprintf(buf[part_count], sizeof(buf[0]), _("%zu to install"),
+                 per_op[0]);
+        parts[part_count] = buf[part_count];
+        part_count++;
+    }
+    if (per_op[1] > 0)
+    {
+        snprintf(buf[part_count], sizeof(buf[0]), _("%zu to upgrade"),
+                 per_op[1]);
+        parts[part_count] = buf[part_count];
+        part_count++;
+    }
+    if (per_op[2] > 0)
+    {
+        snprintf(buf[part_count], sizeof(buf[0]), _("%zu to remove"),
+                 per_op[2]);
+        parts[part_count] = buf[part_count];
+        part_count++;
+    }
+
+    printf("\n  ");
+    for (size_t i = 0; i < part_count; i++)
+        printf("%s%s", i > 0 ? ", " : "", parts[i]);
+    printf("\n\n");
 }
 
 void

@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #include <apg/config.h>
 #include <apg/error.h>
@@ -49,6 +50,27 @@ cmd_warn_repo_unreachable(const char *repo_url, bool using_cache)
     else
         ui_warnf(_("cannot reach repository %s: %s"), repo_url,
                  http_last_error());
+}
+
+void
+cmd_download_progress(size_t now, size_t total, void *userdata)
+{
+    (void)userdata;
+    ui_progress_update(now, total);
+}
+
+void
+cmd_report_downloaded(const char *what, const char *path)
+{
+    struct stat st;
+    if (stat(path, &st) != 0)
+    {
+        ui_status(_("Downloaded"), "%s", what);
+        return;
+    }
+    char size[32];
+    ui_format_bytes((size_t)st.st_size, size, sizeof(size));
+    ui_status(_("Downloaded"), "%s (%s)", what, size);
 }
 
 static bool
@@ -118,8 +140,42 @@ cmd_warn_if_unsigned(const struct package *pkg)
                  pkg->meta->name, sig_path);
 }
 
+static void
+report_step(const struct trans_step *step, size_t index, size_t total,
+            void *userdata)
+{
+    (void)userdata;
+    const char *verb;
+    switch (trans_step_op(step))
+    {
+    case TRANS_OP_UPGRADE:
+        verb = _("Upgrading");
+        break;
+    case TRANS_OP_REMOVE:
+        verb = _("Removing");
+        break;
+    default:
+        verb = _("Installing");
+        break;
+    }
+    const char *version = trans_step_pkg_version(step);
+    ui_status(verb, "[%zu/%zu] %s%s%s", index + 1, total,
+              trans_step_pkg_name(step), version ? " " : "",
+              version ? version : "");
+}
+
+double
+cmd_seconds_since(const struct timespec *start)
+{
+    struct timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    return (double)(now.tv_sec - start->tv_sec) +
+           (double)(now.tv_nsec - start->tv_nsec) / 1e9;
+}
+
 bool
-cmd_run_transaction(struct apg_trans *trans, const struct dest_ctx *dest,
+cmd_run_transaction(struct apg_trans *trans, struct db_handle *db,
+                    const struct dest_ctx *dest,
                     const struct tulpar_config *cfg, bool assume_yes,
                     bool require_signature_flag, bool nodeps,
                     bool skip_dependents, bool dry_run)
@@ -172,7 +228,7 @@ cmd_run_transaction(struct apg_trans *trans, const struct dest_ctx *dest,
         return false;
     }
 
-    ui_print_plan(trans);
+    ui_print_plan(trans, db);
     if (trans_plan_count(trans) == 0)
         return true;
 
@@ -191,6 +247,10 @@ cmd_run_transaction(struct apg_trans *trans, const struct dest_ctx *dest,
 
     ui_debugf("committing transaction against root %s%s", dest->root,
               dry_run ? " (dry run)" : "");
+    if (!dry_run)
+        trans_set_progress_cb(trans, report_step, NULL);
+    struct timespec started;
+    clock_gettime(CLOCK_MONOTONIC, &started);
     trans_error_t commit_err = trans_commit(trans, dest->root);
     if (commit_err != TRANS_OK)
     {
@@ -233,11 +293,14 @@ cmd_run_transaction(struct apg_trans *trans, const struct dest_ctx *dest,
 
     if (dry_run)
     {
-        ui_success(_("dry run complete; no changes were made"));
+        ui_status(_("Finished"), _("dry run; no changes were made"));
         return true;
     }
 
-    ui_success(_("transaction complete"));
+    ui_status(_("Finished"),
+              ngettext("%zu operation in %.2fs", "%zu operations in %.2fs",
+                       trans_plan_count(trans)),
+              trans_plan_count(trans), cmd_seconds_since(&started));
     log_write(TULPAR_LOG_INFO, "transaction committed successfully");
     return true;
 }

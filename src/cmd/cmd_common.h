@@ -4,6 +4,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <time.h>
 
 #include <apg/db.h>
 #include <apg/package.h>
@@ -18,11 +19,18 @@ const char *cmd_libapg_reason(void);
 
 void cmd_warn_repo_unreachable(const char *repo_url, bool using_cache);
 
+void cmd_download_progress(size_t now, size_t total, void *userdata);
+
+void cmd_report_downloaded(const char *what, const char *path);
+
+double cmd_seconds_since(const struct timespec *start);
+
 struct db_handle *cmd_open_db(const struct dest_ctx *dest, bool writable);
 
 void cmd_warn_if_unsigned(const struct package *pkg);
 
-bool cmd_run_transaction(struct apg_trans *trans, const struct dest_ctx *dest,
+bool cmd_run_transaction(struct apg_trans *trans, struct db_handle *db,
+                         const struct dest_ctx *dest,
                          const struct tulpar_config *cfg, bool assume_yes,
                          bool require_signature_flag, bool nodeps,
                          bool skip_dependents, bool dry_run);

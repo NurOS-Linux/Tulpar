@@ -179,12 +179,17 @@ fetch_from_url(const char *url, const struct tulpar_config *cfg,
 
     ui_debugf("downloading %s to %s", url, dest_path);
     struct http_response resp = {0};
-    if (!http_download(url, dest_path, NULL, NULL, &resp))
+    ui_progress_start(_("Downloading"), url, 0, UI_PROGRESS_BYTES);
+    bool downloaded =
+        http_download(url, dest_path, cmd_download_progress, NULL, &resp);
+    ui_progress_finish();
+    if (!downloaded)
     {
         ui_errorf(_("cannot download %s: %s"), url, http_last_error());
         free(dest_path);
         return NULL;
     }
+    cmd_report_downloaded(url, dest_path);
 
     char sig_url[2048];
     snprintf(sig_url, sizeof(sig_url), "%s.sig", url);
@@ -487,9 +492,15 @@ fetch_from_repos(const char *name, ver_op_t op, const char *version,
         free(pkgs_dir);
 
         ui_debugf("downloading to %s", dest_path);
+        char what[512];
+        snprintf(what, sizeof(what), "%s %s", best->name, best->version);
+        ui_progress_start(_("Downloading"), what, 0, UI_PROGRESS_BYTES);
         bool downloaded =
             api_download(base_url, use_channel, best->name, best->version,
-                         use_arch, dest_path, NULL, NULL);
+                         use_arch, dest_path, cmd_download_progress, NULL);
+        ui_progress_finish();
+        if (downloaded)
+            cmd_report_downloaded(what, dest_path);
         if (!downloaded)
         {
             ui_warnf(_("cannot download %s %s from %s: %s"), best->name,

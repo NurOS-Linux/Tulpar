@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include <apg/db.h>
 #include <apg/transaction.h>
 
 #if defined(__GNUC__) || defined(__clang__)
@@ -63,5 +64,5 @@ void ui_progress_start(const char *verb, const char *label, size_t total,
 void ui_progress_update(size_t current, size_t total);
 void ui_progress_finish(void);
 
-void ui_print_plan(const struct apg_trans *trans);
+void ui_print_plan(const struct apg_trans *trans, struct db_handle *db);
 void ui_print_conflicts(const struct apg_trans *trans);

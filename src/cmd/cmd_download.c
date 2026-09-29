@@ -140,10 +140,13 @@ cmd_download_run(int argc, char **argv, struct tulpar_config *cfg)
     const char *use_arch =
         best->architecture[0] ? best->architecture : "noarch";
 
-    ui_infof(_("downloading %s %s to %s"), best->name, best->version, target);
-
-    bool ok = api_download(found_base_url, use_channel, best->name,
-                           best->version, use_arch, target, NULL, NULL);
+    char what[512];
+    snprintf(what, sizeof(what), "%s %s", best->name, best->version);
+    ui_progress_start(_("Downloading"), what, 0, UI_PROGRESS_BYTES);
+    bool ok =
+        api_download(found_base_url, use_channel, best->name, best->version,
+                     use_arch, target, cmd_download_progress, NULL);
+    ui_progress_finish();
 
     if (ok)
     {

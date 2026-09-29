@@ -57,7 +57,7 @@ test_plan_render_install_step(void)
     FILE *captured = freopen(out_path, "w", stdout);
     assert(captured);
 
-    ui_print_plan(trans);
+    ui_print_plan(trans, db);
 
     fflush(stdout);
     dup2(saved_stdout, STDOUT_FILENO);

@@ -162,6 +162,8 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
         ui_debug("--nodeps: installing exactly the requested package(s), "
                  "skipping dependency resolution");
 
+    struct timespec resolve_started;
+    clock_gettime(CLOCK_MONOTONIC, &resolve_started);
     if (!resolve_install_closure(
             positional, (size_t)positional_count, db, repos, cfg, dest.root,
             provider_prefs, (size_t)provider_count, assume_yes, nodeps, &set))
@@ -174,6 +176,11 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
     }
 
     ui_debugf("resolved closure of %zu package(s) to install", set.count);
+    if (set.count > 0)
+        ui_status(_("Resolved"),
+                  ngettext("%zu package in %.2fs", "%zu packages in %.2fs",
+                           set.count),
+                  set.count, cmd_seconds_since(&resolve_started));
 
     if (set.count == 0)
     {
@@ -225,7 +232,7 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
         package_free(installed);
     }
 
-    bool ok = cmd_run_transaction(trans, &dest, cfg, assume_yes,
+    bool ok = cmd_run_transaction(trans, db, &dest, cfg, assume_yes,
                                   require_sig || cfg->require_signature, nodeps,
                                   false, dry_run);
 
