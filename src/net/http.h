@@ -25,3 +25,13 @@ bool http_download(const char *url, const char *dest_path,
                    struct http_response *out);
 
 void http_response_free(struct http_response *resp);
+
+const char *http_last_error(void);
+
+bool http_last_not_found(void);
+
+void http_set_error(const char *fmt, ...)
+#if defined(__GNUC__) || defined(__clang__)
+    __attribute__((format(printf, 1, 2)))
+#endif
+    ;

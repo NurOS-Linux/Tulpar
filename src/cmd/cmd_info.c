@@ -12,6 +12,7 @@
 #include "../cli/args.h"
 #include "../cli/ui.h"
 #include "../net/api.h"
+#include "../net/http.h"
 #include "../repo/repo.h"
 #include "../util/paths.h"
 #include "../i18n.h"
@@ -342,7 +343,11 @@ cmd_info_run(int argc, char **argv, struct tulpar_config *cfg)
     struct repo_list *repos = repo_list_load();
     struct repo_index *idx = NULL;
     for (int i = 0; repos && i < repos->count && !idx; i++)
+    {
         idx = api_get_package(repos->urls[i], name);
+        if (!idx && !http_last_not_found())
+            cmd_warn_repo_unreachable(repos->urls[i], false);
+    }
     repo_list_free(repos);
 
     if (!idx || idx->count == 0)

@@ -163,8 +163,12 @@ cmd_search_run(int argc, char **argv, struct tulpar_config *cfg)
 
         for (int r = 0; repos && r < repos->count; r++)
         {
-            struct repo_index *idx = repodata_load(
-                repos->urls[r], cfg->cache_dir, cfg->repodata_ttl, false);
+            bool refresh_failed = false;
+            struct repo_index *idx =
+                repodata_load(repos->urls[r], cfg->cache_dir, cfg->repodata_ttl,
+                              false, &refresh_failed);
+            if (refresh_failed)
+                cmd_warn_repo_unreachable(repos->urls[r], idx != NULL);
             if (!idx)
                 continue;
 

@@ -16,6 +16,8 @@ void cmd_print_usage(const char *usage);
 
 const char *cmd_libapg_reason(void);
 
+void cmd_warn_repo_unreachable(const char *repo_url, bool using_cache);
+
 struct db_handle *cmd_open_db(const struct dest_ctx *dest, bool writable);
 
 void cmd_warn_if_unsigned(const struct package *pkg);

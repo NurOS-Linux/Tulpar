@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // SPDX-FileCopyrightText: 2026 AnmiTaliDev <anmitalidev@nuros.org>
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -189,6 +190,7 @@ repodata_refresh(const char *repo_url, const char *cache_dir)
     char *cache_file = repodata_cache_file(cache_dir, repo_url);
     if (!cache_file)
     {
+        http_set_error("out of memory");
         http_response_free(&resp);
         return false;
     }
@@ -205,8 +207,11 @@ repodata_refresh(const char *repo_url, const char *cache_dir)
     if (f)
     {
         ok = fwrite(resp.body, 1, resp.len, f) == resp.len;
-        fclose(f);
+        if (fclose(f) != 0)
+            ok = false;
     }
+    if (!ok)
+        http_set_error("cannot write %s: %s", cache_file, strerror(errno));
 
     free(cache_file);
     http_response_free(&resp);
@@ -247,14 +252,18 @@ repodata_read_cache_file(const char *cache_file)
 
 struct repo_index *
 repodata_load(const char *repo_url, const char *cache_dir, int ttl_seconds,
-              bool force_refresh)
+              bool force_refresh, bool *refresh_failed)
 {
+    if (refresh_failed)
+        *refresh_failed = false;
+
     char *cache_file = repodata_cache_file(cache_dir, repo_url);
     if (!cache_file)
         return NULL;
 
-    if (force_refresh || !repodata_is_fresh(cache_file, ttl_seconds))
-        repodata_refresh(repo_url, cache_dir);
+    if ((force_refresh || !repodata_is_fresh(cache_file, ttl_seconds)) &&
+        !repodata_refresh(repo_url, cache_dir) && refresh_failed)
+        *refresh_failed = true;
 
     struct repo_index *idx = repodata_read_cache_file(cache_file);
     free(cache_file);

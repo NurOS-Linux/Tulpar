@@ -10,6 +10,7 @@
 #include "../cli/args.h"
 #include "../cli/ui.h"
 #include "../net/api.h"
+#include "../net/http.h"
 #include "../repo/repo.h"
 #include "../util/paths.h"
 #include "../i18n.h"
@@ -93,6 +94,8 @@ cmd_download_run(int argc, char **argv, struct tulpar_config *cfg)
                 found_base_url = repos->urls[i];
                 break;
             }
+            if (!http_last_not_found())
+                cmd_warn_repo_unreachable(repos->urls[i], false);
         }
     }
 
@@ -152,7 +155,7 @@ cmd_download_run(int argc, char **argv, struct tulpar_config *cfg)
     }
     else
     {
-        ui_errorf(_("failed to download %s"), target);
+        ui_errorf(_("cannot download %s: %s"), target, http_last_error());
     }
 
     repo_index_free(idx);

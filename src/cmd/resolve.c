@@ -175,7 +175,7 @@ fetch_from_url(const char *url, const struct tulpar_config *cfg,
     struct http_response resp = {0};
     if (!http_download(url, dest_path, NULL, NULL, &resp))
     {
-        ui_errorf(_("failed to download %s"), url);
+        ui_errorf(_("cannot download %s: %s"), url, http_last_error());
         free(dest_path);
         return NULL;
     }
@@ -351,8 +351,12 @@ resolve_choose_provider(const char *virtual_name, const struct repo_list *repos,
 
     for (int i = 0; i < repos->count && candidate_count < 16; i++)
     {
-        struct repo_index *idx = repodata_load(repos->urls[i], cfg->cache_dir,
-                                               cfg->repodata_ttl, false);
+        bool refresh_failed = false;
+        struct repo_index *idx =
+            repodata_load(repos->urls[i], cfg->cache_dir, cfg->repodata_ttl,
+                          false, &refresh_failed);
+        if (refresh_failed)
+            cmd_warn_repo_unreachable(repos->urls[i], idx != NULL);
         if (!idx)
             continue;
 
@@ -436,7 +440,10 @@ resolve_fetch_by_name(const char *name, ver_op_t op, const char *version,
         struct repo_index *idx = api_get_package(base_url, name);
         if (!idx)
         {
-            ui_debugf("%s did not answer for %s", base_url, name);
+            if (http_last_not_found())
+                ui_debugf("%s does not have %s", base_url, name);
+            else
+                cmd_warn_repo_unreachable(base_url, false);
             continue;
         }
 
@@ -481,7 +488,8 @@ resolve_fetch_by_name(const char *name, ver_op_t op, const char *version,
                          use_arch, dest_path, NULL, NULL);
         if (!downloaded)
         {
-            ui_debugf("download from %s failed", base_url);
+            ui_warnf(_("cannot download %s %s from %s: %s"), best->name,
+                     best->version, base_url, http_last_error());
             free(dest_path);
             repo_index_free(idx);
             continue;

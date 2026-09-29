@@ -52,7 +52,11 @@ api_search(const char *base_url, const char *query, const char *arch,
 
     struct repo_index *idx = NULL;
     if (resp.status >= 200 && resp.status < 300)
+    {
         idx = repo_index_parse_json(resp.body, resp.len);
+        if (!idx)
+            http_set_error("%s returned an invalid response", base_url);
+    }
 
     http_response_free(&resp);
     return idx;
@@ -133,7 +137,11 @@ api_get_package(const char *base_url, const char *name)
 
     struct repo_index *idx = NULL;
     if (resp.status >= 200 && resp.status < 300)
+    {
         idx = parse_package_detail(resp.body, resp.len);
+        if (!idx)
+            http_set_error("%s returned an invalid response", base_url);
+    }
 
     http_response_free(&resp);
     return idx;
@@ -151,7 +159,11 @@ api_get_repodata(const char *base_url)
 
     struct repo_index *idx = NULL;
     if (resp.status >= 200 && resp.status < 300)
+    {
         idx = repo_index_parse_json(resp.body, resp.len);
+        if (!idx)
+            http_set_error("%s returned an invalid response", base_url);
+    }
 
     http_response_free(&resp);
     return idx;

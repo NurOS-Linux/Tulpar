@@ -36,6 +36,7 @@ bool repodata_is_fresh(const char *cache_file, int ttl_seconds);
 bool repodata_refresh(const char *repo_url, const char *cache_dir);
 
 struct repo_index *repodata_load(const char *repo_url, const char *cache_dir,
-                                 int ttl_seconds, bool force_refresh);
+                                 int ttl_seconds, bool force_refresh,
+                                 bool *refresh_failed);
 
 struct repo_index *repodata_read_cache_file(const char *cache_file);

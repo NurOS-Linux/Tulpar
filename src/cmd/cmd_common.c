@@ -15,6 +15,7 @@
 #include "../cli/ui.h"
 #include "../i18n.h"
 #include "../log/log.h"
+#include "../net/http.h"
 
 void
 cmd_print_usage(const char *usage)
@@ -27,6 +28,27 @@ cmd_libapg_reason(void)
 {
     const char *err = apg_last_error();
     return err ? err : _("no further detail available");
+}
+
+void
+cmd_warn_repo_unreachable(const char *repo_url, bool using_cache)
+{
+    static char warned[32][512];
+    static size_t warned_count = 0;
+
+    for (size_t i = 0; i < warned_count; i++)
+        if (strcmp(warned[i], repo_url) == 0)
+            return;
+    if (warned_count < sizeof(warned) / sizeof(warned[0]))
+        snprintf(warned[warned_count++], sizeof(warned[0]), "%s", repo_url);
+
+    if (using_cache)
+        ui_warnf(_("cannot refresh the index of %s, using the cached copy: "
+                   "%s"),
+                 repo_url, http_last_error());
+    else
+        ui_warnf(_("cannot reach repository %s: %s"), repo_url,
+                 http_last_error());
 }
 
 static bool

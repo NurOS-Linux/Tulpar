@@ -11,6 +11,7 @@
 #include "../cli/args.h"
 #include "../cli/ui.h"
 #include "../repo/repo.h"
+#include "../net/http.h"
 #include "../repo/repodata.h"
 #include "../i18n.h"
 
@@ -182,7 +183,8 @@ run_update(struct tulpar_config *cfg)
             ui_successf(_("updated %s"), list->urls[i]);
         else
         {
-            ui_warnf(_("failed to update %s"), list->urls[i]);
+            ui_warnf(_("failed to update %s: %s"), list->urls[i],
+                     http_last_error());
             failures++;
         }
     }
