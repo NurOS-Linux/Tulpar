@@ -150,12 +150,11 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
 
         struct package *candidate =
             target_version
-                ? resolve_fetch_by_name(target_name, VER_OP_EQ, target_version,
-                                        repos, cfg, dest.root, NULL, 0,
-                                        assume_yes)
-                : resolve_fetch_by_name(target_name, VER_OP_GT,
-                                        installed->meta->version, repos, cfg,
-                                        dest.root, NULL, 0, assume_yes);
+                ? resolve_fetch_named(target_name, VER_OP_EQ, target_version,
+                                      repos, cfg, dest.root)
+                : resolve_fetch_named(target_name, VER_OP_GT,
+                                      installed->meta->version, repos, cfg,
+                                      dest.root);
         package_free(installed);
 
         if (!candidate)
@@ -182,10 +181,9 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
                             exclude_count))
                 continue;
 
-            struct package *candidate =
-                resolve_fetch_by_name(candidates_from[i]->meta->name, VER_OP_GT,
-                                      candidates_from[i]->meta->version, repos,
-                                      cfg, dest.root, NULL, 0, assume_yes);
+            struct package *candidate = resolve_fetch_named(
+                candidates_from[i]->meta->name, VER_OP_GT,
+                candidates_from[i]->meta->version, repos, cfg, dest.root);
             if (candidate)
                 pkg_set_add(&set, candidate);
         }

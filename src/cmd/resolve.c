@@ -531,12 +531,11 @@ fetch_from_repos(const char *name, ver_op_t op, const char *version,
 }
 
 struct package *
-resolve_fetch_newer(const char *name, const char *installed_version,
+resolve_fetch_named(const char *name, ver_op_t op, const char *version,
                     const struct repo_list *repos,
                     const struct tulpar_config *cfg, const char *root_path)
 {
-    return fetch_from_repos(name, VER_OP_GT, installed_version, repos, cfg,
-                            root_path);
+    return fetch_from_repos(name, op, version, repos, cfg, root_path);
 }
 
 struct package *
@@ -749,8 +748,8 @@ resolve_install_closure(char *const *requested, size_t requested_count,
         }
         else if ((installed = db_get(db, arg)) != NULL)
         {
-            pkg = resolve_fetch_newer(arg, installed->meta->version, repos, cfg,
-                                      root_path);
+            pkg = resolve_fetch_named(arg, VER_OP_GT, installed->meta->version,
+                                      repos, cfg, root_path);
             if (!pkg)
                 ui_infof(_("%s %s is already installed and up to date"),
                          installed->meta->name, installed->meta->version);
