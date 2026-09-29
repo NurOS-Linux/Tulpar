@@ -49,6 +49,8 @@ print_usage(void)
     printf(_("  -d, --dest <path>       operate against an alternate root\n"));
     printf(_("  -q, --quiet             suppress informational output\n"));
     printf(_("      --verbose           enable debug output\n"));
+    printf(_("      --color <when>      colorize output: auto, always, "
+             "never\n"));
 }
 
 static const char *
@@ -99,13 +101,32 @@ main(int argc, char **argv)
 
     bool verbose = false;
     bool quiet = false;
+    ui_color_mode color_mode = UI_COLOR_AUTO;
 
     char **filtered = malloc((size_t)argc * sizeof(char *));
     int filtered_count = 0;
 
     for (int i = 2; i < argc; i++)
     {
-        if (arg_is(argv[i], "verbose", '\0'))
+        const char *value = NULL;
+        if (strcmp(argv[i], "--") == 0)
+        {
+            while (i < argc)
+                filtered[filtered_count++] = argv[i++];
+            break;
+        }
+        if (arg_take_value(argc, argv, &i, "color", '\0', &value))
+        {
+            if (!ui_parse_color_mode(value, &color_mode))
+            {
+                ui_init(NULL, UI_COLOR_AUTO);
+                ui_errorf(_("invalid value for --color: %s"), value);
+                ui_hint(_("use one of: auto, always, never"));
+                free(filtered);
+                return 1;
+            }
+        }
+        else if (arg_is(argv[i], "verbose", '\0'))
             verbose = true;
         else if (arg_is(argv[i], "quiet", 'q'))
             quiet = true;
@@ -126,7 +147,7 @@ main(int argc, char **argv)
     if (quiet)
         cfg->quiet = true;
 
-    ui_init(cfg->color_theme);
+    ui_init(cfg->color_theme, color_mode);
     ui_set_verbosity(cfg->verbose, cfg->quiet);
 
     if (log_open(cfg->log_file))

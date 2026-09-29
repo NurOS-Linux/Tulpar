@@ -15,7 +15,22 @@
 #define TULPAR_PRINTF(fmt_idx, first_idx)
 #endif
 
-void ui_init(const char *color_theme);
+typedef enum
+{
+    UI_COLOR_AUTO,
+    UI_COLOR_ALWAYS,
+    UI_COLOR_NEVER,
+} ui_color_mode;
+
+typedef enum
+{
+    UI_PROGRESS_COUNT,
+    UI_PROGRESS_BYTES,
+} ui_progress_unit;
+
+bool ui_parse_color_mode(const char *value, ui_color_mode *out);
+
+void ui_init(const char *color_theme, ui_color_mode mode);
 
 bool ui_colors_enabled(void);
 
@@ -33,13 +48,19 @@ void ui_warnf(const char *fmt, ...) TULPAR_PRINTF(1, 2);
 void ui_infof(const char *fmt, ...) TULPAR_PRINTF(1, 2);
 void ui_debugf(const char *fmt, ...) TULPAR_PRINTF(1, 2);
 
+void ui_status(const char *verb, const char *fmt, ...) TULPAR_PRINTF(2, 3);
+void ui_hint(const char *fmt, ...) TULPAR_PRINTF(1, 2);
+
+void ui_format_bytes(size_t bytes, char *buf, size_t size);
+
 bool ui_confirm(const char *prompt, bool assume_yes);
 
 int ui_select(const char *prompt, const char *const *options, int count,
               bool assume_yes);
 
-void ui_progress_start(const char *label, size_t total);
-void ui_progress_update(size_t current);
+void ui_progress_start(const char *verb, const char *label, size_t total,
+                       ui_progress_unit unit);
+void ui_progress_update(size_t current, size_t total);
 void ui_progress_finish(void);
 
 void ui_print_plan(const struct apg_trans *trans);

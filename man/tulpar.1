@@ -93,9 +93,40 @@ Suppress informational output.
 .B \-\-verbose
 Enable debug output.
 .TP
+.BR \-\-color " " \fIwhen\fR
+Colorize output.
+.I when
+is
+.I auto
+(the default: color only when the output stream is a terminal),
+.IR always ,
+or
+.IR never .
+.TP
 .B \-\-require\-signature
 Reject packages that fail signature verification instead of only
 warning about them.
+.SH ENVIRONMENT
+.TP
+.B NO_COLOR
+When set to a non-empty value, disables colored output unless
+.B \-\-color always
+is given.
+.TP
+.B CLICOLOR_FORCE
+When set to a non-empty value, enables colored output even when the
+output is not a terminal, unless
+.B NO_COLOR
+is set or
+.B \-\-color never
+is given.
+.TP
+.B TERM
+When set to
+.IR dumb ,
+colored output is disabled in
+.I auto
+mode.
 .SH FILES
 .TP
 .I /etc/apg/tulpar.conf

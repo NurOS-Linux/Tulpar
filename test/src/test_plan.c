@@ -48,7 +48,7 @@ test_plan_render_install_step(void)
     assert(trans_add_install(trans, pkg) == TRANS_OK);
     assert(trans_prepare(trans) == TRANS_OK);
 
-    ui_init(NULL);
+    ui_init(NULL, UI_COLOR_NEVER);
 
     char *out_path = mktmp_path("plan-out");
     fflush(stdout);
