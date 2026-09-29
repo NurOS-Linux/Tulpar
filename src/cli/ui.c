@@ -301,6 +301,18 @@ ui_status(const char *verb, const char *fmt, ...)
         progress_draw();
 }
 
+static void
+emit_aside(const char *color, const char *label, const char *msg)
+{
+    progress_clear();
+    if (g_colors_err)
+        fprintf(stderr, "  %s%s%s%s %s\n", COL_BOLD, color, label, COL_RESET,
+                msg);
+    else
+        fprintf(stderr, "  %s %s\n", label, msg);
+    fflush(stderr);
+}
+
 void
 ui_hint(const char *fmt, ...)
 {
@@ -309,14 +321,20 @@ ui_hint(const char *fmt, ...)
     va_start(ap, fmt);
     vsnprintf(buf, sizeof(buf), fmt, ap);
     va_end(ap);
+    emit_aside(COL_CYAN, _("help:"), buf);
+}
 
-    progress_clear();
-    if (g_colors_err)
-        fprintf(stderr, "  %s%s%s%s %s\n", COL_BOLD, COL_CYAN, _("help:"),
-                COL_RESET, buf);
-    else
-        fprintf(stderr, "  %s %s\n", _("help:"), buf);
-    fflush(stderr);
+void
+ui_note(const char *fmt, ...)
+{
+    if (g_quiet)
+        return;
+    char buf[1024];
+    va_list ap;
+    va_start(ap, fmt);
+    vsnprintf(buf, sizeof(buf), fmt, ap);
+    va_end(ap);
+    emit_aside(COL_BLUE, _("note:"), buf);
 }
 
 void

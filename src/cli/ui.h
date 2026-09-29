@@ -51,6 +51,7 @@ void ui_debugf(const char *fmt, ...) TULPAR_PRINTF(1, 2);
 
 void ui_status(const char *verb, const char *fmt, ...) TULPAR_PRINTF(2, 3);
 void ui_hint(const char *fmt, ...) TULPAR_PRINTF(1, 2);
+void ui_note(const char *fmt, ...) TULPAR_PRINTF(1, 2);
 
 void ui_format_bytes(size_t bytes, char *buf, size_t size);
 

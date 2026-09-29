@@ -40,6 +40,8 @@ disk. Skips the confirmation prompt.
 .B \-\-nodeps
 Remove the requested package(s) even if other installed packages still
 depend on them, instead of refusing with a list of dependents.
+Each installed package that depends on a removed one, and is not removed
+itself, is reported with a warning before the confirmation prompt.
 .SH EXIT STATUS
 0 on success, non-zero if the removal is blocked or the transaction
 fails.

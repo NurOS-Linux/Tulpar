@@ -64,6 +64,36 @@ resolve_remove_pkg_name(const char *arg, struct db_handle *db,
     return NULL;
 }
 
+static bool
+name_in(char *const *names, int count, const char *name)
+{
+    for (int i = 0; i < count; i++)
+        if (strcmp(names[i], name) == 0)
+            return true;
+    return false;
+}
+
+static void
+warn_broken_dependents(struct db_handle *db, char *const *names, int count)
+{
+    for (int i = 0; i < count; i++)
+    {
+        int dep_count = 0;
+        char **dependents = db_get_dependents(db, names[i], &dep_count);
+        for (int j = 0; j < dep_count; j++)
+        {
+            if (!name_in(names, count, dependents[j]))
+            {
+                ui_warnf(_("removing %s (--nodeps) although %s depends on it"),
+                         names[i], dependents[j]);
+                ui_note(_("%s may stop working"), dependents[j]);
+            }
+            free(dependents[j]);
+        }
+        free(dependents);
+    }
+}
+
 int
 cmd_remove_run(int argc, char **argv, struct tulpar_config *cfg)
 {
@@ -152,6 +182,9 @@ cmd_remove_run(int argc, char **argv, struct tulpar_config *cfg)
             return 1;
         }
     }
+
+    if (nodeps)
+        warn_broken_dependents(db, resolved_names, positional_count);
 
     struct apg_trans *trans = trans_new(db);
     if (!trans)

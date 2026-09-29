@@ -581,6 +581,45 @@ db_find_provider(struct db_handle *db, const char *name)
 }
 
 static bool
+installed_satisfies(struct db_handle *db, const struct dep_constraint *dep)
+{
+    struct package *installed = db_get(db, dep->name);
+    if (!installed)
+        installed = db_find_provider(db, dep->name);
+    if (!installed)
+        return false;
+
+    bool satisfied =
+        dep->op == VER_OP_ANY ||
+        ver_satisfies(installed->meta->version, dep->op, dep->version);
+    package_free(installed);
+    return satisfied;
+}
+
+static void
+warn_skipped_dependencies(struct db_handle *db, const struct pkg_set *set)
+{
+    for (size_t i = 0; i < set->count; i++)
+    {
+        const struct package_metadata *meta = set->items[i]->meta;
+        for (int j = 0; j < meta->dependencies.count; j++)
+        {
+            const struct dep_constraint *dep = &meta->dependencies.items[j];
+            if (pkg_set_satisfies(set, dep->name) ||
+                installed_satisfies(db, dep))
+                continue;
+
+            char *want = dep_constraint_to_str(dep);
+            ui_warnf(_("skipping installation of %s (--nodeps)"),
+                     want ? want : dep->name);
+            ui_note(_("%s depends on %s and may not work without it"),
+                    meta->name, want ? want : dep->name);
+            free(want);
+        }
+    }
+}
+
+static bool
 resolve_dependency(const char *required_by, const struct dep_constraint *dep,
                    struct db_handle *db, const struct repo_list *repos,
                    const struct tulpar_config *cfg, const char *root_path,
@@ -593,21 +632,10 @@ resolve_dependency(const char *required_by, const struct dep_constraint *dep,
         return true;
     }
 
-    struct package *installed = db_get(db, dep->name);
-    if (!installed)
-        installed = db_find_provider(db, dep->name);
-    if (installed)
+    if (installed_satisfies(db, dep))
     {
-        bool satisfied =
-            dep->op == VER_OP_ANY ||
-            ver_satisfies(installed->meta->version, dep->op, dep->version);
-        package_free(installed);
-        if (satisfied)
-        {
-            ui_debugf("dependency %s already installed and satisfied",
-                      dep->name);
-            return true;
-        }
+        ui_debugf("dependency %s already installed and satisfied", dep->name);
+        return true;
     }
 
     ui_debugf("dependency %s needs to be fetched", dep->name);
@@ -795,6 +823,7 @@ resolve_install_closure(char *const *requested, size_t requested_count,
 
     if (nodeps)
     {
+        warn_skipped_dependencies(db, out);
         free(roots);
         return true;
     }
