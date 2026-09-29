@@ -41,6 +41,9 @@ struct package *resolve_fetch_by_name(const char *name, ver_op_t op,
                                       const struct provider_pref *prefs,
                                       size_t pref_count, bool assume_yes);
 
+bool resolve_dep_installed(struct db_handle *db,
+                           const struct dep_constraint *dep);
+
 struct package *resolve_fetch_named(const char *name, ver_op_t op,
                                     const char *version,
                                     const struct repo_list *repos,

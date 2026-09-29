@@ -58,6 +58,7 @@ void ui_format_bytes(size_t bytes, char *buf, size_t size);
 size_t ui_text_width(const char *s);
 
 void ui_print_heading(const char *fmt, ...) TULPAR_PRINTF(1, 2);
+void ui_print_field(const char *label, size_t label_width, const char *value);
 void ui_print_package_row(const char *name, size_t name_width,
                           const char *version, size_t version_width,
                           const char *tag, size_t tag_width,

@@ -579,8 +579,8 @@ db_find_provider(struct db_handle *db, const char *name)
     return found;
 }
 
-static bool
-installed_satisfies(struct db_handle *db, const struct dep_constraint *dep)
+bool
+resolve_dep_installed(struct db_handle *db, const struct dep_constraint *dep)
 {
     struct package *installed = db_get(db, dep->name);
     if (!installed)
@@ -605,7 +605,7 @@ warn_skipped_dependencies(struct db_handle *db, const struct pkg_set *set)
         {
             const struct dep_constraint *dep = &meta->dependencies.items[j];
             if (pkg_set_satisfies(set, dep->name) ||
-                installed_satisfies(db, dep))
+                resolve_dep_installed(db, dep))
                 continue;
 
             char *want = dep_constraint_to_str(dep);
@@ -631,7 +631,7 @@ resolve_dependency(const char *required_by, const struct dep_constraint *dep,
         return true;
     }
 
-    if (installed_satisfies(db, dep))
+    if (resolve_dep_installed(db, dep))
     {
         ui_debugf("dependency %s already installed and satisfied", dep->name);
         return true;

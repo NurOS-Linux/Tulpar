@@ -467,6 +467,16 @@ ui_print_heading(const char *fmt, ...)
 }
 
 void
+ui_print_field(const char *label, size_t label_width, const char *value)
+{
+    if (!value || value[0] == '\0')
+        return;
+    fputs("  ", stdout);
+    print_padded(COL_BOLD, label, label_width + 2);
+    printf("%s\n", value);
+}
+
+void
 ui_print_package_row(const char *name, size_t name_width, const char *version,
                      size_t version_width, const char *tag, size_t tag_width,
                      const char *description)

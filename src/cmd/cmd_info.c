@@ -9,6 +9,7 @@
 
 #include "cmd_info.h"
 #include "cmd_common.h"
+#include "resolve.h"
 #include "../cli/args.h"
 #include "../cli/ui.h"
 #include "../net/api.h"
@@ -19,82 +20,100 @@
 
 #define USAGE "tulpar info [--dest <path>] [--json] <name>"
 
-static void
-print_str_list(const char *label, const struct str_list *list)
+static char *
+join_list(const struct str_list *list)
 {
     if (!list || list->count == 0)
-        return;
-
-    printf("%-13s", label);
+        return NULL;
+    size_t len = 1;
     for (int i = 0; i < list->count; i++)
-        printf("%s%s", i > 0 ? ", " : "", list->items[i]);
-    printf("\n");
+        len += strlen(list->items[i]) + 2;
+    char *out = malloc(len);
+    if (!out)
+        return NULL;
+    out[0] = '\0';
+    for (int i = 0; i < list->count; i++)
+    {
+        if (i > 0)
+            strcat(out, ", ");
+        strcat(out, list->items[i]);
+    }
+    return out;
 }
 
-static void
-print_dependencies(const struct dep_constraint_list *deps)
+static char *
+join_dependencies(const struct dep_constraint_list *deps, struct db_handle *db)
 {
     if (!deps || deps->count == 0)
-        return;
-
-    printf("Depends On:  ");
+        return NULL;
+    struct str_list parts = {0};
+    parts.items = calloc((size_t)deps->count, sizeof(char *));
+    if (!parts.items)
+        return NULL;
     for (int i = 0; i < deps->count; i++)
     {
-        struct dep_constraint *c = &deps->items[i];
-        if (i > 0)
-            printf(", ");
-        if (c->op == VER_OP_ANY || !c->version)
-            printf("%s", c->name);
-        else
+        char *dep = dep_constraint_to_str(&deps->items[i]);
+        if (!dep)
+            continue;
+        if (db && !resolve_dep_installed(db, &deps->items[i]))
         {
-            const char *op_str = "=";
-            switch (c->op)
-            {
-            case VER_OP_EQ:
-                op_str = "=";
-                break;
-            case VER_OP_NEQ:
-                op_str = "!=";
-                break;
-            case VER_OP_LT:
-                op_str = "<";
-                break;
-            case VER_OP_LE:
-                op_str = "<=";
-                break;
-            case VER_OP_GT:
-                op_str = ">";
-                break;
-            case VER_OP_GE:
-                op_str = ">=";
-                break;
-            default:
-                break;
-            }
-            printf("%s %s %s", c->name, op_str, c->version);
+            char buf[512];
+            snprintf(buf, sizeof(buf), "%s (%s)", dep, _("not installed"));
+            free(dep);
+            dep = strdup(buf);
         }
+        parts.items[parts.count++] = dep;
     }
-    printf("\n");
+    char *out = join_list(&parts);
+    str_list_free(&parts);
+    return out;
 }
 
 static void
-print_pkg_human(const struct package_metadata *m, const struct str_list *req_by)
+print_pkg_human(const struct package_metadata *m, const char *status,
+                const struct str_list *req_by, struct db_handle *db,
+                const char *versions)
 {
-    printf("Name:        %s\n", m->name ? m->name : "");
-    printf("Version:     %s\n", m->version ? m->version : "");
-    printf("Type:        %s\n", m->type ? m->type : "");
-    printf("Arch:        %s\n", m->architecture ? m->architecture : "");
-    printf("Maintainer:  %s\n", m->maintainer ? m->maintainer : "");
-    printf("License:     %s\n", m->license ? m->license : "");
-    printf("Homepage:    %s\n", m->homepage ? m->homepage : "");
+    ui_print_heading("%s %s", m->name ? m->name : "",
+                     m->version ? m->version : "");
+    if (m->description && m->description[0] != '\0')
+        printf("%s\n", m->description);
+    printf("\n");
 
-    print_dependencies(&m->dependencies);
-    print_str_list("Provides:    ", &m->provides);
-    print_str_list("Conflicts:   ", &m->conflicts);
-    print_str_list("Replaces:    ", &m->replaces);
-    print_str_list("Required By: ", req_by);
+    const char *labels[] = {
+        _("Status"),    _("Type"),     _("Architecture"), _("Maintainer"),
+        _("License"),   _("Homepage"), _("Depends on"),   _("Provides"),
+        _("Conflicts"), _("Replaces"), _("Required by"),  _("Versions"),
+    };
+    size_t width = 0;
+    for (size_t i = 0; i < sizeof(labels) / sizeof(labels[0]); i++)
+        if (ui_text_width(labels[i]) > width)
+            width = ui_text_width(labels[i]);
 
-    printf("Description: %s\n", m->description ? m->description : "");
+    char *deps = join_dependencies(&m->dependencies, db);
+    char *provides = join_list(&m->provides);
+    char *conflicts = join_list(&m->conflicts);
+    char *replaces = join_list(&m->replaces);
+    char *required_by = join_list(req_by);
+
+    ui_print_field(labels[0], width, status);
+    ui_print_field(labels[1], width, m->type);
+    ui_print_field(labels[2], width, m->architecture);
+    ui_print_field(labels[3], width, m->maintainer);
+    ui_print_field(labels[4], width, m->license);
+    ui_print_field(labels[5], width, m->homepage);
+    ui_print_field(labels[6], width, deps);
+    ui_print_field(labels[7], width, provides);
+    ui_print_field(labels[8], width, conflicts);
+    ui_print_field(labels[9], width, replaces);
+    ui_print_field(labels[10], width, required_by);
+    ui_print_field(labels[11], width, versions);
+
+    free(deps);
+    free(provides);
+    free(conflicts);
+    free(replaces);
+    free(required_by);
 }
 
 static void
@@ -122,40 +141,10 @@ print_pkg_json(const struct package_metadata *m, const struct str_list *req_by)
         yyjson_mut_val *dep_arr = yyjson_mut_arr(doc);
         for (int i = 0; i < m->dependencies.count; i++)
         {
-            struct dep_constraint *c = &m->dependencies.items[i];
-            if (c->op == VER_OP_ANY || !c->version)
-                yyjson_mut_arr_add_strcpy(doc, dep_arr, c->name);
-            else
-            {
-                char dep_str[256];
-                const char *op_str = "=";
-                switch (c->op)
-                {
-                case VER_OP_EQ:
-                    op_str = "=";
-                    break;
-                case VER_OP_NEQ:
-                    op_str = "!=";
-                    break;
-                case VER_OP_LT:
-                    op_str = "<";
-                    break;
-                case VER_OP_LE:
-                    op_str = "<=";
-                    break;
-                case VER_OP_GT:
-                    op_str = ">";
-                    break;
-                case VER_OP_GE:
-                    op_str = ">=";
-                    break;
-                default:
-                    break;
-                }
-                snprintf(dep_str, sizeof(dep_str), "%s %s %s", c->name, op_str,
-                         c->version);
-                yyjson_mut_arr_add_strcpy(doc, dep_arr, dep_str);
-            }
+            char *dep = dep_constraint_to_str(&m->dependencies.items[i]);
+            if (dep)
+                yyjson_mut_arr_add_strcpy(doc, dep_arr, dep);
+            free(dep);
         }
         yyjson_mut_obj_add_val(doc, obj, "dependencies", dep_arr);
     }
@@ -320,10 +309,15 @@ cmd_info_run(int argc, char **argv, struct tulpar_config *cfg)
     {
         struct str_list req_by =
             find_required_by(db, local->meta->name, &local->meta->provides);
+        char status[256];
+        snprintf(status, sizeof(status), "%s%s%s",
+                 local->installed_by_hand ? _("installed explicitly")
+                                          : _("installed as a dependency"),
+                 local->held ? ", " : "", local->held ? _("held") : "");
         if (json_output)
             print_pkg_json(local->meta, &req_by);
         else
-            print_pkg_human(local->meta, &req_by);
+            print_pkg_human(local->meta, status, &req_by, db, NULL);
 
         for (int i = 0; i < req_by.count; i++)
             free(req_by.items[i]);
@@ -369,10 +363,19 @@ cmd_info_run(int argc, char **argv, struct tulpar_config *cfg)
         .description = pkg->description,
     };
 
+    char versions[512] = "";
+    for (size_t i = 0; i < idx->count; i++)
+    {
+        size_t len = strlen(versions);
+        snprintf(versions + len, sizeof(versions) - len, "%s%s",
+                 i > 0 ? ", " : "", idx->items[i].version);
+    }
+
     if (json_output)
         print_pkg_json(&meta, NULL);
     else
-        print_pkg_human(&meta, NULL);
+        print_pkg_human(&meta, _("not installed"), NULL, NULL,
+                        idx->count > 1 ? versions : NULL);
 
     repo_index_free(idx);
     return 0;
