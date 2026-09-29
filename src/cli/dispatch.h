@@ -19,3 +19,5 @@ extern const struct command g_commands[];
 extern const size_t g_command_count;
 
 const struct command *command_lookup(const char *token);
+
+const char *command_suggest(const char *token);

@@ -99,7 +99,7 @@ cmd_clean_run(int argc, char **argv, struct tulpar_config *cfg)
     if (!ui_confirm(prompt, assume_yes))
     {
         ui_info(_("aborted"));
-        return 0;
+        return 1;
     }
 
     size_t total_removed = 0;

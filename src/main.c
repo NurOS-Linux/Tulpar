@@ -94,8 +94,17 @@ main(int argc, char **argv)
     const struct command *cmd = command_lookup(token);
     if (!cmd)
     {
-        ui_error(_("unknown command"));
-        print_usage();
+        ui_init(NULL, UI_COLOR_AUTO);
+        if (argv[1][0] == '-')
+            ui_errorf(_("unknown option: %s"), argv[1]);
+        else
+        {
+            ui_errorf(_("unknown command: %s"), argv[1]);
+            const char *suggestion = command_suggest(argv[1]);
+            if (suggestion)
+                ui_hint(_("did you mean '%s'?"), suggestion);
+        }
+        ui_hint(_("run 'tulpar --help' to see the available commands"));
         return 1;
     }
 
