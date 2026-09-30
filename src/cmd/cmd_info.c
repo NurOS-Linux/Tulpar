@@ -80,34 +80,32 @@ print_pkg_human(const struct package_metadata *m, const char *status,
         printf("%s\n", m->description);
     printf("\n");
 
-    const char *labels[] = {
-        _("Status"),    _("Type"),     _("Architecture"), _("Maintainer"),
-        _("License"),   _("Homepage"), _("Depends on"),   _("Provides"),
-        _("Conflicts"), _("Replaces"), _("Required by"),  _("Versions"),
-    };
-    size_t width = 0;
-    for (size_t i = 0; i < sizeof(labels) / sizeof(labels[0]); i++)
-        if (ui_text_width(labels[i]) > width)
-            width = ui_text_width(labels[i]);
-
     char *deps = join_dependencies(&m->dependencies, db);
     char *provides = join_list(&m->provides);
     char *conflicts = join_list(&m->conflicts);
     char *replaces = join_list(&m->replaces);
     char *required_by = join_list(req_by);
 
-    ui_print_field(labels[0], width, status);
-    ui_print_field(labels[1], width, m->type);
-    ui_print_field(labels[2], width, m->architecture);
-    ui_print_field(labels[3], width, m->maintainer);
-    ui_print_field(labels[4], width, m->license);
-    ui_print_field(labels[5], width, m->homepage);
-    ui_print_field(labels[6], width, deps);
-    ui_print_field(labels[7], width, provides);
-    ui_print_field(labels[8], width, conflicts);
-    ui_print_field(labels[9], width, replaces);
-    ui_print_field(labels[10], width, required_by);
-    ui_print_field(labels[11], width, versions);
+    const char *labels[] = {
+        _("Status"),    _("Type"),     _("Architecture"), _("Maintainer"),
+        _("License"),   _("Homepage"), _("Depends on"),   _("Provides"),
+        _("Conflicts"), _("Replaces"), _("Required by"),  _("Versions"),
+    };
+    const char *values[] = {
+        status,      m->type,  m->architecture, m->maintainer, m->license,
+        m->homepage, deps,     provides,        conflicts,     replaces,
+        required_by, versions,
+    };
+    size_t count = sizeof(labels) / sizeof(labels[0]);
+
+    size_t width = 0;
+    for (size_t i = 0; i < count; i++)
+        if (values[i] && values[i][0] != '\0' &&
+            ui_text_width(labels[i]) > width)
+            width = ui_text_width(labels[i]);
+
+    for (size_t i = 0; i < count; i++)
+        ui_print_field(labels[i], width, values[i]);
 
     free(deps);
     free(provides);
