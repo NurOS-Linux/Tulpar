@@ -282,6 +282,10 @@ cmd_run_transaction(struct apg_trans *trans, struct db_handle *db,
                           "libapg must be built with a larger db_mapsize"));
             break;
         }
+        case TRANS_ERR_REMOVE_FAILED:
+            ui_errorf(_("removal failed: %s"), cmd_libapg_reason());
+            ui_hint(_("changes made by this transaction were rolled back"));
+            break;
         default:
             ui_errorf(_("failed to commit the transaction: %s"),
                       cmd_libapg_reason());
