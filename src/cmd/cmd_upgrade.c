@@ -181,22 +181,32 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
     else
     {
         candidates_from = db_list(db, &candidates_count);
-        for (int i = 0; i < candidates_count; i++)
+        struct remote_pick *picks =
+            candidates_count > 0
+                ? calloc((size_t)candidates_count, sizeof(*picks))
+                : NULL;
+        size_t pick_count = 0;
+        for (int i = 0; picks && i < candidates_count; i++)
         {
             if (is_excluded(candidates_from[i]->meta->name, exclude,
                             exclude_count))
                 continue;
-
-            bool failed = false;
-            struct package *candidate =
-                resolve_fetch_named(candidates_from[i]->meta->name, VER_OP_GT,
-                                    candidates_from[i]->meta->version, repos,
-                                    cfg, dest.root, &failed);
-            if (candidate)
-                pkg_set_add(&set, candidate);
-            if (failed)
-                fetch_failed = true;
+            if (resolve_lookup_named(candidates_from[i]->meta->name, VER_OP_GT,
+                                     candidates_from[i]->meta->version, repos,
+                                     cfg, &picks[pick_count]))
+                pick_count++;
         }
+
+        struct package **fetched =
+            pick_count > 0 ? calloc(pick_count, sizeof(*fetched)) : NULL;
+        if (pick_count > 0 &&
+            (!fetched ||
+             !resolve_download(picks, pick_count, cfg, dest.root, fetched)))
+            fetch_failed = true;
+        for (size_t i = 0; !fetch_failed && i < pick_count; i++)
+            pkg_set_add(&set, fetched[i]);
+        free(fetched);
+        free(picks);
     }
 
     if (set.count == 0)
