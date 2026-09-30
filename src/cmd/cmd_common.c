@@ -43,7 +43,15 @@ cmd_warn_repo_unreachable(const char *repo_url, bool using_cache)
     if (warned_count < sizeof(warned) / sizeof(warned[0]))
         snprintf(warned[warned_count++], sizeof(warned[0]), "%s", repo_url);
 
-    if (using_cache)
+    if (http_last_not_found() && using_cache)
+        ui_warnf(_("repository %s no longer publishes a package index "
+                   "(repodata.json); using the cached copy"),
+                 repo_url);
+    else if (http_last_not_found())
+        ui_warnf(_("repository %s does not publish a package index "
+                   "(repodata.json)"),
+                 repo_url);
+    else if (using_cache)
         ui_warnf(_("cannot refresh the index of %s, using the cached copy: "
                    "%s"),
                  repo_url, http_last_error());
