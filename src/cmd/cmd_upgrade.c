@@ -135,6 +135,8 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
 
     struct package **candidates_from = NULL;
     int candidates_count = 0;
+    struct timespec resolve_started;
+    clock_gettime(CLOCK_MONOTONIC, &resolve_started);
 
     if (target_name)
     {
@@ -155,7 +157,6 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
                 : resolve_fetch_named(target_name, VER_OP_GT,
                                       installed->meta->version, repos, cfg,
                                       dest.root);
-        package_free(installed);
 
         if (!candidate)
         {
@@ -163,13 +164,16 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
                 ui_errorf(_("%s %s not found in any configured repo"),
                           target_name, target_version);
             else
-                ui_info(_("already up to date"));
+                ui_infof(_("%s %s is already installed and up to date"),
+                         installed->meta->name, installed->meta->version);
+            package_free(installed);
             repo_list_free(repos);
             db_close(db);
             dest_ctx_clear(&dest);
             return target_version ? 1 : 0;
         }
 
+        package_free(installed);
         pkg_set_add(&set, candidate);
     }
     else
@@ -200,6 +204,11 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
         dest_ctx_clear(&dest);
         return 0;
     }
+
+    ui_status(
+        _("Resolved"),
+        ngettext("%zu package in %.2fs", "%zu packages in %.2fs", set.count),
+        set.count, cmd_seconds_since(&resolve_started));
 
     cmd_warn_unsigned(set.items, set.count,
                       require_sig || cfg->require_signature);
