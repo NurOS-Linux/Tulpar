@@ -4,6 +4,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <time.h>
 
 #include <apg/db.h>
@@ -27,7 +28,8 @@ double cmd_seconds_since(const struct timespec *start);
 
 struct db_handle *cmd_open_db(const struct dest_ctx *dest, bool writable);
 
-void cmd_warn_if_unsigned(const struct package *pkg);
+void cmd_warn_unsigned(struct package *const *pkgs, size_t count,
+                       bool required);
 
 bool cmd_run_transaction(struct apg_trans *trans, struct db_handle *db,
                          const struct dest_ctx *dest,

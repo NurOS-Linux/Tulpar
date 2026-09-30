@@ -208,8 +208,8 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
         ui_debugf("placed signature %s at %s", sign_path, sig_dest);
     }
 
-    for (size_t i = 0; i < set.count; i++)
-        cmd_warn_if_unsigned(set.items[i]);
+    cmd_warn_unsigned(set.items, set.count,
+                      require_sig || cfg->require_signature);
 
     struct apg_trans *trans = trans_new(db);
     if (!trans)

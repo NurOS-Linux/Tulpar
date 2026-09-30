@@ -116,28 +116,65 @@ cmd_open_db(const struct dest_ctx *dest, bool writable)
     return db;
 }
 
-void
-cmd_warn_if_unsigned(const struct package *pkg)
+static void
+append_name(char *buf, size_t size, const char *name)
 {
-    if (!pkg->pkg_path)
+    size_t len = strlen(buf);
+    snprintf(buf + len, size - len, "%s%s", len > 0 ? ", " : "", name);
+}
+
+void
+cmd_warn_unsigned(struct package *const *pkgs, size_t count, bool required)
+{
+    if (required)
         return;
 
-    char sig_path[4096];
-    snprintf(sig_path, sizeof(sig_path), "%s.sig", pkg->pkg_path);
+    char missing[1024] = "";
+    char invalid[1024] = "";
+    size_t missing_count = 0;
+    size_t invalid_count = 0;
 
-    struct stat st;
-    if (stat(sig_path, &st) != 0)
+    for (size_t i = 0; i < count; i++)
     {
-        ui_warnf(_("%s has no detached signature (%s); "
-                   "installing without signature verification"),
-                 pkg->meta->name, sig_path);
-        return;
+        const struct package *pkg = pkgs[i];
+        if (!pkg->pkg_path)
+            continue;
+
+        char sig_path[4096];
+        snprintf(sig_path, sizeof(sig_path), "%s.sig", pkg->pkg_path);
+
+        struct stat st;
+        if (stat(sig_path, &st) != 0)
+        {
+            ui_debugf("%s: no signature at %s", pkg->meta->name, sig_path);
+            append_name(missing, sizeof(missing), pkg->meta->name);
+            missing_count++;
+        }
+        else if (!sign_verify(pkg->pkg_path, sig_path, false))
+        {
+            ui_debugf("%s: signature at %s did not verify", pkg->meta->name,
+                      sig_path);
+            append_name(invalid, sizeof(invalid), pkg->meta->name);
+            invalid_count++;
+        }
     }
 
-    if (!sign_verify(pkg->pkg_path, sig_path, false))
-        ui_warnf(_("%s signature at %s could not be verified; "
-                   "installing an unverified package"),
-                 pkg->meta->name, sig_path);
+    if (missing_count > 0)
+        ui_warnf(ngettext("%zu package has no signature and will be "
+                          "installed unverified: %s",
+                          "%zu packages have no signature and will be "
+                          "installed unverified: %s",
+                          missing_count),
+                 missing_count, missing);
+    if (invalid_count > 0)
+        ui_warnf(ngettext("%zu package has a signature that could not be "
+                          "verified: %s",
+                          "%zu packages have signatures that could not be "
+                          "verified: %s",
+                          invalid_count),
+                 invalid_count, invalid);
+    if (missing_count > 0 || invalid_count > 0)
+        ui_hint(_("pass --require-signature to refuse unverified packages"));
 }
 
 static void
