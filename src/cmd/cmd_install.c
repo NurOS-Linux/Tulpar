@@ -22,6 +22,26 @@
     "[--sign <sig-path>] [--provider <name>=<package>]... [--nodeps] "         \
     "[-n|--dry-run] <package|file.apg|url|git-url>..."
 
+static void
+mark_installed_by_hand(struct db_handle *db, const struct str_list *names)
+{
+    for (int i = 0; i < names->count; i++)
+    {
+        struct package *pkg = db_get(db, names->items[i]);
+        bool already = pkg && pkg->installed_by_hand;
+        package_free(pkg);
+        if (!pkg || already)
+            continue;
+
+        if (db_set_installed_by_hand(db, names->items[i], true))
+            ui_status(_("Marked"), _("%s as installed explicitly"),
+                      names->items[i]);
+        else
+            ui_warnf(_("cannot mark %s as installed explicitly: %s"),
+                     names->items[i], cmd_libapg_reason());
+    }
+}
+
 int
 cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
 {
@@ -162,12 +182,15 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
         ui_debug("--nodeps: installing exactly the requested package(s), "
                  "skipping dependency resolution");
 
+    struct str_list requested_installed = {0};
     struct timespec resolve_started;
     clock_gettime(CLOCK_MONOTONIC, &resolve_started);
-    if (!resolve_install_closure(
-            positional, (size_t)positional_count, db, repos, cfg, dest.root,
-            provider_prefs, (size_t)provider_count, assume_yes, nodeps, &set))
+    if (!resolve_install_closure(positional, (size_t)positional_count, db,
+                                 repos, cfg, dest.root, provider_prefs,
+                                 (size_t)provider_count, assume_yes, nodeps,
+                                 &set, &requested_installed))
     {
+        str_list_free(&requested_installed);
         pkg_set_free(&set);
         repo_list_free(repos);
         db_close(db);
@@ -184,6 +207,9 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (set.count == 0)
     {
+        if (!dry_run)
+            mark_installed_by_hand(db, &requested_installed);
+        str_list_free(&requested_installed);
         pkg_set_free(&set);
         repo_list_free(repos);
         db_close(db);
@@ -199,6 +225,7 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
         {
             ui_errorf(_("failed to place signature from %s at %s"), sign_path,
                       sig_dest);
+            str_list_free(&requested_installed);
             pkg_set_free(&set);
             repo_list_free(repos);
             db_close(db);
@@ -215,6 +242,7 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
     if (!trans)
     {
         ui_error(_("failed to allocate transaction"));
+        str_list_free(&requested_installed);
         pkg_set_free(&set);
         repo_list_free(repos);
         db_close(db);
@@ -227,8 +255,10 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
         struct package *installed = db_get(db, set.items[i]->meta->name);
         if (installed)
             trans_add_upgrade(trans, set.items[i]);
-        else
+        else if (i < set.explicit_count)
             trans_add_install(trans, set.items[i]);
+        else
+            trans_add_candidate(trans, set.items[i]);
         package_free(installed);
     }
 
@@ -237,6 +267,9 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
                                   false, dry_run);
 
     trans_free(trans);
+    if (ok && !dry_run)
+        mark_installed_by_hand(db, &requested_installed);
+    str_list_free(&requested_installed);
     pkg_set_free(&set);
     repo_list_free(repos);
     db_close(db);

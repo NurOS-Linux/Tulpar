@@ -18,6 +18,7 @@ struct pkg_set
     struct package **items;
     size_t count;
     size_t cap;
+    size_t explicit_count;
 };
 
 struct provider_pref
@@ -68,4 +69,5 @@ resolve_install_closure(char *const *requested, size_t requested_count,
                         struct db_handle *db, const struct repo_list *repos,
                         const struct tulpar_config *cfg, const char *root_path,
                         const struct provider_pref *prefs, size_t pref_count,
-                        bool assume_yes, bool nodeps, struct pkg_set *out);
+                        bool assume_yes, bool nodeps, struct pkg_set *out,
+                        struct str_list *requested_installed);

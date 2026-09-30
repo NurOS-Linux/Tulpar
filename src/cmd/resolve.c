@@ -781,12 +781,36 @@ installed_is_current(struct db_handle *db, const struct package *pkg)
     return cmp <= 0;
 }
 
+static void
+note_requested_installed(struct str_list *list, struct db_handle *db,
+                         const char *name)
+{
+    struct package *installed = db_get(db, name);
+    if (!installed)
+        return;
+    package_free(installed);
+
+    for (int i = 0; i < list->count; i++)
+        if (strcmp(list->items[i], name) == 0)
+            return;
+
+    char **items =
+        realloc(list->items, (size_t)(list->count + 1) * sizeof(*items));
+    if (!items)
+        return;
+    list->items = items;
+    list->items[list->count] = strdup(name);
+    if (list->items[list->count])
+        list->count++;
+}
+
 bool
 resolve_install_closure(char *const *requested, size_t requested_count,
                         struct db_handle *db, const struct repo_list *repos,
                         const struct tulpar_config *cfg, const char *root_path,
                         const struct provider_pref *prefs, size_t pref_count,
-                        bool assume_yes, bool nodeps, struct pkg_set *out)
+                        bool assume_yes, bool nodeps, struct pkg_set *out,
+                        struct str_list *requested_installed)
 {
     const struct package_metadata **roots =
         calloc(requested_count, sizeof(*roots));
@@ -842,6 +866,8 @@ resolve_install_closure(char *const *requested, size_t requested_count,
             if (!pkg && !failed)
                 ui_infof(_("%s %s is already installed and up to date"),
                          installed->meta->name, installed->meta->version);
+            note_requested_installed(requested_installed, db,
+                                     installed->meta->name);
             package_free(installed);
             if (failed)
             {
@@ -884,6 +910,7 @@ resolve_install_closure(char *const *requested, size_t requested_count,
             continue;
         }
 
+        note_requested_installed(requested_installed, db, pkg->meta->name);
         if (installed_is_current(db, pkg))
         {
             package_free(pkg);
@@ -899,6 +926,8 @@ resolve_install_closure(char *const *requested, size_t requested_count,
             return false;
         }
     }
+
+    out->explicit_count = out->count;
 
     if (!nodeps && !resolve_dependencies(0, db, repos, cfg, root_path, prefs,
                                          pref_count, assume_yes, out))
