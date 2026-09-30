@@ -629,6 +629,15 @@ ui_progress_update(size_t current, size_t total)
 }
 
 void
+ui_progress_set_label(const char *label)
+{
+    snprintf(g_progress_label, sizeof(g_progress_label), "%s",
+             label ? label : "");
+    if (g_progress_active)
+        progress_draw();
+}
+
+void
 ui_progress_finish(void)
 {
     progress_clear();

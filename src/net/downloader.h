@@ -8,10 +8,15 @@
 
 struct download_task
 {
-    char *url;
-    char *dest_path;
+    const char *url;
+    const char *dest_path;
+    const char *label;
+    bool optional;
     bool ok;
+    char error[512];
+    size_t now;
+    size_t total;
 };
 
-void download_all_parallel(struct download_task *tasks, size_t count,
+bool download_all_parallel(struct download_task *tasks, size_t count,
                            int max_parallel);

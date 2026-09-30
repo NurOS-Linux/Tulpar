@@ -70,6 +70,7 @@ int ui_select(const char *prompt, const char *const *options, int count,
 void ui_progress_start(const char *verb, const char *label, size_t total,
                        ui_progress_unit unit);
 void ui_progress_update(size_t current, size_t total);
+void ui_progress_set_label(const char *label);
 void ui_progress_finish(void);
 
 void ui_print_plan(const struct apg_trans *trans, struct db_handle *db);
