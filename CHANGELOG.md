@@ -2,6 +2,80 @@
 
 All notable changes to tulpar are documented in this file.
 
+## [0.5.0] - 2026-09-30
+
+### Added
+
+- `--color auto|always|never` global flag. Colors are decided separately
+  for stdout and stderr and honor `NO_COLOR`, `CLICOLOR_FORCE`, and
+  `TERM=dumb`; documented in a new ENVIRONMENT section of `tulpar(1)`.
+- Status lines with right-aligned verbs (`Resolved`, `Downloading`,
+  `Installing [i/n]`, `Upgrading`, `Removing`, `Finished … in 0.42s`)
+  and a download progress bar with size, speed, and item count on
+  stderr. The bar is only drawn when stderr is a terminal and is hidden
+  by `-q`.
+- `help:` hints under errors, for example for a locked database, a held
+  package, dependents blocking a removal, a failed signature check, a
+  full disk while unpacking, or a missing repository list.
+- Suggestions for mistyped commands and options (`did you mean
+  'install'?`, `did you mean '--dry-run'?`).
+- Parallel downloads: `install` resolves dependencies level by level and
+  downloads each level at once, and `upgrade` without arguments looks up
+  every update first and downloads them together. The number of
+  concurrent transfers comes from `max_parallel_downloads`.
+- `--nodeps` now reports what it skips: `install --nodeps` names each
+  missing dependency and the package that needs it, and
+  `remove --nodeps` names every installed package that depends on a
+  removed one.
+- `install` of an already installed package upgrades it when a newer
+  version is available from the repositories, a local archive, or a URL,
+  reports it as already installed when the version is the same, and
+  skips it with a warning when the installed version is newer. An
+  explicit `install` of a package that was installed as a dependency
+  marks it as installed explicitly, backed by libapg's new
+  `db_set_installed_by_hand()`.
+
+### Changed
+
+- libapg pinned to v2.7.0 (`b9d424b`).
+- The transaction plan is a table with `old -> new` versions for
+  upgrades, the installed version for removals, and a summary line; an
+  empty plan no longer asks for confirmation.
+- `list` and `search` print aligned tables with `held` and `installed`
+  tags, `info` prints a translated field list with the package status and
+  marks dependencies that are not installed, `history` prints a table
+  with timestamps, and the remaining commands use status lines instead of
+  `==>`/`::` prefixes.
+- Errors include the cause reported by libapg: the failing file and
+  `strerror()` text, script exit status, the missing dependency and its
+  version constraint, and whether the database is locked or cannot be
+  opened.
+- Network errors show the curl error or HTTP status; an unreachable
+  repository is reported once instead of making packages look missing,
+  and a repository without `repodata.json` is reported as such.
+- Unsigned packages are summarized in one warning per transaction instead
+  of one warning per package; the full signature paths are shown with
+  `--verbose`.
+- Confirmation prompts go to stderr; when standard input is not a
+  terminal and `-y` is not given, the command fails with a hint instead
+  of silently aborting, and a declined confirmation exits non-zero.
+- Russian and Kazakh translations cover all new messages; status verbs
+  and table columns are aligned by character width.
+
+### Fixed
+
+- `install` recorded every dependency it pulled in as installed
+  explicitly, so `orphans`/`autoremove` never found them; dependencies are
+  now added as auto-installed.
+- `upgrade <pkg>`, `upgrade <pkg>=<version>`, the full `upgrade`, and
+  `rollback` could install an unrelated package that merely provides the
+  requested name.
+- A failed download was reported as the package being up to date or not
+  found.
+- `install x x` read a freed package while building the SAT roots.
+- Global flags placed after `--` were consumed instead of being passed to
+  the command.
+
 ## [0.4.0] - 2026-09-16
 
 ### Added
