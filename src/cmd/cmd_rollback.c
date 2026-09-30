@@ -168,8 +168,9 @@ cmd_rollback_run(int argc, char **argv, struct tulpar_config *cfg)
         {
             ver_op_t vop =
                 version && version[0] != '\0' ? VER_OP_EQ : VER_OP_ANY;
-            struct package *pkg =
-                resolve_fetch_named(name, vop, version, repos, cfg, dest.root);
+            bool failed = false;
+            struct package *pkg = resolve_fetch_named(name, vop, version, repos,
+                                                      cfg, dest.root, &failed);
             if (pkg)
             {
                 if (!pkg_set_add(&closure, pkg))

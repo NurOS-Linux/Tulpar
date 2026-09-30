@@ -16,6 +16,10 @@ struct repo_index *api_get_package(const char *base_url, const char *name);
 
 struct repo_index *api_get_repodata(const char *base_url);
 
+void api_download_url(char *out, size_t outlen, const char *base_url,
+                      const char *channel, const char *name,
+                      const char *version, const char *arch);
+
 bool api_download(const char *base_url, const char *channel, const char *name,
                   const char *version, const char *arch, const char *dest_path,
                   http_progress_fn progress, void *userdata);

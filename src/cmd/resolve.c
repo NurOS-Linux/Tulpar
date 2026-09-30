@@ -13,6 +13,7 @@
 #include "cmd_common.h"
 #include "../cli/ui.h"
 #include "../net/api.h"
+#include "../net/downloader.h"
 #include "../net/http.h"
 #include "../repo/repodata.h"
 #include "../util/paths.h"
@@ -434,10 +435,10 @@ resolve_choose_provider(const char *virtual_name, const struct repo_list *repos,
     return true;
 }
 
-static struct package *
-fetch_from_repos(const char *name, ver_op_t op, const char *version,
-                 const struct repo_list *repos, const struct tulpar_config *cfg,
-                 const char *root_path)
+static bool
+lookup_in_repos(const char *name, ver_op_t op, const char *version,
+                const struct repo_list *repos, const struct tulpar_config *cfg,
+                struct remote_pick *out)
 {
     ui_debugf("resolving %s against %d configured repo(s)", name, repos->count);
 
@@ -475,90 +476,140 @@ fetch_from_repos(const char *name, ver_op_t op, const char *version,
             continue;
         }
 
-        const char *use_channel = best->channel[0] ? best->channel : "stable";
-        const char *use_arch =
+        const char *channel = best->channel[0] ? best->channel : "stable";
+        const char *arch =
             best->architecture[0] ? best->architecture : "noarch";
-
         ui_debugf("selected %s %s (%s/%s) from %s", best->name, best->version,
-                  use_channel, use_arch, base_url);
+                  channel, arch, base_url);
 
         char *pkgs_dir = path_join(cfg->cache_dir, "pkgs");
         mkdir_p(pkgs_dir);
-
         char filename[512];
         snprintf(filename, sizeof(filename), "%s-%s-%s.apg", best->name,
-                 best->version, use_arch);
+                 best->version, arch);
         char *dest_path = path_join(pkgs_dir, filename);
         free(pkgs_dir);
 
-        ui_debugf("downloading to %s", dest_path);
-        char what[512];
-        snprintf(what, sizeof(what), "%s %s", best->name, best->version);
-        ui_progress_start(_("Downloading"), what, 0, UI_PROGRESS_BYTES);
-        bool downloaded =
-            api_download(base_url, use_channel, best->name, best->version,
-                         use_arch, dest_path, cmd_download_progress, NULL);
-        ui_progress_finish();
-        if (downloaded)
-            cmd_report_downloaded(what, dest_path);
-        if (!downloaded)
-        {
-            ui_warnf(_("cannot download %s %s from %s: %s"), best->name,
-                     best->version, base_url, http_last_error());
-            free(dest_path);
-            repo_index_free(idx);
-            continue;
-        }
-
-        char sig_path[600];
-        snprintf(sig_path, sizeof(sig_path), "%s.sig", dest_path);
-        api_download_sig(base_url, use_channel, best->name, best->version,
-                         use_arch, sig_path);
-
-        ui_debugf("parsing %s", dest_path);
-        struct package *pkg = parse_package(dest_path, root_path);
-        if (!pkg)
-            ui_warnf(_("%s %s from %s is not a valid package: %s"), best->name,
-                     best->version, base_url, cmd_libapg_reason());
+        memset(out, 0, sizeof(*out));
+        snprintf(out->name, sizeof(out->name), "%s", best->name);
+        snprintf(out->version, sizeof(out->version), "%s", best->version);
+        snprintf(out->base_url, sizeof(out->base_url), "%s", base_url);
+        snprintf(out->label, sizeof(out->label), "%s %s", best->name,
+                 best->version);
+        api_download_url(out->url, sizeof(out->url), base_url, channel,
+                         best->name, best->version, arch);
+        snprintf(out->sig_url, sizeof(out->sig_url), "%s.sig", out->url);
+        snprintf(out->dest_path, sizeof(out->dest_path), "%s",
+                 dest_path ? dest_path : "");
+        snprintf(out->sig_path, sizeof(out->sig_path), "%s.sig",
+                 out->dest_path);
         free(dest_path);
         repo_index_free(idx);
-
-        if (pkg)
-            return pkg;
+        return true;
     }
 
-    return NULL;
+    return false;
 }
 
-struct package *
-resolve_fetch_named(const char *name, ver_op_t op, const char *version,
-                    const struct repo_list *repos,
-                    const struct tulpar_config *cfg, const char *root_path)
+static bool
+lookup_or_provider(const char *name, ver_op_t op, const char *version,
+                   const struct repo_list *repos,
+                   const struct tulpar_config *cfg,
+                   const struct provider_pref *prefs, size_t pref_count,
+                   bool assume_yes, struct remote_pick *out)
 {
-    return fetch_from_repos(name, op, version, repos, cfg, root_path);
-}
-
-struct package *
-resolve_fetch_by_name(const char *name, ver_op_t op, const char *version,
-                      const struct repo_list *repos,
-                      const struct tulpar_config *cfg, const char *root_path,
-                      const struct provider_pref *prefs, size_t pref_count,
-                      bool assume_yes)
-{
-    struct package *found =
-        fetch_from_repos(name, op, version, repos, cfg, root_path);
-    if (found)
-        return found;
+    if (lookup_in_repos(name, op, version, repos, cfg, out))
+        return true;
 
     char provider_name[256];
     if (!resolve_choose_provider(name, repos, cfg, prefs, pref_count,
                                  assume_yes, provider_name,
                                  sizeof(provider_name)))
-        return NULL;
+        return false;
 
     ui_debugf("%s resolved via provides to package %s", name, provider_name);
-    return resolve_fetch_by_name(provider_name, VER_OP_ANY, NULL, repos, cfg,
-                                 root_path, prefs, pref_count, assume_yes);
+    return lookup_in_repos(provider_name, VER_OP_ANY, NULL, repos, cfg, out);
+}
+
+bool
+resolve_download(const struct remote_pick *picks, size_t count,
+                 const struct tulpar_config *cfg, const char *root_path,
+                 struct package **out)
+{
+    struct download_task *tasks = calloc(count * 2, sizeof(*tasks));
+    if (!tasks)
+        return false;
+
+    for (size_t i = 0; i < count; i++)
+    {
+        tasks[i * 2].url = picks[i].url;
+        tasks[i * 2].dest_path = picks[i].dest_path;
+        tasks[i * 2].label = picks[i].label;
+        tasks[i * 2 + 1].url = picks[i].sig_url;
+        tasks[i * 2 + 1].dest_path = picks[i].sig_path;
+        tasks[i * 2 + 1].optional = true;
+    }
+
+    download_all_parallel(tasks, count * 2, cfg->max_parallel_downloads);
+
+    bool ok = true;
+    for (size_t i = 0; i < count; i++)
+    {
+        out[i] = NULL;
+        if (!tasks[i * 2].ok)
+        {
+            ui_errorf(_("cannot download %s %s from %s: %s"), picks[i].name,
+                      picks[i].version, picks[i].base_url, tasks[i * 2].error);
+            ok = false;
+            continue;
+        }
+
+        ui_debugf("parsing %s", picks[i].dest_path);
+        out[i] = parse_package(picks[i].dest_path, root_path);
+        if (!out[i])
+        {
+            ui_errorf(_("%s %s from %s is not a valid package: %s"),
+                      picks[i].name, picks[i].version, picks[i].base_url,
+                      cmd_libapg_reason());
+            ok = false;
+        }
+    }
+
+    free(tasks);
+    if (!ok)
+    {
+        for (size_t i = 0; i < count; i++)
+        {
+            package_free(out[i]);
+            out[i] = NULL;
+        }
+    }
+    return ok;
+}
+
+bool
+resolve_lookup_named(const char *name, ver_op_t op, const char *version,
+                     const struct repo_list *repos,
+                     const struct tulpar_config *cfg, struct remote_pick *out)
+{
+    return lookup_in_repos(name, op, version, repos, cfg, out);
+}
+
+struct package *
+resolve_fetch_named(const char *name, ver_op_t op, const char *version,
+                    const struct repo_list *repos,
+                    const struct tulpar_config *cfg, const char *root_path,
+                    bool *failed)
+{
+    *failed = false;
+    struct remote_pick pick;
+    if (!lookup_in_repos(name, op, version, repos, cfg, &pick))
+        return NULL;
+
+    struct package *pkg = NULL;
+    if (!resolve_download(&pick, 1, cfg, root_path, &pkg))
+        *failed = true;
+    return pkg;
 }
 
 static struct package *
@@ -619,55 +670,92 @@ warn_skipped_dependencies(struct db_handle *db, const struct pkg_set *set)
 }
 
 static bool
-resolve_dependency(const char *required_by, const struct dep_constraint *dep,
-                   struct db_handle *db, const struct repo_list *repos,
-                   const struct tulpar_config *cfg, const char *root_path,
-                   const struct provider_pref *prefs, size_t pref_count,
-                   bool assume_yes, struct pkg_set *out)
+pick_listed(const struct remote_pick *picks, size_t count, const char *name)
 {
-    if (pkg_set_satisfies(out, dep->name))
-    {
-        ui_debugf("dependency %s already queued", dep->name);
-        return true;
-    }
+    for (size_t i = 0; i < count; i++)
+        if (strcmp(picks[i].name, name) == 0)
+            return true;
+    return false;
+}
 
-    if (resolve_dep_installed(db, dep))
+static bool
+resolve_dependencies(size_t first, struct db_handle *db,
+                     const struct repo_list *repos,
+                     const struct tulpar_config *cfg, const char *root_path,
+                     const struct provider_pref *prefs, size_t pref_count,
+                     bool assume_yes, struct pkg_set *out)
+{
+    while (first < out->count)
     {
-        ui_debugf("dependency %s already installed and satisfied", dep->name);
-        return true;
-    }
+        size_t level_end = out->count;
+        struct remote_pick *picks = NULL;
+        size_t pick_count = 0;
+        bool ok = true;
 
-    ui_debugf("dependency %s needs to be fetched", dep->name);
-    struct package *fetched =
-        resolve_fetch_by_name(dep->name, dep->op, dep->version, repos, cfg,
-                              root_path, prefs, pref_count, assume_yes);
-    if (!fetched)
-    {
-        char *want = dep_constraint_to_str(dep);
-        ui_errorf(_("%s requires %s, which was not found in any configured "
-                    "repository"),
-                  required_by, want ? want : dep->name);
-        free(want);
-        if (repos->count == 0)
-            ui_hint(_("no repositories are configured; add one with "
-                      "'tulpar repo add <url>'"));
-        return false;
-    }
+        for (size_t p = first; ok && p < level_end; p++)
+        {
+            const struct package_metadata *meta = out->items[p]->meta;
+            for (int j = 0; ok && j < meta->dependencies.count; j++)
+            {
+                const struct dep_constraint *dep = &meta->dependencies.items[j];
+                if (pkg_set_satisfies(out, dep->name) ||
+                    pick_listed(picks, pick_count, dep->name) ||
+                    resolve_dep_installed(db, dep))
+                    continue;
 
-    if (!pkg_set_add(out, fetched))
-    {
-        package_free(fetched);
-        return false;
-    }
+                struct remote_pick pick;
+                if (!lookup_or_provider(dep->name, dep->op, dep->version, repos,
+                                        cfg, prefs, pref_count, assume_yes,
+                                        &pick))
+                {
+                    char *want = dep_constraint_to_str(dep);
+                    ui_errorf(_("%s requires %s, which was not found in any "
+                                "configured repository"),
+                              meta->name, want ? want : dep->name);
+                    free(want);
+                    if (repos->count == 0)
+                        ui_hint(_("no repositories are configured; add one "
+                                  "with 'tulpar repo add <url>'"));
+                    ok = false;
+                    break;
+                }
+                if (pkg_set_contains(out, pick.name) ||
+                    pick_listed(picks, pick_count, pick.name))
+                    continue;
 
-    for (int i = 0; i < fetched->meta->dependencies.count; i++)
-    {
-        if (!resolve_dependency(
-                fetched->meta->name, &fetched->meta->dependencies.items[i], db,
-                repos, cfg, root_path, prefs, pref_count, assume_yes, out))
+                struct remote_pick *grown =
+                    realloc(picks, (pick_count + 1) * sizeof(*picks));
+                if (!grown)
+                {
+                    ok = false;
+                    break;
+                }
+                picks = grown;
+                picks[pick_count++] = pick;
+            }
+        }
+
+        struct package **fetched =
+            ok && pick_count > 0 ? calloc(pick_count, sizeof(*fetched)) : NULL;
+        if (ok && pick_count > 0)
+            ok = fetched &&
+                 resolve_download(picks, pick_count, cfg, root_path, fetched);
+        for (size_t i = 0; ok && i < pick_count; i++)
+        {
+            if (!pkg_set_add(out, fetched[i]))
+            {
+                for (size_t k = i; k < pick_count; k++)
+                    package_free(fetched[k]);
+                ok = false;
+            }
+        }
+        free(fetched);
+        free(picks);
+
+        if (!ok)
             return false;
+        first = level_end;
     }
-
     return true;
 }
 
@@ -748,28 +836,38 @@ resolve_install_closure(char *const *requested, size_t requested_count,
         }
         else if ((installed = db_get(db, arg)) != NULL)
         {
+            bool failed = false;
             pkg = resolve_fetch_named(arg, VER_OP_GT, installed->meta->version,
-                                      repos, cfg, root_path);
-            if (!pkg)
+                                      repos, cfg, root_path, &failed);
+            if (!pkg && !failed)
                 ui_infof(_("%s %s is already installed and up to date"),
                          installed->meta->name, installed->meta->version);
             package_free(installed);
+            if (failed)
+            {
+                free(roots);
+                return false;
+            }
             if (!pkg)
                 continue;
         }
         else
         {
             ui_debugf("%s is not a local archive, resolving by name", arg);
-            pkg =
-                resolve_fetch_by_name(arg, VER_OP_ANY, NULL, repos, cfg,
-                                      root_path, prefs, pref_count, assume_yes);
-            if (!pkg)
+            struct remote_pick pick;
+            if (!lookup_or_provider(arg, VER_OP_ANY, NULL, repos, cfg, prefs,
+                                    pref_count, assume_yes, &pick))
             {
                 ui_errorf(_("package %s not found in any configured repo"),
                           arg);
                 if (repos->count == 0)
                     ui_hint(_("no repositories are configured; add one with "
                               "'tulpar repo add <url>'"));
+                free(roots);
+                return false;
+            }
+            if (!resolve_download(&pick, 1, cfg, root_path, &pkg))
+            {
                 free(roots);
                 return false;
             }
@@ -800,24 +898,13 @@ resolve_install_closure(char *const *requested, size_t requested_count,
             free(roots);
             return false;
         }
+    }
 
-        if (nodeps)
-        {
-            ui_debugf("--nodeps: skipping dependency resolution for %s",
-                      pkg->meta->name);
-            continue;
-        }
-
-        for (int j = 0; j < pkg->meta->dependencies.count; j++)
-        {
-            if (!resolve_dependency(
-                    pkg->meta->name, &pkg->meta->dependencies.items[j], db,
-                    repos, cfg, root_path, prefs, pref_count, assume_yes, out))
-            {
-                free(roots);
-                return false;
-            }
-        }
+    if (!nodeps && !resolve_dependencies(0, db, repos, cfg, root_path, prefs,
+                                         pref_count, assume_yes, out))
+    {
+        free(roots);
+        return false;
     }
 
     if (nodeps)

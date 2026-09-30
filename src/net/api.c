@@ -169,10 +169,10 @@ api_get_repodata(const char *base_url)
     return idx;
 }
 
-static void
-build_download_url(char *out, size_t outlen, const char *base_url,
-                   const char *channel, const char *name, const char *version,
-                   const char *arch)
+void
+api_download_url(char *out, size_t outlen, const char *base_url,
+                 const char *channel, const char *name, const char *version,
+                 const char *arch)
 {
     snprintf(out, outlen, "%s/api/v2/download/%s/%s/%s/%s", base_url, channel,
              name, version, arch);
@@ -184,8 +184,7 @@ api_download(const char *base_url, const char *channel, const char *name,
              http_progress_fn progress, void *userdata)
 {
     char url[2048];
-    build_download_url(url, sizeof(url), base_url, channel, name, version,
-                       arch);
+    api_download_url(url, sizeof(url), base_url, channel, name, version, arch);
 
     struct http_response resp = {0};
     return http_download(url, dest_path, progress, userdata, &resp);
@@ -196,8 +195,7 @@ api_download_sig(const char *base_url, const char *channel, const char *name,
                  const char *version, const char *arch, const char *dest_path)
 {
     char url[2048];
-    build_download_url(url, sizeof(url), base_url, channel, name, version,
-                       arch);
+    api_download_url(url, sizeof(url), base_url, channel, name, version, arch);
     strncat(url, ".sig", sizeof(url) - strlen(url) - 1);
 
     struct http_response resp = {0};

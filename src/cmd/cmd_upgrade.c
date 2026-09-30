@@ -135,6 +135,7 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
 
     struct package **candidates_from = NULL;
     int candidates_count = 0;
+    bool fetch_failed = false;
     struct timespec resolve_started;
     clock_gettime(CLOCK_MONOTONIC, &resolve_started);
 
@@ -150,27 +151,28 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
             return 1;
         }
 
+        bool failed = false;
         struct package *candidate =
             target_version
                 ? resolve_fetch_named(target_name, VER_OP_EQ, target_version,
-                                      repos, cfg, dest.root)
+                                      repos, cfg, dest.root, &failed)
                 : resolve_fetch_named(target_name, VER_OP_GT,
                                       installed->meta->version, repos, cfg,
-                                      dest.root);
+                                      dest.root, &failed);
 
         if (!candidate)
         {
-            if (target_version)
+            if (target_version && !failed)
                 ui_errorf(_("%s %s not found in any configured repo"),
                           target_name, target_version);
-            else
+            else if (!failed)
                 ui_infof(_("%s %s is already installed and up to date"),
                          installed->meta->name, installed->meta->version);
             package_free(installed);
             repo_list_free(repos);
             db_close(db);
             dest_ctx_clear(&dest);
-            return target_version ? 1 : 0;
+            return target_version || failed ? 1 : 0;
         }
 
         package_free(installed);
@@ -185,24 +187,29 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
                             exclude_count))
                 continue;
 
-            struct package *candidate = resolve_fetch_named(
-                candidates_from[i]->meta->name, VER_OP_GT,
-                candidates_from[i]->meta->version, repos, cfg, dest.root);
+            bool failed = false;
+            struct package *candidate =
+                resolve_fetch_named(candidates_from[i]->meta->name, VER_OP_GT,
+                                    candidates_from[i]->meta->version, repos,
+                                    cfg, dest.root, &failed);
             if (candidate)
                 pkg_set_add(&set, candidate);
+            if (failed)
+                fetch_failed = true;
         }
     }
 
     if (set.count == 0)
     {
-        ui_info(_("nothing to upgrade"));
+        if (!fetch_failed)
+            ui_info(_("nothing to upgrade"));
         for (int i = 0; i < candidates_count; i++)
             package_free(candidates_from[i]);
         free(candidates_from);
         repo_list_free(repos);
         db_close(db);
         dest_ctx_clear(&dest);
-        return 0;
+        return fetch_failed ? 1 : 0;
     }
 
     ui_status(
