@@ -16,6 +16,8 @@
 
 void cmd_print_usage(const char *usage);
 
+void cmd_unknown_option(const char *arg, const char *usage);
+
 const char *cmd_libapg_reason(void);
 
 void cmd_warn_repo_unreachable(const char *repo_url, bool using_cache);

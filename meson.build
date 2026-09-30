@@ -75,6 +75,7 @@ tulpar_sources = files(
   'src/main.c',
   'src/cli/args.c',
   'src/cli/dispatch.c',
+  'src/cli/suggest.c',
   'src/cli/ui.c',
   'src/config/config.c',
   'src/repo/repo.c',

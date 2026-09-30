@@ -13,6 +13,7 @@
 #include <apg/sign.h>
 
 #include "cmd_common.h"
+#include "../cli/suggest.h"
 #include "../cli/ui.h"
 #include "../i18n.h"
 #include "../log/log.h"
@@ -22,6 +23,52 @@ void
 cmd_print_usage(const char *usage)
 {
     printf(_("usage: %s\n"), usage);
+}
+
+void
+cmd_unknown_option(const char *arg, const char *usage)
+{
+    ui_errorf(_("unknown option: %s"), arg);
+
+    if (strncmp(arg, "--", 2) == 0)
+    {
+        static const char *const globals[] = {"--verbose", "--quiet", "--color",
+                                              "--help"};
+        char names[48][64];
+        const char *candidates[48];
+        size_t count = 0;
+
+        for (size_t i = 0; i < sizeof(globals) / sizeof(globals[0]); i++)
+            candidates[count++] = globals[i];
+
+        for (const char *p = strstr(usage, "--"); p && count < 48;
+             p = strstr(p + 2, "--"))
+        {
+            size_t len = 2;
+            while (p[len] == '-' || (p[len] >= 'a' && p[len] <= 'z') ||
+                   (p[len] >= '0' && p[len] <= '9'))
+                len++;
+            if (len <= 2 || len >= sizeof(names[0]))
+                continue;
+            memcpy(names[count], p, len);
+            names[count][len] = '\0';
+            candidates[count] = names[count];
+            count++;
+        }
+
+        char name[64];
+        size_t len = strcspn(arg, "=");
+        if (len >= sizeof(name))
+            len = sizeof(name) - 1;
+        memcpy(name, arg, len);
+        name[len] = '\0';
+
+        const char *best = suggest_closest(name, candidates, count);
+        if (best)
+            ui_hint(_("did you mean '%s'?"), best);
+    }
+
+    cmd_print_usage(usage);
 }
 
 const char *

@@ -47,8 +47,7 @@ run_set_hold(int argc, char **argv, struct tulpar_config *cfg, bool held)
         }
         else
         {
-            ui_errorf(_("unknown option: %s"), argv[i]);
-            cmd_print_usage(usage);
+            cmd_unknown_option(argv[i], usage);
             return 1;
         }
     }

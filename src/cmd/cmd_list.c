@@ -56,8 +56,7 @@ cmd_list_run(int argc, char **argv, struct tulpar_config *cfg)
         }
         else
         {
-            ui_errorf(_("unknown option: %s"), argv[i]);
-            cmd_print_usage(USAGE);
+            cmd_unknown_option(argv[i], USAGE);
             return 1;
         }
     }

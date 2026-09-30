@@ -37,8 +37,7 @@ cmd_verify_run(int argc, char **argv, struct tulpar_config *cfg)
             dest_arg = value;
         else if (!end_of_options && argv[i][0] == '-')
         {
-            ui_errorf(_("unknown option: %s"), argv[i]);
-            cmd_print_usage(USAGE);
+            cmd_unknown_option(argv[i], USAGE);
             return 1;
         }
         else
