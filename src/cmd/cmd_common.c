@@ -322,9 +322,6 @@ cmd_run_transaction(struct apg_trans *trans, struct db_handle *db,
             const char *reason = cmd_libapg_reason();
             ui_errorf(_("cannot record the installation: %s"), reason);
             ui_hint(_("changes made by this transaction were rolled back"));
-            if (strstr(reason, "MDB_MAP_FULL"))
-                ui_hint(_("the package database has reached its size limit; "
-                          "libapg must be built with a larger db_mapsize"));
             break;
         }
         case TRANS_ERR_REMOVE_FAILED:
