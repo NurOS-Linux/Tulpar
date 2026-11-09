@@ -167,8 +167,7 @@ url_cache_filename(const char *url)
 }
 
 static struct package *
-fetch_from_url(const char *url, const struct tulpar_config *cfg,
-               const char *root_path)
+fetch_from_url(const char *url, const struct tulpar_config *cfg)
 {
     char *pkgs_dir = path_join(cfg->cache_dir, "pkgs");
     mkdir_p(pkgs_dir);
@@ -200,7 +199,7 @@ fetch_from_url(const char *url, const struct tulpar_config *cfg,
     http_download(sig_url, sig_path, NULL, NULL, &sig_resp);
 
     ui_debugf("parsing %s", dest_path);
-    struct package *pkg = parse_package(dest_path, root_path);
+    struct package *pkg = cmd_parse_package(dest_path);
     if (!pkg)
         ui_errorf(_("%s is not a valid package: %s"), url, cmd_libapg_reason());
     free(dest_path);
@@ -838,7 +837,7 @@ resolve_install_closure(char *const *requested, size_t requested_count,
         else if (resolve_arg_is_url(arg))
         {
             ui_debugf("%s is a URL, downloading directly", arg);
-            pkg = fetch_from_url(arg, cfg, root_path);
+            pkg = fetch_from_url(arg, cfg);
             if (!pkg)
             {
                 ui_errorf(_("failed to install from %s"), arg);
