@@ -130,6 +130,35 @@ test_json_out_package_info_schema(void)
 }
 
 void
+test_json_out_repos_schema(void)
+{
+    struct repo_entry entries[] = {
+        {.url = "https://repo.example.com/a",
+         .enabled = true,
+         .priority = 10,
+         .user_file = false},
+        {.url = "https://repo.example.com/b",
+         .enabled = false,
+         .priority = 100,
+         .user_file = true},
+    };
+    yyjson_doc *doc = parse(json_out_repos(entries, 2));
+    yyjson_val *root = yyjson_doc_get_root(doc);
+    assert(yyjson_arr_size(root) == 2);
+    yyjson_val *first = yyjson_arr_get(root, 0);
+    assert(yyjson_get_bool(yyjson_obj_get(first, "enabled")));
+    assert(yyjson_get_int(yyjson_obj_get(first, "priority")) == 10);
+    assert(strcmp(yyjson_get_str(yyjson_obj_get(first, "scope")), "system") ==
+           0);
+    yyjson_val *second = yyjson_arr_get(root, 1);
+    assert(!yyjson_get_bool(yyjson_obj_get(second, "enabled")));
+    assert(strcmp(yyjson_get_str(yyjson_obj_get(second, "scope")), "user") ==
+           0);
+    yyjson_doc_free(doc);
+    printf("test_json_out_repos_schema: PASS\n");
+}
+
+void
 test_json_out_stats_schema(void)
 {
     struct stats_summary s = {.packages = 5,

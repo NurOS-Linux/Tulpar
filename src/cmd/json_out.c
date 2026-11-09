@@ -168,6 +168,26 @@ json_out_history(struct journal_entry *const *entries, size_t count)
 }
 
 char *
+json_out_repos(const struct repo_entry *entries, size_t count)
+{
+    yyjson_mut_doc *doc = yyjson_mut_doc_new(NULL);
+    yyjson_mut_val *arr = yyjson_mut_arr(doc);
+    yyjson_mut_doc_set_root(doc, arr);
+
+    for (size_t i = 0; i < count; i++)
+    {
+        yyjson_mut_val *obj = yyjson_mut_arr_add_obj(doc, arr);
+        yyjson_mut_obj_add_strcpy(doc, obj, "url", entries[i].url);
+        yyjson_mut_obj_add_bool(doc, obj, "enabled", entries[i].enabled);
+        yyjson_mut_obj_add_int(doc, obj, "priority", entries[i].priority);
+        yyjson_mut_obj_add_str(doc, obj, "scope",
+                               entries[i].user_file ? "user" : "system");
+    }
+
+    return finish(doc);
+}
+
+char *
 json_out_stats(const struct stats_summary *s)
 {
     yyjson_mut_doc *doc = yyjson_mut_doc_new(NULL);

@@ -9,6 +9,7 @@
 #include <apg/journal.h>
 #include <apg/package.h>
 
+#include "../repo/repo.h"
 #include "../repo/repodata.h"
 
 void json_out_emit(char *json);
@@ -34,6 +35,8 @@ struct stats_summary
     int orphans;
     int files;
 };
+
+char *json_out_repos(const struct repo_entry *entries, size_t count);
 
 char *json_out_stats(const struct stats_summary *summary);
 
