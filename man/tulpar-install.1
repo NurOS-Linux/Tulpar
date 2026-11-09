@@ -56,6 +56,17 @@ dependencies are downloaded from the configured repositories before
 the transaction is prepared. The resolved plan is printed and
 confirmed before anything is written to disk.
 .PP
+Before asking for confirmation, the free space of the target
+filesystem is compared with an estimate of what the transaction needs:
+the installed files, the temporary unpacking of the largest package,
+and a backup of the files being replaced. The estimate is conservative.
+If it exceeds the free space, a warning with both sizes is printed and
+confirmation is asked again; with
+.B \-\-yes
+the transaction continues without asking, and with
+.B \-\-dry\-run
+only the warning is printed.
+.PP
 If a requested package is already installed, it is upgraded when the
 repositories, archive, or URL provide a newer version, in the same way as
 .BR tulpar\-upgrade (1).
