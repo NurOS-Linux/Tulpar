@@ -15,9 +15,12 @@
 #include "../cli/args.h"
 #include "../cli/ui.h"
 #include "../util/paths.h"
+#include "../util/since_spec.h"
 #include "../i18n.h"
 
-#define USAGE "tulpar history [--dest <path>] [--json]"
+#define USAGE                                                                  \
+    "tulpar history [--dest <path>] [--json] [--package <name>] "              \
+    "[--since <spec>]"
 
 static const char *
 op_label(journal_op_t op)
@@ -40,6 +43,8 @@ cmd_history_run(int argc, char **argv, struct tulpar_config *cfg)
 {
     const char *dest_arg = NULL;
     bool json_output = false;
+    const char *package_filter = NULL;
+    time_t since = 0;
     bool end_of_options = false;
 
     for (int i = 0; i < argc; i++)
@@ -60,6 +65,19 @@ cmd_history_run(int argc, char **argv, struct tulpar_config *cfg)
             dest_arg = value;
         else if (!end_of_options && arg_is(argv[i], "json", 'j'))
             json_output = true;
+        else if (!end_of_options &&
+                 arg_take_value(argc, argv, &i, "package", 'p', &value))
+            package_filter = value;
+        else if (!end_of_options &&
+                 arg_take_value(argc, argv, &i, "since", '\0', &value))
+        {
+            if (!since_spec_parse(value, time(NULL), &since))
+            {
+                ui_errorf(_("invalid --since value: %s"), value);
+                ui_hint(_("use 30m, 12h, 7d, 2w, YYYY-MM-DD or @<unix time>"));
+                return 1;
+            }
+        }
         else if (!end_of_options && argv[i][0] == '-')
         {
             cmd_unknown_option(argv[i], USAGE);
@@ -84,7 +102,20 @@ cmd_history_run(int argc, char **argv, struct tulpar_config *cfg)
     }
 
     int count = 0;
-    struct journal_entry **entries = audit_read_all(db, &count);
+    struct journal_entry **all = audit_read_all(db, &count);
+    struct journal_entry **entries =
+        calloc((size_t)count + 1, sizeof(*entries));
+    int all_count = count;
+    count = 0;
+    for (int i = 0; entries && i < all_count; i++)
+    {
+        const char *name = journal_entry_pkg_name(all[i]);
+        if (package_filter && (!name || strcmp(name, package_filter) != 0))
+            continue;
+        if (journal_entry_timestamp(all[i]) < since)
+            continue;
+        entries[count++] = all[i];
+    }
 
     if (json_output)
     {
@@ -137,7 +168,8 @@ cmd_history_run(int argc, char **argv, struct tulpar_config *cfg)
         free(what);
     }
 
-    journal_free_all(entries, count);
+    free(entries);
+    journal_free_all(all, all_count);
     db_close(db);
     dest_ctx_clear(&dest);
 

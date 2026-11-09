@@ -27,6 +27,10 @@ main(void)
 
     test_plan_render_install_step();
 
+    test_since_spec_relative_units();
+    test_since_spec_dates_and_epoch();
+    test_since_spec_rejects_malformed_input();
+
     test_why_chain_follows_dependents_to_explicit_package();
 
     test_json_out_op_and_status_names();

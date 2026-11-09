@@ -22,6 +22,10 @@ void test_config_parse_file_overrides(void);
 
 void test_plan_render_install_step(void);
 
+void test_since_spec_relative_units(void);
+void test_since_spec_dates_and_epoch(void);
+void test_since_spec_rejects_malformed_input(void);
+
 void test_why_chain_follows_dependents_to_explicit_package(void);
 
 void test_json_out_op_and_status_names(void);

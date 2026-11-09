@@ -86,6 +86,7 @@ tulpar_sources = files(
   'src/log/log.c',
   'src/util/paths.c',
   'src/util/proc.c',
+  'src/util/since_spec.c',
   'src/cmd/cmd_common.c',
   'src/cmd/resolve.c',
   'src/cmd/cmd_install.c',
