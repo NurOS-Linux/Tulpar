@@ -23,6 +23,17 @@ to pin the upgrade to that exact version instead of the newest one
 available; this can also downgrade an installed package.
 Without an argument, checks every installed package and upgrades all
 that have a newer version available.
+.PP
+Before asking for confirmation, the free space of the target
+filesystem is compared with an estimate of what the transaction needs:
+the installed files, the temporary unpacking of the largest package,
+and a backup of the files being replaced. The estimate is conservative.
+If it exceeds the free space, a warning with both sizes is printed and
+confirmation is asked again; with
+.B \-\-yes
+the transaction continues without asking, and with
+.B \-\-dry\-run
+only the warning is printed.
 .SH OPTIONS
 .TP
 .BR \-d ", " \-\-dest " " \fIpath\fR
