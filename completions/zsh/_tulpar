@@ -29,8 +29,45 @@ _tulpar_commands()
         'autoclean:purge downloaded package archives and metadata cache'
         'rollback:undo the most recent package operation'
         'undo:undo the most recent package operation'
+        'owns:find the package that owns a file'
+        'files:list the files of an installed package'
+        'why:explain why a package is installed'
+        'mark:mark a package as automatic or explicit'
+        'reinstall:reinstall installed packages'
+        'stats:show package database statistics'
     )
     _describe 'command' commands
+}
+
+_tulpar_dest()
+{
+    local i
+    for (( i = 1; i < ${#words[@]}; i++ )); do
+        case "$words[i]" in
+            --dest|-d) print -r -- "$words[i+1]"; return ;;
+            --dest=*) print -r -- "${words[i]#--dest=}"; return ;;
+        esac
+    done
+}
+
+_tulpar_installed()
+{
+    local -a pkgs
+    local dest
+    dest="$(_tulpar_dest)"
+    if [[ -n "$dest" ]]; then
+        pkgs=(${(f)"$(tulpar list --names --dest "$dest" 2>/dev/null)"})
+    else
+        pkgs=(${(f)"$(tulpar list --names 2>/dev/null)"})
+    fi
+    _describe 'package' pkgs
+}
+
+_tulpar_repos()
+{
+    local -a urls
+    urls=(${(f)"$(tulpar repo list --all 2>/dev/null | cut -f2)"})
+    _describe 'repository' urls
 }
 
 _tulpar()
@@ -46,7 +83,45 @@ _tulpar()
         args)
             case "$words[1]" in
                 repo)
-                    _values 'action' add remove list update
+                    if (( CURRENT == 2 )); then
+                        _values 'action' add remove enable disable priority list update
+                    else
+                        case "$words[2]" in
+                            remove|enable|disable|priority)
+                                if (( CURRENT == 3 )); then
+                                    _tulpar_repos
+                                else
+                                    _arguments '--user[use the per-user repository list]'
+                                fi
+                                ;;
+                            list)
+                                _arguments \
+                                    '(-a --all)'{-a,--all}'[include disabled repositories]' \
+                                    '(-j --json)'{-j,--json}'[json output]'
+                                ;;
+                            *)
+                                _arguments '--user[use the per-user repository list]'
+                                ;;
+                        esac
+                    fi
+                    ;;
+                remove|uninstall|upgrade|info|show|hold|unhold|files|why|mark|reinstall|verify)
+                    _arguments \
+                        '(-d --dest)'{-d,--dest}'[alternate root]:path:_files -/' \
+                        '(-y --yes)'{-y,--yes}'[assume yes]' \
+                        '(-j --json)'{-j,--json}'[json output]' \
+                        '--dry-run[preview the transaction without writing anything to disk]' \
+                        '--auto[mark as automatically installed]' \
+                        '--explicit[mark as explicitly installed]' \
+                        '--db[also check the package database for inconsistencies]' \
+                        '--offline[never touch the network]' \
+                        '*:package:_tulpar_installed'
+                    ;;
+                owns)
+                    _arguments \
+                        '(-d --dest)'{-d,--dest}'[alternate root]:path:_files -/' \
+                        '(-j --json)'{-j,--json}'[json output]' \
+                        '*:file:_files'
                     ;;
                 key)
                     _values 'action' add list
@@ -63,7 +138,15 @@ _tulpar()
                         '--dry-run[preview the transaction without writing anything to disk]' \
                         '--db[also check the package database for inconsistencies]' \
                         '*--exclude[skip a package during a full upgrade]:name' \
+                        '--offline[never touch the network]' \
                         '--installed[search installed packages only]' \
+                        '--explicit[list explicitly installed packages only]' \
+                        '--deps[list automatically installed packages only]' \
+                        '--held[list held packages only]' \
+                        '--upgradable[list packages with a newer version available]' \
+                        '--names[print package names only]' \
+                        '--package[only entries of this package]:name:_tulpar_installed' \
+                        '--since[only entries since a time]:spec' \
                         '--remote[search remote packages only]' \
                         '(-o --output)'{-o,--output}'[output path]:path:_files'
                     ;;

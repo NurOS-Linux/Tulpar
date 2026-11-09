@@ -1,5 +1,38 @@
 # SPDX-License-Identifier: GPL-3.0-only
 
+_tulpar_dest()
+{
+    local i
+    for ((i = 1; i < ${#COMP_WORDS[@]} - 1; i++)); do
+        case "${COMP_WORDS[i]}" in
+            --dest|-d)
+                printf '%s\n' "${COMP_WORDS[i+1]}"
+                return 0
+                ;;
+            --dest=*)
+                printf '%s\n' "${COMP_WORDS[i]#--dest=}"
+                return 0
+                ;;
+        esac
+    done
+}
+
+_tulpar_installed()
+{
+    local dest
+    dest="$(_tulpar_dest)"
+    if [ -n "$dest" ]; then
+        tulpar list --names --dest "$dest" 2>/dev/null
+    else
+        tulpar list --names 2>/dev/null
+    fi
+}
+
+_tulpar_repos()
+{
+    tulpar repo list --all 2>/dev/null | cut -f2
+}
+
 _tulpar()
 {
     local cur prev commands
@@ -8,7 +41,8 @@ _tulpar()
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
     commands="install remove uninstall upgrade search list info show verify \
-orphans autoremove hold unhold history audit log repo download key graph clean autoclean rollback undo"
+orphans autoremove hold unhold history audit log repo download key graph clean \
+autoclean rollback undo owns files why mark reinstall stats"
 
     if [ "$COMP_CWORD" -eq 1 ]; then
         COMPREPLY=($(compgen -W "$commands -h --help -V --version" -- "$cur"))
@@ -24,14 +58,41 @@ orphans autoremove hold unhold history audit log repo download key graph clean a
             COMPREPLY=($(compgen -f -- "$cur"))
             return 0
             ;;
+        --color)
+            COMPREPLY=($(compgen -W "auto always never" -- "$cur"))
+            return 0
+            ;;
+        --package|-p)
+            COMPREPLY=($(compgen -W "$(_tulpar_installed)" -- "$cur"))
+            return 0
+            ;;
+        --since)
+            COMPREPLY=($(compgen -W "1h 12h 1d 7d 2w" -- "$cur"))
+            return 0
+            ;;
     esac
 
     case "${COMP_WORDS[1]}" in
         repo)
             if [ "$COMP_CWORD" -eq 2 ]; then
-                COMPREPLY=($(compgen -W "add remove list update" -- "$cur"))
+                COMPREPLY=($(compgen -W "add remove enable disable priority \
+list update" -- "$cur"))
                 return 0
             fi
+            case "${COMP_WORDS[2]}" in
+                remove|enable|disable|priority)
+                    if [ "$COMP_CWORD" -eq 3 ] && [[ "$cur" != -* ]]; then
+                        COMPREPLY=($(compgen -W "$(_tulpar_repos)" -- "$cur"))
+                        return 0
+                    fi
+                    COMPREPLY=($(compgen -W "--user" -- "$cur"))
+                    return 0
+                    ;;
+                list)
+                    COMPREPLY=($(compgen -W "--all --json" -- "$cur"))
+                    return 0
+                    ;;
+            esac
             ;;
         key)
             if [ "$COMP_CWORD" -eq 2 ]; then
@@ -39,16 +100,29 @@ orphans autoremove hold unhold history audit log repo download key graph clean a
                 return 0
             fi
             ;;
+        remove|uninstall|upgrade|info|show|hold|unhold|files|why|mark|reinstall|verify)
+            if [[ "$cur" != -* ]]; then
+                COMPREPLY=($(compgen -W "$(_tulpar_installed)" -- "$cur"))
+                if [ "${COMP_WORDS[1]}" = info ] || \
+                   [ "${COMP_WORDS[1]}" = show ] || \
+                   [ "${COMP_WORDS[1]}" = reinstall ]; then
+                    COMPREPLY+=($(compgen -f -X '!*.apg' -- "$cur"))
+                fi
+                [ ${#COMPREPLY[@]} -gt 0 ] && return 0
+            fi
+            ;;
+        owns)
+            if [[ "$cur" != -* ]]; then
+                COMPREPLY=($(compgen -f -- "$cur"))
+                return 0
+            fi
+            ;;
     esac
 
-    if [ "$prev" = "--color" ]; then
-        COMPREPLY=($(compgen -W "auto always never" -- "$cur"))
-        return 0
-    fi
-
-    COMPREPLY=($(compgen -W "--dest --yes --json --quiet --verbose --color \
---require-signature --sign --provider --exclude --installed --remote \
---nodeps --dry-run --db" -- "$cur"))
+    COMPREPLY=($(compgen -W "--dest --yes --json --quiet --verbose --offline \
+--color --require-signature --sign --provider --exclude --installed --remote \
+--nodeps --dry-run --db --auto --explicit --deps --held --upgradable --names \
+--package --since --all --user" -- "$cur"))
 }
 
 complete -F _tulpar tulpar
