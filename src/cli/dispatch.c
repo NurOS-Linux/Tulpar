@@ -26,6 +26,7 @@
 #include "../cmd/cmd_repo.h"
 #include "../cmd/cmd_rollback.h"
 #include "../cmd/cmd_search.h"
+#include "../cmd/cmd_stats.h"
 #include "../cmd/cmd_upgrade.h"
 #include "../cmd/cmd_verify.h"
 #include "../cmd/cmd_why.h"
@@ -52,6 +53,7 @@ const struct command g_commands[] = {
     {"why", 'W', N_("explain why a package is installed"), cmd_why_run},
     {"mark", 'm', N_("mark a package as automatic or explicit"), cmd_mark_run},
     {"reinstall", 'R', N_("reinstall installed packages"), cmd_reinstall_run},
+    {"stats", 't', N_("show package database statistics"), cmd_stats_run},
     {"history", 'a', N_("show past install/remove operations"),
      cmd_history_run},
     {"audit", 'a', N_("show past install/remove operations"), cmd_history_run},

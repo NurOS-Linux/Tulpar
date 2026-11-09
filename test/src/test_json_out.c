@@ -119,6 +119,27 @@ test_json_out_package_info_schema(void)
 }
 
 void
+test_json_out_stats_schema(void)
+{
+    struct stats_summary s = {.packages = 5,
+                              .explicit_count = 2,
+                              .dependencies = 3,
+                              .held = 1,
+                              .orphans = 1,
+                              .files = 42};
+    yyjson_doc *doc = parse(json_out_stats(&s));
+    yyjson_val *root = yyjson_doc_get_root(doc);
+    assert(yyjson_get_int(yyjson_obj_get(root, "packages")) == 5);
+    assert(yyjson_get_int(yyjson_obj_get(root, "explicit")) == 2);
+    assert(yyjson_get_int(yyjson_obj_get(root, "dependencies")) == 3);
+    assert(yyjson_get_int(yyjson_obj_get(root, "held")) == 1);
+    assert(yyjson_get_int(yyjson_obj_get(root, "orphans")) == 1);
+    assert(yyjson_get_int(yyjson_obj_get(root, "files")) == 42);
+    yyjson_doc_free(doc);
+    printf("test_json_out_stats_schema: PASS\n");
+}
+
+void
 test_json_out_files_schema(void)
 {
     const char *files[] = {"/usr/bin/a", "/usr/share/a/doc"};

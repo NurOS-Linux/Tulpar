@@ -24,6 +24,18 @@ char *json_out_package_info(const struct package_metadata *meta,
 
 char *json_out_history(struct journal_entry *const *entries, size_t count);
 
+struct stats_summary
+{
+    int packages;
+    int explicit_count;
+    int dependencies;
+    int held;
+    int orphans;
+    int files;
+};
+
+char *json_out_stats(const struct stats_summary *summary);
+
 char *json_out_files(const struct package *pkg);
 
 char *json_out_why(const char *name, bool explicit_install,
