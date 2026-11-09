@@ -11,6 +11,11 @@ All notable changes to tulpar are documented in this file.
   entries that do not match the installed packages, and listed files
   that have no owner or are owned by another package. Backed by
   libapg's new `db_check()`.
+- `require_script_sandbox` option in `tulpar.conf`: when true, a package
+  script that cannot be run in isolated namespaces fails the
+  transaction, which is rolled back, instead of running without
+  isolation. A hint names the option when this happens. Backed by
+  libapg's new `trans_set_require_sandbox()`.
 
 ## [0.5.0] - 2026-09-30
 
