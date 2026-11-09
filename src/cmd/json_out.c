@@ -164,6 +164,26 @@ json_out_history(struct journal_entry *const *entries, size_t count)
 }
 
 char *
+json_out_owners(const char *const *paths, char *const *owners, size_t count)
+{
+    yyjson_mut_doc *doc = yyjson_mut_doc_new(NULL);
+    yyjson_mut_val *arr = yyjson_mut_arr(doc);
+    yyjson_mut_doc_set_root(doc, arr);
+
+    for (size_t i = 0; i < count; i++)
+    {
+        yyjson_mut_val *obj = yyjson_mut_arr_add_obj(doc, arr);
+        yyjson_mut_obj_add_strcpy(doc, obj, "path", paths[i] ? paths[i] : "");
+        if (owners[i])
+            yyjson_mut_obj_add_strcpy(doc, obj, "owner", owners[i]);
+        else
+            yyjson_mut_obj_add_null(doc, obj, "owner");
+    }
+
+    return finish(doc);
+}
+
+char *
 json_out_search(struct package *const *local, size_t local_count,
                 const struct repo_package *const *remote, size_t remote_count)
 {

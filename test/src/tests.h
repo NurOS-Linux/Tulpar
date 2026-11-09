@@ -25,4 +25,5 @@ void test_plan_render_install_step(void);
 void test_json_out_op_and_status_names(void);
 void test_json_out_package_list_schema(void);
 void test_json_out_package_info_schema(void);
+void test_json_out_owners_schema(void);
 void test_json_out_history_and_search_schema(void);

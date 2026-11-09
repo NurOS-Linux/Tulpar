@@ -119,6 +119,25 @@ test_json_out_package_info_schema(void)
 }
 
 void
+test_json_out_owners_schema(void)
+{
+    const char *paths[] = {"/usr/bin/a", "/nowhere"};
+    char *owners[] = {"pkg-a", NULL};
+
+    yyjson_doc *doc = parse(json_out_owners(paths, owners, 2));
+    yyjson_val *root = yyjson_doc_get_root(doc);
+    assert(yyjson_arr_size(root) == 2);
+    yyjson_val *first = yyjson_arr_get(root, 0);
+    assert(strcmp(yyjson_get_str(yyjson_obj_get(first, "path")),
+                  "/usr/bin/a") == 0);
+    assert(strcmp(yyjson_get_str(yyjson_obj_get(first, "owner")), "pkg-a") ==
+           0);
+    assert(yyjson_is_null(yyjson_obj_get(yyjson_arr_get(root, 1), "owner")));
+    yyjson_doc_free(doc);
+    printf("test_json_out_owners_schema: PASS\n");
+}
+
+void
 test_json_out_history_and_search_schema(void)
 {
     yyjson_doc *doc = parse(json_out_history(NULL, 0));

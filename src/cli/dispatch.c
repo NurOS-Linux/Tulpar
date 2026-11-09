@@ -18,6 +18,7 @@
 #include "../cmd/cmd_key.h"
 #include "../cmd/cmd_list.h"
 #include "../cmd/cmd_orphans.h"
+#include "../cmd/cmd_owns.h"
 #include "../cmd/cmd_remove.h"
 #include "../cmd/cmd_repo.h"
 #include "../cmd/cmd_rollback.h"
@@ -42,6 +43,7 @@ const struct command g_commands[] = {
      cmd_orphans_run},
     {"hold", 'g', N_("block a package from upgrade/removal"), cmd_hold_run},
     {"unhold", 'x', N_("release a held package"), cmd_unhold_run},
+    {"owns", 'O', N_("find the package that owns a file"), cmd_owns_run},
     {"history", 'a', N_("show past install/remove operations"),
      cmd_history_run},
     {"audit", 'a', N_("show past install/remove operations"), cmd_history_run},
