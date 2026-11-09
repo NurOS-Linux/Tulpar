@@ -331,12 +331,14 @@ cmd_run_transaction(struct apg_trans *trans, struct db_handle *db,
         .skip_dependents_check = skip_dependents,
     };
     ui_debugf("policy: require_signature=%s, skip_dependency_check=%s, "
-              "skip_dependents_check=%s",
+              "skip_dependents_check=%s, require_script_sandbox=%s",
               policy.require_signature ? "true" : "false",
               policy.skip_dependency_check ? "true" : "false",
-              policy.skip_dependents_check ? "true" : "false");
+              policy.skip_dependents_check ? "true" : "false",
+              cfg->require_script_sandbox ? "true" : "false");
     trans_set_policy(trans, &policy);
     trans_set_dry_run(trans, dry_run);
+    trans_set_require_sandbox(trans, cfg->require_script_sandbox);
 
     ui_debug("preparing transaction (dependency resolution, conflict checks)");
     trans_error_t err = trans_prepare(trans);
