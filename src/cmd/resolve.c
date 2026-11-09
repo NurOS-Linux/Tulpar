@@ -595,8 +595,7 @@ resolve_lookup_named(const char *name, ver_op_t op, const char *version,
 struct package *
 resolve_fetch_named(const char *name, ver_op_t op, const char *version,
                     const struct repo_list *repos,
-                    const struct tulpar_config *cfg, const char *root_path,
-                    bool *failed)
+                    const struct tulpar_config *cfg, bool *failed)
 {
     *failed = false;
     struct remote_pick pick;
@@ -858,7 +857,7 @@ resolve_install_closure(char *const *requested, size_t requested_count,
         {
             bool failed = false;
             pkg = resolve_fetch_named(arg, VER_OP_GT, installed->meta->version,
-                                      repos, cfg, root_path, &failed);
+                                      repos, cfg, &failed);
             if (!pkg && !failed)
                 ui_infof(_("%s %s is already installed and up to date"),
                          installed->meta->name, installed->meta->version);

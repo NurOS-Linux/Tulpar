@@ -154,10 +154,10 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
         struct package *candidate =
             target_version
                 ? resolve_fetch_named(target_name, VER_OP_EQ, target_version,
-                                      repos, cfg, dest.root, &failed)
+                                      repos, cfg, &failed)
                 : resolve_fetch_named(target_name, VER_OP_GT,
                                       installed->meta->version, repos, cfg,
-                                      dest.root, &failed);
+                                      &failed);
 
         if (!candidate)
         {

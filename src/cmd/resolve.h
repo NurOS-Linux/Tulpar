@@ -61,7 +61,7 @@ struct package *resolve_fetch_named(const char *name, ver_op_t op,
                                     const char *version,
                                     const struct repo_list *repos,
                                     const struct tulpar_config *cfg,
-                                    const char *root_path, bool *failed);
+                                    bool *failed);
 
 bool
 resolve_install_closure(char *const *requested, size_t requested_count,
