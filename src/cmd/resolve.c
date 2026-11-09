@@ -227,8 +227,7 @@ git_split_url(const char *arg, char **clone_url, char **ref)
 }
 
 static struct package *
-fetch_from_git(const char *arg, const struct tulpar_config *cfg,
-               const char *root_path)
+fetch_from_git(const char *arg, const struct tulpar_config *cfg)
 {
     char *clone_url = NULL;
     char *ref = NULL;
@@ -334,7 +333,7 @@ fetch_from_git(const char *arg, const struct tulpar_config *cfg,
     }
 
     ui_debugf("parsing %s", dest_path);
-    struct package *pkg = parse_package(dest_path, root_path);
+    struct package *pkg = cmd_parse_package(dest_path);
     if (!pkg)
         ui_errorf(_("%s did not produce a valid package: %s"), arg,
                   cmd_libapg_reason());
@@ -826,7 +825,7 @@ resolve_install_closure(char *const *requested, size_t requested_count,
         if (resolve_arg_is_git_url(arg))
         {
             ui_debugf("%s is a git repository URL, cloning", arg);
-            pkg = fetch_from_git(arg, cfg, root_path);
+            pkg = fetch_from_git(arg, cfg);
             if (!pkg)
             {
                 ui_errorf(_("failed to install from %s"), arg);
