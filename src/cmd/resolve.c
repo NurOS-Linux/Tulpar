@@ -531,8 +531,7 @@ lookup_or_provider(const char *name, ver_op_t op, const char *version,
 
 bool
 resolve_download(const struct remote_pick *picks, size_t count,
-                 const struct tulpar_config *cfg, const char *root_path,
-                 struct package **out)
+                 const struct tulpar_config *cfg, struct package **out)
 {
     struct download_task *tasks = calloc(count * 2, sizeof(*tasks));
     if (!tasks)
@@ -563,7 +562,7 @@ resolve_download(const struct remote_pick *picks, size_t count,
         }
 
         ui_debugf("parsing %s", picks[i].dest_path);
-        out[i] = parse_package(picks[i].dest_path, root_path);
+        out[i] = cmd_parse_package(picks[i].dest_path);
         if (!out[i])
         {
             ui_errorf(_("%s %s from %s is not a valid package: %s"),
@@ -605,7 +604,7 @@ resolve_fetch_named(const char *name, ver_op_t op, const char *version,
         return NULL;
 
     struct package *pkg = NULL;
-    if (!resolve_download(&pick, 1, cfg, root_path, &pkg))
+    if (!resolve_download(&pick, 1, cfg, &pkg))
         *failed = true;
     return pkg;
 }
@@ -736,8 +735,7 @@ resolve_dependencies(size_t first, struct db_handle *db,
         struct package **fetched =
             ok && pick_count > 0 ? calloc(pick_count, sizeof(*fetched)) : NULL;
         if (ok && pick_count > 0)
-            ok = fetched &&
-                 resolve_download(picks, pick_count, cfg, root_path, fetched);
+            ok = fetched && resolve_download(picks, pick_count, cfg, fetched);
         for (size_t i = 0; ok && i < pick_count; i++)
         {
             if (!pkg_set_add(out, fetched[i]))
@@ -890,7 +888,7 @@ resolve_install_closure(char *const *requested, size_t requested_count,
                 free(roots);
                 return false;
             }
-            if (!resolve_download(&pick, 1, cfg, root_path, &pkg))
+            if (!resolve_download(&pick, 1, cfg, &pkg))
             {
                 free(roots);
                 return false;

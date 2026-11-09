@@ -199,8 +199,7 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
         struct package **fetched =
             pick_count > 0 ? calloc(pick_count, sizeof(*fetched)) : NULL;
         if (pick_count > 0 &&
-            (!fetched ||
-             !resolve_download(picks, pick_count, cfg, dest.root, fetched)))
+            (!fetched || !resolve_download(picks, pick_count, cfg, fetched)))
             fetch_failed = true;
         for (size_t i = 0; !fetch_failed && i < pick_count; i++)
             pkg_set_add(&set, fetched[i]);

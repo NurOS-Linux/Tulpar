@@ -55,8 +55,7 @@ bool resolve_lookup_named(const char *name, ver_op_t op, const char *version,
                           struct remote_pick *out);
 
 bool resolve_download(const struct remote_pick *picks, size_t count,
-                      const struct tulpar_config *cfg, const char *root_path,
-                      struct package **out);
+                      const struct tulpar_config *cfg, struct package **out);
 
 struct package *resolve_fetch_named(const char *name, ver_op_t op,
                                     const char *version,
