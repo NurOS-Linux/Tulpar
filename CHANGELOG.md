@@ -2,6 +2,16 @@
 
 All notable changes to tulpar are documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- `verify --db` also checks the package database against itself and
+  reports package records that cannot be read, file lists and ownership
+  entries that do not match the installed packages, and listed files
+  that have no owner or are owned by another package. Backed by
+  libapg's new `db_check()`.
+
 ## [0.5.0] - 2026-09-30
 
 ### Added
