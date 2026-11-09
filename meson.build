@@ -108,6 +108,7 @@ tulpar_sources = files(
   'src/cmd/cmd_files.c',
   'src/cmd/cmd_why.c',
   'src/cmd/cmd_mark.c',
+  'src/cmd/cmd_reinstall.c',
   'src/cmd/why_chain.c',
   'src/cmd/json_out.c',
 )
