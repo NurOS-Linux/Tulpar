@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <stdbool.h>
 #include <stddef.h>
 
 #include <apg/journal.h>
@@ -24,6 +25,10 @@ char *json_out_package_info(const struct package_metadata *meta,
 char *json_out_history(struct journal_entry *const *entries, size_t count);
 
 char *json_out_files(const struct package *pkg);
+
+char *json_out_why(const char *name, bool explicit_install,
+                   char *const *required_by, int required_by_count,
+                   char *const *chain, int chain_count);
 
 char *json_out_owners(const char *const *paths, char *const *owners,
                       size_t count);

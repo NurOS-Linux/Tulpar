@@ -179,6 +179,29 @@ json_out_files(const struct package *pkg)
 }
 
 char *
+json_out_why(const char *name, bool explicit_install, char *const *required_by,
+             int required_by_count, char *const *chain, int chain_count)
+{
+    yyjson_mut_doc *doc = yyjson_mut_doc_new(NULL);
+    yyjson_mut_val *obj = yyjson_mut_obj(doc);
+    yyjson_mut_doc_set_root(doc, obj);
+
+    yyjson_mut_obj_add_strcpy(doc, obj, "name", name);
+    yyjson_mut_obj_add_bool(doc, obj, "explicit", explicit_install);
+    add_string_array(doc, obj, "required_by", required_by, required_by_count);
+
+    yyjson_mut_val *chain_arr = yyjson_mut_arr(doc);
+    for (int i = 0; i < chain_count; i++)
+        yyjson_mut_arr_add_strcpy(doc, chain_arr, chain[i]);
+    yyjson_mut_obj_add_val(doc, obj, "chain", chain_arr);
+
+    yyjson_mut_obj_add_bool(doc, obj, "orphan",
+                            !explicit_install && required_by_count == 0);
+
+    return finish(doc);
+}
+
+char *
 json_out_owners(const char *const *paths, char *const *owners, size_t count)
 {
     yyjson_mut_doc *doc = yyjson_mut_doc_new(NULL);

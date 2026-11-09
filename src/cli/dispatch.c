@@ -26,6 +26,7 @@
 #include "../cmd/cmd_search.h"
 #include "../cmd/cmd_upgrade.h"
 #include "../cmd/cmd_verify.h"
+#include "../cmd/cmd_why.h"
 
 const struct command g_commands[] = {
     {"install", 'i', N_("install one or more packages"), cmd_install_run},
@@ -46,6 +47,7 @@ const struct command g_commands[] = {
     {"unhold", 'x', N_("release a held package"), cmd_unhold_run},
     {"owns", 'O', N_("find the package that owns a file"), cmd_owns_run},
     {"files", 'f', N_("list the files of an installed package"), cmd_files_run},
+    {"why", 'W', N_("explain why a package is installed"), cmd_why_run},
     {"history", 'a', N_("show past install/remove operations"),
      cmd_history_run},
     {"audit", 'a', N_("show past install/remove operations"), cmd_history_run},

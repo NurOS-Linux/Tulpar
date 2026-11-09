@@ -27,6 +27,8 @@ main(void)
 
     test_plan_render_install_step();
 
+    test_why_chain_follows_dependents_to_explicit_package();
+
     test_json_out_op_and_status_names();
     test_json_out_package_list_schema();
     test_json_out_package_info_schema();

@@ -22,6 +22,8 @@ void test_config_parse_file_overrides(void);
 
 void test_plan_render_install_step(void);
 
+void test_why_chain_follows_dependents_to_explicit_package(void);
+
 void test_json_out_op_and_status_names(void);
 void test_json_out_package_list_schema(void);
 void test_json_out_package_info_schema(void);
