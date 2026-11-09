@@ -73,7 +73,7 @@ cmd_orphans_run(int argc, char **argv, struct tulpar_config *cfg)
     }
 
     int count = 0;
-    char **orphans = db_get_orphans(db, &count);
+    char **orphans = db_get_orphans_transitive(db, &count);
 
     if (count == 0)
     {
