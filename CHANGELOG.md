@@ -29,6 +29,21 @@ All notable changes to tulpar are documented in this file.
   packages in one run, including packages that only other orphans
   depend on, instead of only the packages that nothing depends on. Uses
   libapg's new `db_get_orphans_transitive()`.
+- Package archives are read without being unpacked first, so resolving
+  and planning an installation no longer spends time and temporary disk
+  space proportional to the size of the package. In libapg's own
+  measurement, installing a package of 200 MB went from 0.745 s to
+  0.509 s. This comes with libapg 2.8.0.
+- libapg pinned to v2.8.0 (`b388fe9`).
+
+### Fixed
+
+- Unreadable, truncated or path-traversing package archives, whether
+  given as a file, downloaded from a repository or a URL, or built from
+  a git repository, are rejected with "is not a valid package" before the
+  plan is shown. libapg 2.8.0 no longer unpacks an archive while reading
+  it, so tulpar now reads the whole archive itself to keep catching
+  these.
 
 ## [0.5.0] - 2026-09-30
 
