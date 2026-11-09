@@ -18,6 +18,7 @@
 #include "../cmd/cmd_install.h"
 #include "../cmd/cmd_key.h"
 #include "../cmd/cmd_list.h"
+#include "../cmd/cmd_mark.h"
 #include "../cmd/cmd_orphans.h"
 #include "../cmd/cmd_owns.h"
 #include "../cmd/cmd_remove.h"
@@ -48,6 +49,7 @@ const struct command g_commands[] = {
     {"owns", 'O', N_("find the package that owns a file"), cmd_owns_run},
     {"files", 'f', N_("list the files of an installed package"), cmd_files_run},
     {"why", 'W', N_("explain why a package is installed"), cmd_why_run},
+    {"mark", 'm', N_("mark a package as automatic or explicit"), cmd_mark_run},
     {"history", 'a', N_("show past install/remove operations"),
      cmd_history_run},
     {"audit", 'a', N_("show past install/remove operations"), cmd_history_run},
