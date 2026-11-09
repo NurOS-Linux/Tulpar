@@ -16,6 +16,12 @@ All notable changes to tulpar are documented in this file.
   transaction, which is rolled back, instead of running without
   isolation. A hint names the option when this happens. Backed by
   libapg's new `trans_set_require_sandbox()`.
+- `install` and `upgrade` compare the free space of the target
+  filesystem with libapg's estimate of what the transaction needs
+  before asking for confirmation, and warn with both sizes when it is
+  not enough, then ask again. `--yes` continues without asking and
+  `--dry-run` only warns. The estimate is conservative. Backed by
+  libapg's new `trans_estimate_space()`.
 
 ## [0.5.0] - 2026-09-30
 
