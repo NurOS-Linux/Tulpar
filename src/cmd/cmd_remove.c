@@ -29,8 +29,7 @@ ends_with(const char *s, const char *suffix)
 }
 
 static char *
-resolve_remove_pkg_name(const char *arg, struct db_handle *db,
-                        const char *root_path)
+resolve_remove_pkg_name(const char *arg, struct db_handle *db)
 {
     struct package *installed = db_get(db, arg);
     if (installed)
@@ -42,23 +41,19 @@ resolve_remove_pkg_name(const char *arg, struct db_handle *db,
 
     if (ends_with(arg, ".apg") && access(arg, F_OK) == 0)
     {
-        struct package *pkg = parse_package(arg, root_path);
-        if (pkg && pkg->meta && pkg->meta->name)
+        struct package_metadata *meta = package_read_metadata(arg);
+        if (meta && meta->name)
         {
-            struct package *chk = db_get(db, pkg->meta->name);
+            struct package *chk = db_get(db, meta->name);
             if (chk)
             {
                 char *name = strdup(chk->meta->name);
                 package_free(chk);
-                package_free(pkg);
+                package_metadata_free(meta);
                 return name;
             }
-            package_free(pkg);
         }
-        else if (pkg)
-        {
-            package_free(pkg);
-        }
+        package_metadata_free(meta);
     }
 
     return NULL;
@@ -169,8 +164,7 @@ cmd_remove_run(int argc, char **argv, struct tulpar_config *cfg)
     char *resolved_names[256];
     for (int i = 0; i < positional_count; i++)
     {
-        resolved_names[i] =
-            resolve_remove_pkg_name(positional[i], db, dest.root);
+        resolved_names[i] = resolve_remove_pkg_name(positional[i], db);
         if (!resolved_names[i])
         {
             ui_errorf(_("package %s is not installed"), positional[i]);
