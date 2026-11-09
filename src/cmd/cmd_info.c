@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "cmd_info.h"
 #include "cmd_common.h"
@@ -17,7 +18,7 @@
 #include "../util/paths.h"
 #include "../i18n.h"
 
-#define USAGE "tulpar info [--dest <path>] [--json] <name>"
+#define USAGE "tulpar info [--dest <path>] [--json] <name|file.apg>"
 
 static char *
 join_list(const struct str_list *list)
@@ -167,6 +168,44 @@ find_required_by(struct db_handle *db, const char *target_name,
     return req_by;
 }
 
+static bool
+is_archive_arg(const char *arg)
+{
+    size_t len = strlen(arg);
+    return len > 4 && strcmp(arg + len - 4, ".apg") == 0 &&
+           access(arg, F_OK) == 0;
+}
+
+static int
+show_archive(struct db_handle *db, const char *path, bool json_output)
+{
+    struct package_metadata *meta = package_read_metadata(path);
+    if (!meta)
+    {
+        ui_errorf(_("failed to read package %s: %s"), path,
+                  cmd_libapg_reason());
+        return 1;
+    }
+
+    char status[256];
+    struct package *installed =
+        db && meta->name ? db_get(db, meta->name) : NULL;
+    if (installed)
+        snprintf(status, sizeof(status), _("archive, %s %s is installed"),
+                 installed->meta->name, installed->meta->version);
+    else
+        snprintf(status, sizeof(status), "%s", _("archive, not installed"));
+
+    if (json_output)
+        json_out_emit(json_out_package_info(meta, NULL));
+    else
+        print_pkg_human(meta, status, NULL, db, NULL);
+
+    package_free(installed);
+    package_metadata_free(meta);
+    return 0;
+}
+
 int
 cmd_info_run(int argc, char **argv, struct tulpar_config *cfg)
 {
@@ -222,6 +261,16 @@ cmd_info_run(int argc, char **argv, struct tulpar_config *cfg)
     dest_ctx_resolve(dest_arg, cfg->db_dir, &dest);
 
     struct db_handle *db = db_open_readonly(dest.db_path);
+
+    if (is_archive_arg(name))
+    {
+        int rc = show_archive(db, name, json_output);
+        if (db)
+            db_close(db);
+        dest_ctx_clear(&dest);
+        return rc;
+    }
+
     struct package *local = db ? db_get(db, name) : NULL;
 
     if (local)
