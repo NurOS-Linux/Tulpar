@@ -677,7 +677,7 @@ pick_listed(const struct remote_pick *picks, size_t count, const char *name)
 static bool
 resolve_dependencies(size_t first, struct db_handle *db,
                      const struct repo_list *repos,
-                     const struct tulpar_config *cfg, const char *root_path,
+                     const struct tulpar_config *cfg,
                      const struct provider_pref *prefs, size_t pref_count,
                      bool assume_yes, struct pkg_set *out)
 {
@@ -924,8 +924,8 @@ resolve_install_closure(char *const *requested, size_t requested_count,
 
     out->explicit_count = out->count;
 
-    if (!nodeps && !resolve_dependencies(0, db, repos, cfg, root_path, prefs,
-                                         pref_count, assume_yes, out))
+    if (!nodeps && !resolve_dependencies(0, db, repos, cfg, prefs, pref_count,
+                                         assume_yes, out))
     {
         free(roots);
         return false;
