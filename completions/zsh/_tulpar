@@ -61,6 +61,7 @@ _tulpar()
                         '*--provider[force a provider for a dependency]:name=package' \
                         '--nodeps[install exactly what was requested, skip dependency resolution]' \
                         '--dry-run[preview the transaction without writing anything to disk]' \
+                        '--db[also check the package database for inconsistencies]' \
                         '*--exclude[skip a package during a full upgrade]:name' \
                         '--installed[search installed packages only]' \
                         '--remote[search remote packages only]' \
