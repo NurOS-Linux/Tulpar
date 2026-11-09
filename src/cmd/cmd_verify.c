@@ -13,6 +13,37 @@
 
 #define USAGE "tulpar verify [--dest <path>]"
 
+static int
+verify_files(struct db_handle *db, const char *root)
+{
+    int count = 0;
+    struct db_verify_issue *issues = db_verify(db, root, &count);
+
+    if (count == 0)
+    {
+        ui_status(_("Verified"), _("all installed packages are intact"));
+    }
+    else
+    {
+        for (int i = 0; i < count; i++)
+        {
+            const struct db_verify_issue *issue =
+                db_verify_issue_at(issues, count, i);
+            int missing_count = db_verify_issue_missing_count(issue);
+
+            ui_errorf(ngettext("%s: %d file is missing",
+                               "%s: %d files are missing", missing_count),
+                      db_verify_issue_pkg_name(issue), missing_count);
+            for (int j = 0; j < missing_count; j++)
+                printf("    %s\n", db_verify_issue_missing_file_at(issue, j));
+        }
+        ui_hint(_("reinstall the affected packages to restore their files"));
+    }
+
+    db_verify_free(issues, count);
+    return count;
+}
+
 int
 cmd_verify_run(int argc, char **argv, struct tulpar_config *cfg)
 {
@@ -58,33 +89,10 @@ cmd_verify_run(int argc, char **argv, struct tulpar_config *cfg)
         return 1;
     }
 
-    int count = 0;
-    struct db_verify_issue *issues = db_verify(db, dest.root, &count);
+    int problems = verify_files(db, dest.root);
 
-    if (count == 0)
-    {
-        ui_status(_("Verified"), _("all installed packages are intact"));
-    }
-    else
-    {
-        for (int i = 0; i < count; i++)
-        {
-            const struct db_verify_issue *issue =
-                db_verify_issue_at(issues, count, i);
-            int missing_count = db_verify_issue_missing_count(issue);
-
-            ui_errorf(ngettext("%s: %d file is missing",
-                               "%s: %d files are missing", missing_count),
-                      db_verify_issue_pkg_name(issue), missing_count);
-            for (int j = 0; j < missing_count; j++)
-                printf("    %s\n", db_verify_issue_missing_file_at(issue, j));
-        }
-        ui_hint(_("reinstall the affected packages to restore their files"));
-    }
-
-    db_verify_free(issues, count);
     db_close(db);
     dest_ctx_clear(&dest);
 
-    return count == 0 ? 0 : 1;
+    return problems == 0 ? 0 : 1;
 }
