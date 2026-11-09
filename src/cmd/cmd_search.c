@@ -6,10 +6,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <yyjson.h>
-
 #include "cmd_search.h"
 #include "cmd_common.h"
+#include "json_out.h"
 #include "../cli/args.h"
 #include "../cli/ui.h"
 #include "../repo/repo.h"
@@ -151,41 +150,8 @@ cmd_search_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (json_output)
     {
-        yyjson_mut_doc *doc = yyjson_mut_doc_new(NULL);
-        yyjson_mut_val *arr = yyjson_mut_arr(doc);
-        yyjson_mut_doc_set_root(doc, arr);
-
-        for (int i = 0; i < local_count; i++)
-        {
-            struct package *pkg = local[i];
-            yyjson_mut_val *obj = yyjson_mut_obj(doc);
-            yyjson_mut_obj_add_str(doc, obj, "source", "local");
-            yyjson_mut_obj_add_strcpy(doc, obj, "name", pkg->meta->name);
-            yyjson_mut_obj_add_strcpy(doc, obj, "version", pkg->meta->version);
-            yyjson_mut_obj_add_strcpy(
-                doc, obj, "description",
-                pkg->meta->description ? pkg->meta->description : "");
-            yyjson_mut_arr_add_val(arr, obj);
-        }
-        for (size_t i = 0; i < match_count; i++)
-        {
-            const struct repo_package *pkg = matches[i];
-            yyjson_mut_val *obj = yyjson_mut_obj(doc);
-            yyjson_mut_obj_add_str(doc, obj, "source", "remote");
-            yyjson_mut_obj_add_strcpy(doc, obj, "name", pkg->name);
-            yyjson_mut_obj_add_strcpy(doc, obj, "version", pkg->version);
-            yyjson_mut_obj_add_strcpy(doc, obj, "description",
-                                      pkg->description);
-            yyjson_mut_arr_add_val(arr, obj);
-        }
-
-        char *json = yyjson_mut_write(doc, 0, NULL);
-        if (json)
-        {
-            printf("%s\n", json);
-            free(json);
-        }
-        yyjson_mut_doc_free(doc);
+        json_out_emit(
+            json_out_search(local, (size_t)local_count, matches, match_count));
     }
     else if (local_count == 0 && match_count == 0)
     {

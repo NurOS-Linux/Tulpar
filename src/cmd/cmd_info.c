@@ -5,10 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <yyjson.h>
-
 #include "cmd_info.h"
 #include "cmd_common.h"
+#include "json_out.h"
 #include "resolve.h"
 #include "../cli/args.h"
 #include "../cli/ui.h"
@@ -112,83 +111,6 @@ print_pkg_human(const struct package_metadata *m, const char *status,
     free(conflicts);
     free(replaces);
     free(required_by);
-}
-
-static void
-print_pkg_json(const struct package_metadata *m, const struct str_list *req_by)
-{
-    yyjson_mut_doc *doc = yyjson_mut_doc_new(NULL);
-    yyjson_mut_val *obj = yyjson_mut_obj(doc);
-    yyjson_mut_doc_set_root(doc, obj);
-
-    yyjson_mut_obj_add_strcpy(doc, obj, "name", m->name ? m->name : "");
-    yyjson_mut_obj_add_strcpy(doc, obj, "version",
-                              m->version ? m->version : "");
-    yyjson_mut_obj_add_strcpy(doc, obj, "type", m->type ? m->type : "");
-    yyjson_mut_obj_add_strcpy(doc, obj, "architecture",
-                              m->architecture ? m->architecture : "");
-    yyjson_mut_obj_add_strcpy(doc, obj, "maintainer",
-                              m->maintainer ? m->maintainer : "");
-    yyjson_mut_obj_add_strcpy(doc, obj, "license",
-                              m->license ? m->license : "");
-    yyjson_mut_obj_add_strcpy(doc, obj, "homepage",
-                              m->homepage ? m->homepage : "");
-
-    if (m->dependencies.count > 0)
-    {
-        yyjson_mut_val *dep_arr = yyjson_mut_arr(doc);
-        for (int i = 0; i < m->dependencies.count; i++)
-        {
-            char *dep = dep_constraint_to_str(&m->dependencies.items[i]);
-            if (dep)
-                yyjson_mut_arr_add_strcpy(doc, dep_arr, dep);
-            free(dep);
-        }
-        yyjson_mut_obj_add_val(doc, obj, "dependencies", dep_arr);
-    }
-
-    if (m->provides.count > 0)
-    {
-        yyjson_mut_val *prov_arr = yyjson_mut_arr(doc);
-        for (int i = 0; i < m->provides.count; i++)
-            yyjson_mut_arr_add_strcpy(doc, prov_arr, m->provides.items[i]);
-        yyjson_mut_obj_add_val(doc, obj, "provides", prov_arr);
-    }
-
-    if (m->conflicts.count > 0)
-    {
-        yyjson_mut_val *conf_arr = yyjson_mut_arr(doc);
-        for (int i = 0; i < m->conflicts.count; i++)
-            yyjson_mut_arr_add_strcpy(doc, conf_arr, m->conflicts.items[i]);
-        yyjson_mut_obj_add_val(doc, obj, "conflicts", conf_arr);
-    }
-
-    if (m->replaces.count > 0)
-    {
-        yyjson_mut_val *repl_arr = yyjson_mut_arr(doc);
-        for (int i = 0; i < m->replaces.count; i++)
-            yyjson_mut_arr_add_strcpy(doc, repl_arr, m->replaces.items[i]);
-        yyjson_mut_obj_add_val(doc, obj, "replaces", repl_arr);
-    }
-
-    if (req_by && req_by->count > 0)
-    {
-        yyjson_mut_val *req_arr = yyjson_mut_arr(doc);
-        for (int i = 0; i < req_by->count; i++)
-            yyjson_mut_arr_add_strcpy(doc, req_arr, req_by->items[i]);
-        yyjson_mut_obj_add_val(doc, obj, "required_by", req_arr);
-    }
-
-    yyjson_mut_obj_add_strcpy(doc, obj, "description",
-                              m->description ? m->description : "");
-
-    char *json = yyjson_mut_write(doc, 0, NULL);
-    if (json)
-    {
-        printf("%s\n", json);
-        free(json);
-    }
-    yyjson_mut_doc_free(doc);
 }
 
 static struct str_list
@@ -312,7 +234,7 @@ cmd_info_run(int argc, char **argv, struct tulpar_config *cfg)
                                           : _("installed as a dependency"),
                  local->held ? ", " : "", local->held ? _("held") : "");
         if (json_output)
-            print_pkg_json(local->meta, &req_by);
+            json_out_emit(json_out_package_info(local->meta, &req_by));
         else
             print_pkg_human(local->meta, status, &req_by, db, NULL);
 
@@ -369,7 +291,7 @@ cmd_info_run(int argc, char **argv, struct tulpar_config *cfg)
     }
 
     if (json_output)
-        print_pkg_json(&meta, NULL);
+        json_out_emit(json_out_package_info(&meta, NULL));
     else
         print_pkg_human(&meta, _("not installed"), NULL, NULL,
                         idx->count > 1 ? versions : NULL);

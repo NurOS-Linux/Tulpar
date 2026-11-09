@@ -4,13 +4,14 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #include <apg/audit.h>
-#include <yyjson.h>
 
 #include "cmd_history.h"
 #include "cmd_common.h"
+#include "json_out.h"
 #include "../cli/args.h"
 #include "../cli/ui.h"
 #include "../util/paths.h"
@@ -32,28 +33,6 @@ op_label(journal_op_t op)
     default:
         return "?";
     }
-}
-
-static const char *
-op_name(journal_op_t op)
-{
-    switch (op)
-    {
-    case JOURNAL_INSTALL:
-        return "install";
-    case JOURNAL_REMOVE:
-        return "remove";
-    case JOURNAL_ROLLBACK:
-        return "rollback";
-    default:
-        return "?";
-    }
-}
-
-static const char *
-status_name(journal_status_t status)
-{
-    return status == JOURNAL_STATUS_OK ? "ok" : "failed";
 }
 
 int
@@ -109,38 +88,7 @@ cmd_history_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (json_output)
     {
-        yyjson_mut_doc *doc = yyjson_mut_doc_new(NULL);
-        yyjson_mut_val *arr = yyjson_mut_arr(doc);
-        yyjson_mut_doc_set_root(doc, arr);
-
-        for (int i = 0; i < count; i++)
-        {
-            struct journal_entry *e = entries[i];
-            const char *name = journal_entry_pkg_name(e);
-            const char *version = journal_entry_pkg_version(e);
-
-            yyjson_mut_val *obj = yyjson_mut_obj(doc);
-            yyjson_mut_obj_add_str(doc, obj, "op",
-                                   op_name(journal_entry_op(e)));
-            yyjson_mut_obj_add_strcpy(doc, obj, "name", name ? name : "");
-            yyjson_mut_obj_add_strcpy(doc, obj, "version",
-                                      version ? version : "");
-            yyjson_mut_obj_add_str(doc, obj, "status",
-                                   status_name(journal_entry_status(e)));
-            yyjson_mut_obj_add_uint(doc, obj, "timestamp",
-                                    (uint64_t)journal_entry_timestamp(e));
-            yyjson_mut_obj_add_bool(doc, obj, "explicit",
-                                    journal_entry_explicit(e));
-            yyjson_mut_arr_add_val(arr, obj);
-        }
-
-        char *json = yyjson_mut_write(doc, 0, NULL);
-        if (json)
-        {
-            printf("%s\n", json);
-            free(json);
-        }
-        yyjson_mut_doc_free(doc);
+        json_out_emit(json_out_history(entries, (size_t)count));
     }
     else if (count == 0)
     {

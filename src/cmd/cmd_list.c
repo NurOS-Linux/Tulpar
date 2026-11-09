@@ -6,10 +6,9 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <yyjson.h>
-
 #include "cmd_list.h"
 #include "cmd_common.h"
+#include "json_out.h"
 #include "../cli/args.h"
 #include "../cli/ui.h"
 #include "../util/paths.h"
@@ -83,33 +82,16 @@ cmd_list_run(int argc, char **argv, struct tulpar_config *cfg)
 
     if (json_output)
     {
-        yyjson_mut_doc *doc = yyjson_mut_doc_new(NULL);
-        yyjson_mut_val *arr = yyjson_mut_arr(doc);
-        yyjson_mut_doc_set_root(doc, arr);
-
-        for (int i = 0; i < count; i++)
+        struct package **shown = calloc((size_t)count + 1, sizeof(*shown));
+        size_t shown_count = 0;
+        for (int i = 0; shown && i < count; i++)
         {
             if (pattern && strstr(pkgs[i]->meta->name, pattern) == NULL)
                 continue;
-            yyjson_mut_val *obj = yyjson_mut_arr_add_obj(doc, arr);
-            yyjson_mut_obj_add_strcpy(doc, obj, "name", pkgs[i]->meta->name);
-            yyjson_mut_obj_add_strcpy(doc, obj, "version",
-                                      pkgs[i]->meta->version);
-            yyjson_mut_obj_add_strcpy(
-                doc, obj, "description",
-                pkgs[i]->meta->description ? pkgs[i]->meta->description : "");
-            yyjson_mut_obj_add_bool(doc, obj, "installed_by_hand",
-                                    pkgs[i]->installed_by_hand);
-            yyjson_mut_obj_add_bool(doc, obj, "held", pkgs[i]->held);
+            shown[shown_count++] = pkgs[i];
         }
-
-        char *json = yyjson_mut_write(doc, 0, NULL);
-        if (json)
-        {
-            printf("%s\n", json);
-            free(json);
-        }
-        yyjson_mut_doc_free(doc);
+        json_out_emit(json_out_package_list(shown, shown_count));
+        free(shown);
     }
     else
     {
