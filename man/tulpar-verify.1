@@ -17,9 +17,19 @@ present on disk, and reports any package with missing files.
 .TP
 .BR \-d ", " \-\-dest " " \fIpath\fR
 Verify an alternate root instead of the live system.
+.TP
+.B \-\-db
+Also check the package database against itself. Reports package
+records that cannot be read or are stored under another name, file
+lists of packages that are not installed, listed files that have no
+recorded owner or are owned by another package, and recorded owners
+that are not installed or do not list the file. The files on disk are
+not consulted for this check.
 .SH EXIT STATUS
 0 if every installed package verified cleanly, non-zero if any file
-is missing.
+is missing or, with
+.BR \-\-db ,
+the database is inconsistent.
 .SH SEE ALSO
 .BR tulpar (1),
 .BR tulpar-list (1)
