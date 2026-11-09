@@ -38,3 +38,17 @@ write_file_contents(const char *path, const char *content)
     fwrite(content, 1, strlen(content), f);
     fclose(f);
 }
+
+static inline char *
+read_file_contents(const char *path)
+{
+    FILE *f = fopen(path, "rb");
+    if (!f)
+        return NULL;
+    char *buf = calloc(1, 65536);
+    assert(buf);
+    size_t n = fread(buf, 1, 65535, f);
+    buf[n] = '\0';
+    fclose(f);
+    return buf;
+}

@@ -21,6 +21,8 @@ main(void)
     test_repo_list_parse_file();
     test_repo_list_parse_file_missing();
     test_repo_list_add_remove();
+    test_repo_list_parse_disabled_and_priority();
+    test_repo_set_enabled_and_priority_preserve_other_lines();
 
     test_config_defaults();
     test_config_parse_file_overrides();
