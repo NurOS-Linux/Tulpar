@@ -164,6 +164,21 @@ json_out_history(struct journal_entry *const *entries, size_t count)
 }
 
 char *
+json_out_files(const struct package *pkg)
+{
+    yyjson_mut_doc *doc = yyjson_mut_doc_new(NULL);
+    yyjson_mut_val *obj = yyjson_mut_obj(doc);
+    yyjson_mut_doc_set_root(doc, obj);
+
+    yyjson_mut_obj_add_strcpy(doc, obj, "name", pkg->meta->name);
+    yyjson_mut_obj_add_strcpy(doc, obj, "version", pkg->meta->version);
+    add_string_array(doc, obj, "files", pkg->package_files.items,
+                     pkg->package_files.count);
+
+    return finish(doc);
+}
+
+char *
 json_out_owners(const char *const *paths, char *const *owners, size_t count)
 {
     yyjson_mut_doc *doc = yyjson_mut_doc_new(NULL);

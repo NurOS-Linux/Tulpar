@@ -23,6 +23,8 @@ char *json_out_package_info(const struct package_metadata *meta,
 
 char *json_out_history(struct journal_entry *const *entries, size_t count);
 
+char *json_out_files(const struct package *pkg);
+
 char *json_out_owners(const char *const *paths, char *const *owners,
                       size_t count);
 

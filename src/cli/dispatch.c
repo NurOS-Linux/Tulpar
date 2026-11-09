@@ -10,6 +10,7 @@
 
 #include "../cmd/cmd_clean.h"
 #include "../cmd/cmd_download.h"
+#include "../cmd/cmd_files.h"
 #include "../cmd/cmd_graph.h"
 #include "../cmd/cmd_history.h"
 #include "../cmd/cmd_hold.h"
@@ -44,6 +45,7 @@ const struct command g_commands[] = {
     {"hold", 'g', N_("block a package from upgrade/removal"), cmd_hold_run},
     {"unhold", 'x', N_("release a held package"), cmd_unhold_run},
     {"owns", 'O', N_("find the package that owns a file"), cmd_owns_run},
+    {"files", 'f', N_("list the files of an installed package"), cmd_files_run},
     {"history", 'a', N_("show past install/remove operations"),
      cmd_history_run},
     {"audit", 'a', N_("show past install/remove operations"), cmd_history_run},

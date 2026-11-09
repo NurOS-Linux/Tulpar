@@ -119,6 +119,29 @@ test_json_out_package_info_schema(void)
 }
 
 void
+test_json_out_files_schema(void)
+{
+    const char *files[] = {"/usr/bin/a", "/usr/share/a/doc"};
+    struct package *pkg = make_pkg("files-pkg", "1.0.0", NULL, false, false);
+    pkg->package_files.items = calloc(2, sizeof(char *));
+    for (int i = 0; i < 2; i++)
+        pkg->package_files.items[i] = strdup(files[i]);
+    pkg->package_files.count = 2;
+
+    yyjson_doc *doc = parse(json_out_files(pkg));
+    yyjson_val *root = yyjson_doc_get_root(doc);
+    assert(strcmp(yyjson_get_str(yyjson_obj_get(root, "name")), "files-pkg") ==
+           0);
+    yyjson_val *arr = yyjson_obj_get(root, "files");
+    assert(yyjson_arr_size(arr) == 2);
+    assert(strcmp(yyjson_get_str(yyjson_arr_get(arr, 1)), "/usr/share/a/doc") ==
+           0);
+    yyjson_doc_free(doc);
+    package_free(pkg);
+    printf("test_json_out_files_schema: PASS\n");
+}
+
+void
 test_json_out_owners_schema(void)
 {
     const char *paths[] = {"/usr/bin/a", "/nowhere"};
