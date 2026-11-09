@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: 2026 AnmiTaliDev <anmitalidev@nuros.org>
 
 #include <errno.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -286,6 +287,36 @@ cmd_seconds_since(const struct timespec *start)
            (double)(now.tv_nsec - start->tv_nsec) / 1e9;
 }
 
+static bool
+disk_space_acceptable(struct apg_trans *trans, const struct dest_ctx *dest,
+                      bool assume_yes, bool dry_run)
+{
+    uint64_t needed = 0;
+    uint64_t available = 0;
+    if (!trans_estimate_space(trans, dest->root, &needed, &available))
+    {
+        ui_debugf("disk space estimate unavailable: %s", cmd_libapg_reason());
+        return true;
+    }
+
+    ui_debugf("disk space: about %" PRIu64 " bytes needed, %" PRIu64
+              " available",
+              needed, available);
+    if (needed <= available)
+        return true;
+
+    char needed_text[32];
+    char available_text[32];
+    ui_format_bytes((size_t)needed, needed_text, sizeof(needed_text));
+    ui_format_bytes((size_t)available, available_text, sizeof(available_text));
+    ui_warnf(_("the transaction needs about %s, but only %s is free on the "
+               "target filesystem"),
+             needed_text, available_text);
+    ui_hint(_("the estimate is conservative; free some space, or continue if "
+              "you expect it to be enough"));
+    return dry_run || ui_confirm(_("Continue anyway?"), assume_yes);
+}
+
 bool
 cmd_run_transaction(struct apg_trans *trans, struct db_handle *db,
                     const struct dest_ctx *dest,
@@ -344,6 +375,12 @@ cmd_run_transaction(struct apg_trans *trans, struct db_handle *db,
     ui_print_plan(trans, db);
     if (trans_plan_count(trans) == 0)
         return true;
+
+    if (!disk_space_acceptable(trans, dest, assume_yes, dry_run))
+    {
+        ui_info(_("aborted"));
+        return false;
+    }
 
     if (!dry_run &&
         !ui_confirm(_("Proceed with this transaction?"), assume_yes))
