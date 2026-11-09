@@ -229,6 +229,12 @@ git_split_url(const char *arg, char **clone_url, char **ref)
 static struct package *
 fetch_from_git(const char *arg, const struct tulpar_config *cfg)
 {
+    if (http_is_offline())
+    {
+        ui_errorf(_("cannot fetch %s in offline mode"), arg);
+        return NULL;
+    }
+
     char *clone_url = NULL;
     char *ref = NULL;
     git_split_url(arg, &clone_url, &ref);

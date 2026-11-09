@@ -17,6 +17,7 @@ test_config_defaults(void)
     assert(cfg->max_parallel_downloads > 0);
     assert(cfg->require_signature == false);
     assert(cfg->require_script_sandbox == false);
+    assert(cfg->offline == false);
     assert(strcmp(cfg->color_theme, "cyan") == 0);
     tulpar_config_free(cfg);
     printf("test_config_defaults: PASS\n");
@@ -32,7 +33,8 @@ test_config_parse_file_overrides(void)
                               "require_signature = true\n"
                               "require_script_sandbox = true\n"
                               "color_theme = magenta\n"
-                              "quiet = yes\n");
+                              "quiet = yes\n"
+                              "offline = true\n");
 
     struct tulpar_config *cfg = tulpar_config_defaults();
     assert(cfg);
@@ -44,6 +46,7 @@ test_config_parse_file_overrides(void)
     assert(cfg->require_script_sandbox == true);
     assert(strcmp(cfg->color_theme, "magenta") == 0);
     assert(cfg->quiet == true);
+    assert(cfg->offline == true);
 
     tulpar_config_free(cfg);
     unlink(path);

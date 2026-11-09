@@ -105,6 +105,15 @@ cmd_warn_repo_unreachable(const char *repo_url, bool using_cache)
 {
     static char warned[32][512];
     static size_t warned_count = 0;
+    static bool offline_noted = false;
+
+    if (http_is_offline())
+    {
+        if (!offline_noted)
+            ui_info(_("offline mode: remote repositories are not contacted"));
+        offline_noted = true;
+        return;
+    }
 
     for (size_t i = 0; i < warned_count; i++)
         if (strcmp(warned[i], repo_url) == 0)

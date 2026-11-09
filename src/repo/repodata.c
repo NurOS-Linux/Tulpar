@@ -261,7 +261,8 @@ repodata_load(const char *repo_url, const char *cache_dir, int ttl_seconds,
     if (!cache_file)
         return NULL;
 
-    if ((force_refresh || !repodata_is_fresh(cache_file, ttl_seconds)) &&
+    if (!http_is_offline() &&
+        (force_refresh || !repodata_is_fresh(cache_file, ttl_seconds)) &&
         !repodata_refresh(repo_url, cache_dir) && refresh_failed)
         *refresh_failed = true;
 

@@ -306,6 +306,12 @@ run_list(bool show_all, bool json_output)
 static int
 run_update(struct tulpar_config *cfg)
 {
+    if (http_is_offline())
+    {
+        ui_error(_("cannot update repository indexes in offline mode"));
+        return 1;
+    }
+
     struct repo_list *list = repo_list_load();
     int failures = 0;
 

@@ -13,6 +13,19 @@
 
 static _Thread_local char g_error[CURL_ERROR_SIZE + 256];
 static _Thread_local long g_status;
+static bool g_offline;
+
+void
+http_set_offline(bool offline)
+{
+    g_offline = offline;
+}
+
+bool
+http_is_offline(void)
+{
+    return g_offline;
+}
 
 void
 http_set_error(const char *fmt, ...)
@@ -124,6 +137,12 @@ http_global_cleanup(void)
 bool
 http_get(const char *url, struct http_response *out)
 {
+    if (g_offline)
+    {
+        clear_error();
+        http_set_error("offline mode, network access is disabled");
+        return false;
+    }
     clear_error();
     CURL *curl = curl_easy_init();
     if (!curl)
@@ -170,6 +189,12 @@ bool
 http_download(const char *url, const char *dest_path, http_progress_fn progress,
               void *userdata, struct http_response *out)
 {
+    if (g_offline)
+    {
+        clear_error();
+        http_set_error("offline mode, network access is disabled");
+        return false;
+    }
     clear_error();
     CURL *curl = curl_easy_init();
     if (!curl)

@@ -29,6 +29,9 @@ main(void)
 
     test_plan_render_install_step();
 
+    test_offline_http_refuses_requests();
+    test_offline_repodata_uses_stale_cache();
+
     test_since_spec_relative_units();
     test_since_spec_dates_and_epoch();
     test_since_spec_rejects_malformed_input();

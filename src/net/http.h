@@ -15,6 +15,9 @@ struct http_response
 
 typedef void (*http_progress_fn)(size_t now, size_t total, void *userdata);
 
+void http_set_offline(bool offline);
+bool http_is_offline(void);
+
 bool http_global_init(void);
 void http_global_cleanup(void);
 

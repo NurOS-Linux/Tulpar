@@ -17,6 +17,7 @@ struct tulpar_config
     char *color_theme;
     bool verbose;
     bool quiet;
+    bool offline;
     bool journald_mirror;
 };
 

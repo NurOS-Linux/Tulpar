@@ -49,6 +49,8 @@ print_usage(void)
     printf(_("  -d, --dest <path>       operate against an alternate root\n"));
     printf(_("  -q, --quiet             suppress informational output\n"));
     printf(_("      --verbose           enable debug output\n"));
+    printf(_("      --offline           never touch the network, use cached "
+             "indexes\n"));
     printf(_("      --color <when>      colorize output: auto, always, "
              "never\n"));
 }
@@ -110,6 +112,7 @@ main(int argc, char **argv)
 
     bool verbose = false;
     bool quiet = false;
+    bool offline = false;
     ui_color_mode color_mode = UI_COLOR_AUTO;
 
     char **filtered = malloc((size_t)argc * sizeof(char *));
@@ -139,6 +142,8 @@ main(int argc, char **argv)
             verbose = true;
         else if (arg_is(argv[i], "quiet", 'q'))
             quiet = true;
+        else if (arg_is(argv[i], "offline", '\0'))
+            offline = true;
         else
             filtered[filtered_count++] = argv[i];
     }
@@ -167,6 +172,7 @@ main(int argc, char **argv)
 
     log_set_journald_mirror(cfg->journald_mirror);
 
+    http_set_offline(cfg->offline || offline);
     http_global_init();
 
     int rc = cmd->run(filtered_count, filtered, cfg);

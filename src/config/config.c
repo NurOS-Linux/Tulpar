@@ -45,6 +45,7 @@ tulpar_config_defaults(void)
     cfg->color_theme = strdup("cyan");
     cfg->verbose = false;
     cfg->quiet = false;
+    cfg->offline = false;
     cfg->journald_mirror = false;
 
     if (!cfg->cache_dir || !cfg->db_dir || !cfg->log_file || !cfg->color_theme)
@@ -124,6 +125,10 @@ apply_kv(struct tulpar_config *cfg, const char *key, const char *value)
     else if (strcmp(key, "quiet") == 0)
     {
         cfg->quiet = parse_bool(value);
+    }
+    else if (strcmp(key, "offline") == 0)
+    {
+        cfg->offline = parse_bool(value);
     }
     else if (strcmp(key, "journald") == 0)
     {
