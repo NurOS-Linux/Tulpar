@@ -845,7 +845,7 @@ resolve_install_closure(char *const *requested, size_t requested_count,
         else if (ends_with(arg, ".apg") && file_exists(arg))
         {
             ui_debugf("%s is a local archive, parsing directly", arg);
-            pkg = parse_package(arg, root_path);
+            pkg = cmd_parse_package(arg);
             if (!pkg)
             {
                 ui_errorf(_("failed to read package archive %s: %s"), arg,
