@@ -802,7 +802,7 @@ note_requested_installed(struct str_list *list, struct db_handle *db,
 bool
 resolve_install_closure(char *const *requested, size_t requested_count,
                         struct db_handle *db, const struct repo_list *repos,
-                        const struct tulpar_config *cfg, const char *root_path,
+                        const struct tulpar_config *cfg,
                         const struct provider_pref *prefs, size_t pref_count,
                         bool assume_yes, bool nodeps, struct pkg_set *out,
                         struct str_list *requested_installed)

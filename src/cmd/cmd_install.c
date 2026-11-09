@@ -185,7 +185,7 @@ cmd_install_run(int argc, char **argv, struct tulpar_config *cfg)
     struct timespec resolve_started;
     clock_gettime(CLOCK_MONOTONIC, &resolve_started);
     if (!resolve_install_closure(positional, (size_t)positional_count, db,
-                                 repos, cfg, dest.root, provider_prefs,
+                                 repos, cfg, provider_prefs,
                                  (size_t)provider_count, assume_yes, nodeps,
                                  &set, &requested_installed))
     {
