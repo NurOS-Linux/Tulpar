@@ -16,6 +16,7 @@ test_config_defaults(void)
     assert(cfg->repodata_ttl > 0);
     assert(cfg->max_parallel_downloads > 0);
     assert(cfg->require_signature == false);
+    assert(cfg->require_script_sandbox == false);
     assert(strcmp(cfg->color_theme, "cyan") == 0);
     tulpar_config_free(cfg);
     printf("test_config_defaults: PASS\n");
@@ -29,6 +30,7 @@ test_config_parse_file_overrides(void)
                               "repodata_ttl = 120\n"
                               "max_parallel_downloads = 8\n"
                               "require_signature = true\n"
+                              "require_script_sandbox = true\n"
                               "color_theme = magenta\n"
                               "quiet = yes\n");
 
@@ -39,6 +41,7 @@ test_config_parse_file_overrides(void)
     assert(cfg->repodata_ttl == 120);
     assert(cfg->max_parallel_downloads == 8);
     assert(cfg->require_signature == true);
+    assert(cfg->require_script_sandbox == true);
     assert(strcmp(cfg->color_theme, "magenta") == 0);
     assert(cfg->quiet == true);
 
