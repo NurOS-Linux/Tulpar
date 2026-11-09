@@ -23,6 +23,13 @@ All notable changes to tulpar are documented in this file.
   `--dry-run` only warns. The estimate is conservative. Backed by
   libapg's new `trans_estimate_space()`.
 
+### Changed
+
+- `orphans` and `autoremove` list and remove whole chains of orphaned
+  packages in one run, including packages that only other orphans
+  depend on, instead of only the packages that nothing depends on. Uses
+  libapg's new `db_get_orphans_transitive()`.
+
 ## [0.5.0] - 2026-09-30
 
 ### Added
