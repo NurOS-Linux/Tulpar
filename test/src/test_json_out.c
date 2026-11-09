@@ -55,7 +55,7 @@ test_json_out_package_list_schema(void)
     struct package *b = make_pkg("beta", "2.1.0", NULL, false, true);
     struct package *pkgs[] = {a, b};
 
-    yyjson_doc *doc = parse(json_out_package_list(pkgs, 2));
+    yyjson_doc *doc = parse(json_out_package_list(pkgs, 2, NULL));
     yyjson_val *root = yyjson_doc_get_root(doc);
     assert(yyjson_is_arr(root));
     assert(yyjson_arr_size(root) == 2);
@@ -75,11 +75,22 @@ test_json_out_package_list_schema(void)
     assert(!yyjson_get_bool(yyjson_obj_get(second, "installed_by_hand")));
     assert(yyjson_get_bool(yyjson_obj_get(second, "held")));
 
+    assert(yyjson_obj_get(first, "available_version") == NULL);
+    yyjson_doc_free(doc);
+
+    const char *available[] = {NULL, "2.2.0"};
+    doc = parse(json_out_package_list(pkgs, 2, available));
+    root = yyjson_doc_get_root(doc);
+    assert(yyjson_obj_get(yyjson_arr_get(root, 0), "available_version") ==
+           NULL);
+    assert(strcmp(yyjson_get_str(yyjson_obj_get(yyjson_arr_get(root, 1),
+                                                "available_version")),
+                  "2.2.0") == 0);
     yyjson_doc_free(doc);
     package_free(a);
     package_free(b);
 
-    doc = parse(json_out_package_list(NULL, 0));
+    doc = parse(json_out_package_list(NULL, 0, NULL));
     assert(yyjson_is_arr(yyjson_doc_get_root(doc)));
     assert(yyjson_arr_size(yyjson_doc_get_root(doc)) == 0);
     yyjson_doc_free(doc);

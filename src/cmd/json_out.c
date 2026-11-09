@@ -49,7 +49,8 @@ json_out_status_name(journal_status_t status)
 }
 
 char *
-json_out_package_list(struct package *const *pkgs, size_t count)
+json_out_package_list(struct package *const *pkgs, size_t count,
+                      const char *const *available)
 {
     yyjson_mut_doc *doc = yyjson_mut_doc_new(NULL);
     yyjson_mut_val *arr = yyjson_mut_arr(doc);
@@ -66,6 +67,9 @@ json_out_package_list(struct package *const *pkgs, size_t count)
         yyjson_mut_obj_add_bool(doc, obj, "installed_by_hand",
                                 pkgs[i]->installed_by_hand);
         yyjson_mut_obj_add_bool(doc, obj, "held", pkgs[i]->held);
+        if (available && available[i])
+            yyjson_mut_obj_add_strcpy(doc, obj, "available_version",
+                                      available[i]);
     }
 
     return finish(doc);

@@ -17,7 +17,8 @@ const char *json_out_op_name(journal_op_t op);
 
 const char *json_out_status_name(journal_status_t status);
 
-char *json_out_package_list(struct package *const *pkgs, size_t count);
+char *json_out_package_list(struct package *const *pkgs, size_t count,
+                            const char *const *available);
 
 char *json_out_package_info(const struct package_metadata *meta,
                             const struct str_list *required_by);
