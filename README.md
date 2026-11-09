@@ -126,8 +126,8 @@ values overriding earlier ones:
 The format is plain `key = value` lines; `#` starts a comment; there
 are no sections. See `tulpar.conf(5)` for the full list of keys
 (`cache_dir`, `db_dir`, `log_file`, `repodata_ttl`,
-`max_parallel_downloads`, `require_signature`, `color_theme`,
-`verbose`, `quiet`, `journald`).
+`max_parallel_downloads`, `require_signature`, `require_script_sandbox`,
+`color_theme`, `verbose`, `quiet`, `journald`).
 
 ### Repositories
 
