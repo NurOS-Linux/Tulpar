@@ -72,15 +72,21 @@ unsigned or unverifiable packages outright instead of just warning.
 ## Install-script sandbox
 
 Lifecycle scripts (pre-install, post-install, pre-remove, post-remove)
-are executed by libapg's `run_script()`, isolated using the strongest
-primitive available on the host:
+are executed by libapg's `run_script()` as `/bin/sh <script>` in a child
+process:
 
-- **Linux**: `unshare()` with isolated network, mount, UTS, and IPC
-  namespaces.
-- **FreeBSD**: `chroot()` into the alternate install root, when one is
-  given (via `--dest`).
-- **Other POSIX platforms**: no sandbox primitive is available;
-  scripts run without isolation.
+- **Linux**: `unshare()` with user, network, mount, UTS, and IPC
+  namespaces. If `unshare()` fails with `EPERM` or `EINVAL`, for example
+  when unprivileged user namespaces are disabled, the script runs
+  without them.
+- **FreeBSD and other POSIX platforms**: `chroot()` into the alternate
+  install root, when one is given (via `--dest`). No other isolation is
+  applied.
+
+Set `require_script_sandbox = true` in `tulpar.conf` to make a script
+that cannot be isolated fail the transaction instead of running without
+isolation. On platforms other than Linux no script can be isolated, so
+the option makes every package with scripts fail.
 
 tulpar does not reimplement any of this. It only resolves where the
 package database lives under `--dest`, makes sure the target root's
