@@ -78,6 +78,27 @@ cmd_libapg_reason(void)
     return err ? err : _("no further detail available");
 }
 
+struct package *
+cmd_parse_package(const char *path)
+{
+    struct package *pkg = parse_package(path, NULL);
+    if (!pkg)
+        return NULL;
+
+    char **files = NULL;
+    int count = 0;
+    if (!package_list_files(path, &files, &count))
+    {
+        package_free(pkg);
+        return NULL;
+    }
+
+    str_list_free(&pkg->package_files);
+    pkg->package_files.items = files;
+    pkg->package_files.count = count;
+    return pkg;
+}
+
 void
 cmd_warn_repo_unreachable(const char *repo_url, bool using_cache)
 {

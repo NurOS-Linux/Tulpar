@@ -20,6 +20,8 @@ void cmd_unknown_option(const char *arg, const char *usage);
 
 const char *cmd_libapg_reason(void);
 
+struct package *cmd_parse_package(const char *path);
+
 void cmd_warn_repo_unreachable(const char *repo_url, bool using_cache);
 
 void cmd_download_progress(size_t now, size_t total, void *userdata);
