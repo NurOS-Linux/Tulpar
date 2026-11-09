@@ -287,6 +287,15 @@ cmd_seconds_since(const struct timespec *start)
            (double)(now.tv_nsec - start->tv_nsec) / 1e9;
 }
 
+static void
+hint_if_isolation_failed(const char *reason)
+{
+    if (strstr(reason, "cannot isolate"))
+        ui_hint(_("package scripts cannot be isolated on this system; set "
+                  "require_script_sandbox = false in tulpar.conf to run them "
+                  "without isolation"));
+}
+
 static bool
 disk_space_acceptable(struct apg_trans *trans, const struct dest_ctx *dest,
                       bool assume_yes, bool dry_run)
@@ -418,6 +427,7 @@ cmd_run_transaction(struct apg_trans *trans, struct db_handle *db,
             const char *reason = cmd_libapg_reason();
             ui_errorf(_("installation failed: %s"), reason);
             ui_hint(_("changes made by this transaction were rolled back"));
+            hint_if_isolation_failed(reason);
             if (strstr(reason, strerror(ENOSPC)))
                 ui_hint(_("free space on the target filesystem; packages are "
                           "unpacked into a temporary directory first, which "
@@ -432,9 +442,13 @@ cmd_run_transaction(struct apg_trans *trans, struct db_handle *db,
             break;
         }
         case TRANS_ERR_REMOVE_FAILED:
-            ui_errorf(_("removal failed: %s"), cmd_libapg_reason());
+        {
+            const char *reason = cmd_libapg_reason();
+            ui_errorf(_("removal failed: %s"), reason);
             ui_hint(_("changes made by this transaction were rolled back"));
+            hint_if_isolation_failed(reason);
             break;
+        }
         default:
             ui_errorf(_("failed to commit the transaction: %s"),
                       cmd_libapg_reason());
