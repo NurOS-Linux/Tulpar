@@ -17,6 +17,10 @@ tulpar-orphans, tulpar-autoremove \- list and remove orphaned packages
 Lists installed packages that were pulled in automatically as
 dependencies and are no longer required by any other installed
 package, then offers to remove them.
+A package that only other orphans depend on, directly or through a
+longer chain, is listed as well, so a single run removes the whole
+chain.
+Packages installed explicitly are never listed.
 .B orphans
 and
 .B autoremove
