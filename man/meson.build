@@ -21,3 +21,4 @@ man1_pages = [
 
 install_man(man1_pages)
 install_man('tulpar.conf.5')
+install_man('tulpar-json.7')

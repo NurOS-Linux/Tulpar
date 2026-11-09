@@ -1,0 +1,141 @@
+.TH TULPAR-JSON 7 "2026" "tulpar 0.5.0" "Tulpar Manual"
+.SH NAME
+tulpar-json \- machine-readable output of tulpar
+.SH DESCRIPTION
+Commands that accept
+.B \-\-json
+print a single JSON document on standard output, terminated by a newline.
+Diagnostics, warnings and prompts go to standard error, so the output can be
+piped straight into a JSON parser. The exit status is the same as without
+the option.
+.PP
+The schemas below are covered by the unit tests. New fields may be added in
+later versions; existing fields are not removed or changed in type, so
+consumers should ignore keys they do not know. Strings are UTF-8. Optional
+fields are marked as such and are omitted rather than set to
+.BR null ,
+except where stated.
+.SH SCHEMAS
+.SS list
+An array of objects, one per installed package:
+.TP
+.B name, version, description
+Strings. The description is empty if the package has none.
+.TP
+.B installed_by_hand
+Boolean, true if the package was installed explicitly.
+.TP
+.B held
+Boolean.
+.TP
+.B available_version
+Optional string. Present only with
+.B \-\-upgradable
+and holds the newer version found in the repositories.
+.SS info
+One object:
+.TP
+.B name, version, type, architecture, maintainer, license, homepage, description
+Strings, empty when unknown.
+.TP
+.B dependencies, provides, conflicts, replaces, required_by
+Optional arrays of strings, omitted when empty. Dependencies keep their
+version constraints, for example
+.BR "libfoo >= 1.2" .
+.B required_by
+is present only for installed packages.
+.SS search
+An array of objects with the strings
+.BR source ", " name ", " version " and " description .
+.B source
+is either
+.B local
+or
+.BR remote .
+.SS history
+An array of objects, oldest first:
+.TP
+.B op
+One of
+.BR install ", " remove " or " rollback .
+.TP
+.B name, version
+Strings.
+.TP
+.B status
+.B ok
+or
+.BR failed .
+.TP
+.B timestamp
+Unsigned integer, seconds since the Unix epoch.
+.TP
+.B explicit
+Boolean, true if the operation was requested directly rather than pulled in
+as a dependency.
+.SS owns
+An array with one object per requested path, in the order given:
+.TP
+.B path
+String, the path that was looked up, made absolute.
+.TP
+.B owner
+The owning package name, or
+.B null
+if no package owns the path. This is the only place where
+.B null
+is used.
+.SS files
+One object with the strings
+.B name
+and
+.BR version ,
+and the array of strings
+.BR files ,
+the absolute paths recorded for the package.
+.SS why
+One object:
+.TP
+.B name
+String.
+.TP
+.B explicit
+Boolean, true if the package was installed explicitly.
+.TP
+.B required_by
+Array of the installed packages that depend on it.
+.TP
+.B chain
+Array of package names leading from an explicitly installed package to this
+one, ending with
+.BR name .
+Empty for explicit packages and for orphans.
+.TP
+.B orphan
+Boolean, true if the package is a dependency that nothing requires.
+.SS stats
+One object with the integers
+.BR packages ", " explicit ", " dependencies ", " held ", " orphans " and " files .
+.SS repo list
+An array of objects in consultation order:
+.TP
+.B url
+String.
+.TP
+.B enabled
+Boolean.
+.TP
+.B priority
+Integer, lower is consulted first.
+.TP
+.B scope
+.B system
+or
+.BR user ,
+the list file the entry comes from. Disabled entries are always included.
+.SH SEE ALSO
+.BR tulpar (1),
+.BR tulpar-list (1),
+.BR tulpar-info (1),
+.BR tulpar-history (1),
+.BR tulpar-repo (1)
