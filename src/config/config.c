@@ -41,6 +41,7 @@ tulpar_config_defaults(void)
     cfg->repodata_ttl = TULPAR_REPODATA_TTL;
     cfg->max_parallel_downloads = TULPAR_MAX_PARALLEL_DOWNLOADS;
     cfg->require_signature = false;
+    cfg->require_script_sandbox = false;
     cfg->color_theme = strdup("cyan");
     cfg->verbose = false;
     cfg->quiet = false;
@@ -106,6 +107,10 @@ apply_kv(struct tulpar_config *cfg, const char *key, const char *value)
     else if (strcmp(key, "require_signature") == 0)
     {
         cfg->require_signature = parse_bool(value);
+    }
+    else if (strcmp(key, "require_script_sandbox") == 0)
+    {
+        cfg->require_script_sandbox = parse_bool(value);
     }
     else if (strcmp(key, "color_theme") == 0)
     {

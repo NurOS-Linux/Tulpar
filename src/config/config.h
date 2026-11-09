@@ -13,6 +13,7 @@ struct tulpar_config
     int repodata_ttl;
     int max_parallel_downloads;
     bool require_signature;
+    bool require_script_sandbox;
     char *color_theme;
     bool verbose;
     bool quiet;
