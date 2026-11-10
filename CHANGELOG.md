@@ -23,6 +23,39 @@ All notable changes to tulpar are documented in this file.
   `--dry-run` only warns. The estimate is conservative. Backed by
   libapg's new `trans_estimate_space()`.
 
+- `owns <path>...` finds the package that owns a file, `files <name>`
+  lists the files of an installed package, and `why <name>` explains
+  why a package is installed, with the packages that require it and the
+  chain from an explicitly installed package. `stats` summarises the
+  database.
+- `mark --auto|--explicit <name>...` switches packages between
+  installed as a dependency and installed explicitly, which decides
+  what `orphans` may remove.
+- `reinstall <package|file.apg>...` installs the installed version of a
+  package again to restore damaged files, from the repositories or from
+  an archive, keeping the explicit or dependency state.
+- `info` accepts the path of a `.apg` file and shows its metadata
+  without installing it.
+- `list` gains `--explicit`, `--deps`, `--held`, `--upgradable` and
+  `--names`; `--upgradable` asks the repositories once per installed
+  package.
+- `history` gains `--package <name>` and `--since <spec>`, where the
+  spec is an age such as `7d`, a date, or `@<unix time>`.
+- `repo enable`, `repo disable` and `repo priority` manage repositories
+  without deleting them, and `repo list` gains `--all` and `--json`. A
+  disabled entry is stored as a `#disabled` line, which older versions
+  of tulpar ignore, and a priority as `priority=N` after the URL, which
+  older versions would read as part of the URL. Repositories are
+  consulted in ascending priority, 100 by default.
+- `--offline` and the `offline` option in `tulpar.conf` stop tulpar from
+  touching the network: repository indexes come from the cache however
+  old it is, and commands that need the network fail with a clear
+  message.
+- Shell completions suggest installed package names, repository URLs and
+  `.apg` files, and cover all new commands and options.
+- The JSON output of every command is documented in the new
+  `tulpar-json(7)` manual page and covered by unit tests.
+
 ### Changed
 
 - `orphans` and `autoremove` list and remove whole chains of orphaned
