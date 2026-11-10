@@ -42,7 +42,7 @@ char *json_out_stats(const struct stats_summary *summary);
 
 char *json_out_files(const struct package *pkg);
 
-char *json_out_why(const char *name, bool explicit_install,
+char *json_out_why(const char *name, bool explicit_install, bool orphan,
                    char *const *required_by, int required_by_count,
                    char *const *chain, int chain_count);
 

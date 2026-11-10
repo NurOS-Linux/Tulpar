@@ -220,8 +220,9 @@ json_out_files(const struct package *pkg)
 }
 
 char *
-json_out_why(const char *name, bool explicit_install, char *const *required_by,
-             int required_by_count, char *const *chain, int chain_count)
+json_out_why(const char *name, bool explicit_install, bool orphan,
+             char *const *required_by, int required_by_count,
+             char *const *chain, int chain_count)
 {
     yyjson_mut_doc *doc = yyjson_mut_doc_new(NULL);
     yyjson_mut_val *obj = yyjson_mut_obj(doc);
@@ -236,8 +237,7 @@ json_out_why(const char *name, bool explicit_install, char *const *required_by,
         yyjson_mut_arr_add_strcpy(doc, chain_arr, chain[i]);
     yyjson_mut_obj_add_val(doc, obj, "chain", chain_arr);
 
-    yyjson_mut_obj_add_bool(doc, obj, "orphan",
-                            !explicit_install && required_by_count == 0);
+    yyjson_mut_obj_add_bool(doc, obj, "orphan", orphan);
 
     return finish(doc);
 }

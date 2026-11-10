@@ -45,6 +45,8 @@ test_why_chain_follows_dependents_to_explicit_package(void)
     add_pkg(db, "mid", "leaf", false);
     add_pkg(db, "leaf", NULL, false);
     add_pkg(db, "stray", NULL, false);
+    add_pkg(db, "lone-parent", "lone-child", false);
+    add_pkg(db, "lone-child", NULL, false);
 
     int count = 0;
     char **chain = why_find_chain(db, "leaf", &count);
@@ -55,7 +57,7 @@ test_why_chain_follows_dependents_to_explicit_package(void)
     assert(strcmp(chain[2], "leaf") == 0);
 
     char *required[] = {"mid"};
-    char *json = json_out_why("leaf", false, required, 1, chain, count);
+    char *json = json_out_why("leaf", false, false, required, 1, chain, count);
     yyjson_doc *doc = yyjson_read(json, strlen(json), 0);
     assert(doc);
     yyjson_val *arr = yyjson_obj_get(yyjson_doc_get_root(doc), "chain");
@@ -72,12 +74,25 @@ test_why_chain_follows_dependents_to_explicit_package(void)
     assert(chain == NULL);
     assert(count == 0);
 
-    json = json_out_why("stray", false, NULL, 0, NULL, 0);
+    json = json_out_why("stray", false, true, NULL, 0, NULL, 0);
     doc = yyjson_read(json, strlen(json), 0);
     assert(doc);
     assert(yyjson_get_bool(yyjson_obj_get(yyjson_doc_get_root(doc), "orphan")));
     yyjson_doc_free(doc);
     free(json);
+
+    int orphan_count = 0;
+    char **orphans = db_get_orphans_transitive(db, &orphan_count);
+    bool child_orphan = false;
+    for (int i = 0; orphans && i < orphan_count; i++)
+        if (strcmp(orphans[i], "lone-child") == 0)
+            child_orphan = true;
+    why_free_names(orphans, orphan_count);
+    assert(child_orphan);
+
+    chain = why_find_chain(db, "lone-child", &count);
+    assert(chain == NULL);
+    assert(count == 0);
 
     db_close(db);
     char cmd[300];

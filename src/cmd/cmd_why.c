@@ -100,10 +100,21 @@ cmd_why_run(int argc, char **argv, struct tulpar_config *cfg)
         char **chain =
             explicit_install ? NULL : why_find_chain(db, pos[0], &chain_count);
 
+        bool orphan = false;
+        int orphan_count = 0;
+        char **orphans = explicit_install
+                             ? NULL
+                             : db_get_orphans_transitive(db, &orphan_count);
+        for (int i = 0; orphans && i < orphan_count; i++)
+            if (strcmp(orphans[i], pos[0]) == 0)
+                orphan = true;
+        why_free_names(orphans, orphan_count);
+
         if (json_output)
         {
-            json_out_emit(json_out_why(pos[0], explicit_install, dependents,
-                                       dep_count, chain, chain_count));
+            json_out_emit(json_out_why(pos[0], explicit_install, orphan,
+                                       dependents, dep_count, chain,
+                                       chain_count));
         }
         else if (explicit_install)
         {
@@ -136,6 +147,9 @@ cmd_why_run(int argc, char **argv, struct tulpar_config *cfg)
                     printf("%s%s", chain[i],
                            i + 1 < chain_count ? " -> " : "\n");
             }
+            if (orphan)
+                ui_hint(_("only unused packages require it, so it can be "
+                          "removed with 'tulpar orphans'"));
         }
 
         why_free_names(dependents, dep_count);
