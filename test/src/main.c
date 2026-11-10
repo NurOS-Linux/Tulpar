@@ -29,6 +29,10 @@ main(void)
 
     test_plan_render_install_step();
 
+    test_cmd_mark_switches_installed_by_hand();
+    test_cmd_owns_and_files_report_the_database();
+    test_cmd_reinstall_restores_files_from_an_archive();
+
     test_offline_http_refuses_requests();
     test_offline_repodata_uses_stale_cache();
 

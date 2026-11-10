@@ -24,6 +24,10 @@ void test_config_parse_file_overrides(void);
 
 void test_plan_render_install_step(void);
 
+void test_cmd_mark_switches_installed_by_hand(void);
+void test_cmd_owns_and_files_report_the_database(void);
+void test_cmd_reinstall_restores_files_from_an_archive(void);
+
 void test_offline_http_refuses_requests(void);
 void test_offline_repodata_uses_stale_cache(void);
 
