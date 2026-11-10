@@ -17,6 +17,7 @@ TARGETS = [
 GLOB_TARGETS = [
     ('man/*.1',    r'("tulpar )\d+\.\d+\.\d+(")'),
     ('man/*.5',    r'("tulpar )\d+\.\d+\.\d+(")'),
+    ('man/*.7',    r'("tulpar )\d+\.\d+\.\d+(")'),
     ('po/*.po',    r'(Project-Id-Version: tulpar )\d+\.\d+\.\d+(\\n")'),
     ('po/*.pot',   r'(Project-Id-Version: tulpar )\d+\.\d+\.\d+(\\n")'),
 ]
