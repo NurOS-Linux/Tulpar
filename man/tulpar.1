@@ -66,6 +66,24 @@ purge downloaded package archives and metadata cache (also: autoclean, c)
 .TP
 .BR tulpar-rollback (1)
 undo the most recent package operation (also: undo, b)
+.TP
+.BR tulpar-owns (1)
+find the package that owns a file (also: O)
+.TP
+.BR tulpar-files (1)
+list the files of an installed package (also: f)
+.TP
+.BR tulpar-why (1)
+explain why a package is installed (also: W)
+.TP
+.BR tulpar-mark (1)
+mark a package as automatic or explicit (also: m)
+.TP
+.BR tulpar-reinstall (1)
+reinstall installed packages (also: R)
+.TP
+.BR tulpar-stats (1)
+show package database statistics (also: t)
 .SH GLOBAL OPTIONS
 .TP
 .BR \-h \", \" \-\-help
@@ -78,7 +96,9 @@ Show the tulpar version and exit.
 Assume yes and skip confirmation prompts.
 .TP
 .BR \-j \", \" \-\-json
-Produce machine-readable JSON output, where supported.
+Produce machine-readable JSON output, where supported. The schemas are
+described in
+.BR tulpar-json (7).
 .TP
 .BR \-d \", \" \-\-dest \" \" \fIpath\fR
 Operate against an alternate filesystem root instead of the live
@@ -92,6 +112,14 @@ Suppress informational output.
 .TP
 .B \-\-verbose
 Enable debug output.
+.TP
+.B \-\-offline
+Never touch the network. Commands that need it fail with a clear
+message, and repository indexes are read from the cache regardless of
+its age. Can also be enabled permanently with the
+.B offline
+key in
+.BR tulpar.conf (5).
 .TP
 .BR \-\-color " " \fIwhen\fR
 Colorize output.
@@ -153,5 +181,6 @@ Default trusted public key directory.
 .I /var/log/tulpar.log
 Default log file.
 .SH SEE ALSO
+.BR tulpar-json (7),
 .BR tulpar.conf (5),
 .BR libapg (3)
