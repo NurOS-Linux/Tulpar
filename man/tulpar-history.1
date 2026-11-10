@@ -32,7 +32,24 @@ are equivalent spellings of the same command.
 Read the journal of an alternate root.
 .TP
 .BR \-j ", " \-\-json
-Print the history as a JSON array instead of human-readable text.
+Print the history as a JSON array instead of human-readable text. See
+.BR tulpar-json (7).
+.TP
+.BR \-p ", " \-\-package " " \fIname\fR
+Show only entries for the package
+.IR name .
+.TP
+.BR \-\-since " " \fIspec\fR
+Show only entries at or after a point in time. The
+.I spec
+is a relative age such as
+.BR 30m ", " 12h ", " 7d " or " 2w
+(seconds, minutes, hours, days, weeks), a local date
+.B YYYY-MM-DD
+optionally followed by
+.BR HH:MM ,
+or a Unix timestamp written as
+.BR @1700000000 .
 .SH EXIT STATUS
 0 on success.
 .SH SEE ALSO

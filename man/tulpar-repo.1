@@ -10,7 +10,21 @@ tulpar-repo \- manage configured repositories
 .I url
 .RI [ \-\-user ]
 .br
+.B tulpar repo enable
+.I url
+.RI [ \-\-user ]
+.br
+.B tulpar repo disable
+.I url
+.RI [ \-\-user ]
+.br
+.B tulpar repo priority
+.I url number
+.RI [ \-\-user ]
+.br
 .B tulpar repo list
+.RI [ \-\-all ]
+.RI [ \-\-json ]
 .br
 .B tulpar repo update
 .br
@@ -30,9 +44,31 @@ Appends a repository URL to the repository list file.
 .B remove
 Removes a repository URL from the repository list file.
 .TP
+.B enable
+Re-enables a repository that was disabled.
+.TP
+.B disable
+Keeps a repository in the list but stops using it. The entry is stored
+as a
+.B #disabled
+comment line, which older versions ignore.
+.TP
+.B priority
+Sets the priority of a repository. Repositories are consulted in
+ascending order of priority, ties keep their order in the files; the
+default is 100. The value is stored as a
+.B priority=N
+word after the URL.
+.TP
 .B list
-Prints every configured repository, system-wide and per-user
-combined.
+Prints every enabled repository in consultation order, system-wide and
+per-user combined.
+.B \-\-all
+adds disabled repositories and prints the state, URL and priority
+separated by tabs.
+.B \-\-json
+prints the same information as JSON; see
+.BR tulpar-json (7).
 .TP
 .B update
 Refreshes the cached
@@ -42,21 +78,32 @@ for every configured repository, ignoring the cache TTL.
 .TP
 .B \-\-user
 For
-.B add
-and
+.BR add ,
 .BR remove ,
+.BR enable ,
+.B disable
+and
+.BR priority ,
 operate on the per-user repository list
 .RI ( "~/.config/apg/repos" )
 instead of the system-wide one
 .RI ( "/etc/apg/repos" ).
-When omitted, the system-wide file is used if tulpar is running as
-root, and the per-user file otherwise.
+When omitted,
+.B add
+uses the system-wide file if tulpar is running as root and the
+per-user file otherwise; the other actions edit the file that already
+contains the repository. Editing keeps comments and unrelated lines
+intact.
 .SH FILES
 .TP
 .I /etc/apg/repos
-System-wide repository list, one URL per line, lines starting with
+System-wide repository list, one URL per line, optionally followed by
+.BR priority=N .
+Lines starting with
 .B #
-are comments.
+are comments, except
+.B #disabled
+followed by an entry, which marks that entry as disabled.
 .TP
 .I ~/.config/apg/repos
 Per-user repository list, same format.

@@ -18,7 +18,8 @@ Lists packages recorded in the package database, with their
 installed version and hold state. When an optional
 .I pattern
 substring is provided, only installed packages whose name contains the
-pattern are displayed.
+pattern are displayed. The filter options combine: a package is listed
+only if it passes all of them.
 .SH OPTIONS
 .TP
 .BR \-d ", " \-\-dest " " \fIpath\fR
@@ -26,7 +27,33 @@ List the database of an alternate root.
 .TP
 .BR \-j ", " \-\-json
 Print the package list as a JSON array instead of human-readable
-text.
+text. See
+.BR tulpar-json (7).
+.TP
+.B \-\-names
+Print only the package names, one per line. Meant for scripts and shell
+completion.
+.TP
+.B \-\-explicit
+List only packages that were installed explicitly.
+.TP
+.B \-\-deps
+List only packages that were installed as dependencies. Cannot be
+combined with
+.BR \-\-explicit .
+.TP
+.B \-\-held
+List only held packages.
+.TP
+.B \-\-upgradable
+List only packages for which a newer version is available in the
+configured repositories, with the available version next to the
+installed one. This queries the repositories once per installed
+package and therefore needs network access; it finds nothing with
+.BR \-\-offline .
+In JSON output each entry gains an
+.B available_version
+field.
 .SH EXIT STATUS
 0 on success.
 .SH SEE ALSO

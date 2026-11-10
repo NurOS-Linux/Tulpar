@@ -3,7 +3,7 @@
 tulpar-info, tulpar-show \- show full metadata for a package
 .SH SYNOPSIS
 .B tulpar info
-.RI [ options "] " name
+.RI [ options "] " "name|file.apg"
 .br
 .B tulpar show
 .RI [ options "] " name
@@ -24,13 +24,20 @@ installed, the configured repositories are queried instead.
 and
 .B show
 are equivalent spellings of the same command.
+.PP
+When the argument is the path of an existing
+.B .apg
+file, the metadata is read from that archive instead, and the status line
+says whether a package of the same name is installed. Nothing is
+extracted or installed.
 .SH OPTIONS
 .TP
 .BR \-d ", " \-\-dest " " \fIpath\fR
 Look up in the local database of an alternate root.
 .TP
 .BR \-j ", " \-\-json
-Print the metadata as a JSON object instead of human-readable text.
+Print the metadata as a JSON object instead of human-readable text. See
+.BR tulpar-json (7).
 .SH EXIT STATUS
 0 if the package was found, non-zero otherwise.
 .SH SEE ALSO
