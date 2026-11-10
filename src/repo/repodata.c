@@ -268,5 +268,7 @@ repodata_load(const char *repo_url, const char *cache_dir, int ttl_seconds,
 
     struct repo_index *idx = repodata_read_cache_file(cache_file);
     free(cache_file);
+    if (!idx && http_is_offline() && refresh_failed)
+        *refresh_failed = true;
     return idx;
 }

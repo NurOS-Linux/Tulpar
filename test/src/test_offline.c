@@ -56,6 +56,13 @@ test_offline_repodata_uses_stale_cache(void)
 
     assert(idx);
     assert(!refresh_failed);
+    http_set_offline(true);
+    refresh_failed = false;
+    struct repo_index *none = repodata_load("http://127.0.0.1:9/other", cache,
+                                            0, true, &refresh_failed);
+    http_set_offline(false);
+    assert(!none);
+    assert(refresh_failed);
     assert(idx->count == 1);
     assert(strcmp(idx->items[0].name, "cached") == 0);
     repo_index_free(idx);

@@ -109,7 +109,9 @@ cmd_warn_repo_unreachable(const char *repo_url, bool using_cache)
 
     if (http_is_offline())
     {
-        if (!offline_noted)
+        if (!using_cache)
+            ui_warnf(_("offline mode: no cached data for %s"), repo_url);
+        else if (!offline_noted)
             ui_info(_("offline mode: remote repositories are not contacted"));
         offline_noted = true;
         return;
