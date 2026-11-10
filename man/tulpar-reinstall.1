@@ -1,0 +1,42 @@
+.TH TULPAR-REINSTALL 1 "2026" "tulpar 0.5.0" "Tulpar Manual"
+.SH NAME
+tulpar-reinstall \- reinstall installed packages
+.SH SYNOPSIS
+.B tulpar reinstall
+.RI [ options "] " "package|file.apg" ...
+.br
+.B tulpar R
+.RI [ options "] " "package|file.apg" ...
+.br
+.B tulpar \-R
+.RI [ options "] " "package|file.apg" ...
+.SH DESCRIPTION
+Installs the same version of an already installed package again, which
+restores files that were deleted or modified. For a package name, the
+installed version is fetched from the configured repositories. For a
+path to a
+.B .apg
+file, the archive is used directly and must contain the installed
+version of an installed package. Whether a package was installed
+explicitly or as a dependency is preserved, and held packages are
+refused.
+.SH OPTIONS
+.TP
+.BR \-y ", " \-\-yes
+Assume yes and skip the confirmation prompt.
+.TP
+.BR \-n ", " \-\-dry\-run
+Show the transaction without writing anything to disk.
+.TP
+.B \-\-require\-signature
+Reject packages that fail signature verification.
+.TP
+.BR \-d ", " \-\-dest " " \fIpath\fR
+Operate on the database of an alternate root.
+.SH EXIT STATUS
+0 on success, 1 if a package is not installed, the matching version
+cannot be found, or the transaction fails.
+.SH SEE ALSO
+.BR tulpar (1),
+.BR tulpar-verify (1),
+.BR tulpar-install (1)

@@ -1,0 +1,37 @@
+.TH TULPAR-WHY 1 "2026" "tulpar 0.5.0" "Tulpar Manual"
+.SH NAME
+tulpar-why \- explain why a package is installed
+.SH SYNOPSIS
+.B tulpar why
+.RI [ options "] " name
+.br
+.B tulpar W
+.RI [ options "] " name
+.br
+.B tulpar \-W
+.RI [ options "] " name
+.SH DESCRIPTION
+Explains why
+.I name
+is on the system. A package installed explicitly is reported as such,
+together with any packages that also require it. A package installed
+as a dependency is reported with the installed packages that require
+it and the shortest chain that leads from an explicitly installed
+package to it. A dependency that nothing requires any more is reported
+as an orphan; see
+.BR tulpar-orphans (1).
+.SH OPTIONS
+.TP
+.BR \-d ", " \-\-dest " " \fIpath\fR
+Operate on the database of an alternate root.
+.TP
+.BR \-j ", " \-\-json
+Print the explanation as a JSON object instead of human-readable text. See
+.BR tulpar-json (7).
+.SH EXIT STATUS
+0 on success, 1 if the package is not installed.
+.SH SEE ALSO
+.BR tulpar (1),
+.BR tulpar-mark (1),
+.BR tulpar-orphans (1),
+.BR tulpar-json (7)

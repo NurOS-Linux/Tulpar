@@ -1,0 +1,38 @@
+.TH TULPAR-OWNS 1 "2026" "tulpar 0.5.0" "Tulpar Manual"
+.SH NAME
+tulpar-owns \- find the package that owns a file
+.SH SYNOPSIS
+.B tulpar owns
+.RI [ options "] " path ...
+.br
+.B tulpar O
+.RI [ options "] " path ...
+.br
+.B tulpar \-O
+.RI [ options "] " path ...
+.SH DESCRIPTION
+Looks up each
+.I path
+in the package database and prints the package that installed it, one
+line per path in the form
+.IR path ": " package .
+Relative paths are resolved against the current directory. With
+.BR \-\-dest ,
+a path that starts with the destination root is looked up without that
+prefix.
+.SH OPTIONS
+.TP
+.BR \-d ", " \-\-dest " " \fIpath\fR
+Operate on the database of an alternate root.
+.TP
+.BR \-j ", " \-\-json
+Print the result as a JSON array instead of human-readable text. See
+.BR tulpar-json (7).
+.SH EXIT STATUS
+0 if every path is owned by a package, 1 if at least one is not or the
+database cannot be read.
+.SH SEE ALSO
+.BR tulpar (1),
+.BR tulpar-files (1),
+.BR tulpar-why (1),
+.BR tulpar-json (7)

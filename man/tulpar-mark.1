@@ -1,0 +1,41 @@
+.TH TULPAR-MARK 1 "2026" "tulpar 0.5.0" "Tulpar Manual"
+.SH NAME
+tulpar-mark \- mark a package as automatic or explicit
+.SH SYNOPSIS
+.B tulpar mark
+.RI [ options "] (" \-\-auto " | " \-\-explicit ") " name ...
+.br
+.B tulpar m
+.RI [ options "] (" \-\-auto " | " \-\-explicit ") " name ...
+.br
+.B tulpar \-m
+.RI [ options "] (" \-\-auto " | " \-\-explicit ") " name ...
+.SH DESCRIPTION
+Changes whether installed packages count as installed explicitly or as
+dependencies. Packages marked automatic become candidates for removal
+by
+.BR tulpar-orphans (1)
+once nothing requires them; explicit packages are never treated as
+orphans. Requires root privileges unless
+.B \-\-dest
+points to a user-owned root.
+.SH OPTIONS
+.TP
+.B \-\-auto
+Mark the packages as installed automatically, as dependencies.
+.TP
+.B \-\-explicit
+Mark the packages as installed explicitly.
+.TP
+.BR \-d ", " \-\-dest " " \fIpath\fR
+Operate on the database of an alternate root.
+.SH EXIT STATUS
+0 on success, 1 if any package is not installed or neither or both of
+.B \-\-auto
+and
+.B \-\-explicit
+are given.
+.SH SEE ALSO
+.BR tulpar (1),
+.BR tulpar-why (1),
+.BR tulpar-orphans (1)

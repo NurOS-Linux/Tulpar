@@ -1,0 +1,31 @@
+.TH TULPAR-STATS 1 "2026" "tulpar 0.5.0" "Tulpar Manual"
+.SH NAME
+tulpar-stats \- show package database statistics
+.SH SYNOPSIS
+.B tulpar stats
+.RI [ options ]
+.br
+.B tulpar t
+.RI [ options ]
+.br
+.B tulpar \-t
+.RI [ options ]
+.SH DESCRIPTION
+Summarises the package database: the number of installed packages,
+how many were installed explicitly or as dependencies, how many are
+held, how many are orphans, and the total number of recorded files.
+.SH OPTIONS
+.TP
+.BR \-d ", " \-\-dest " " \fIpath\fR
+Operate on the database of an alternate root.
+.TP
+.BR \-j ", " \-\-json
+Print the counters as a JSON object instead of human-readable text. See
+.BR tulpar-json (7).
+.SH EXIT STATUS
+0 on success, 1 if the database cannot be read.
+.SH SEE ALSO
+.BR tulpar (1),
+.BR tulpar-list (1),
+.BR tulpar-orphans (1),
+.BR tulpar-json (7)

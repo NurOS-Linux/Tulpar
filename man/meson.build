@@ -17,6 +17,12 @@ man1_pages = [
   'tulpar-graph.1',
   'tulpar-clean.1',
   'tulpar-rollback.1',
+  'tulpar-owns.1',
+  'tulpar-files.1',
+  'tulpar-why.1',
+  'tulpar-mark.1',
+  'tulpar-reinstall.1',
+  'tulpar-stats.1',
 ]
 
 install_man(man1_pages)

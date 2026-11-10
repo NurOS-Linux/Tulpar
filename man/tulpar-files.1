@@ -1,0 +1,32 @@
+.TH TULPAR-FILES 1 "2026" "tulpar 0.5.0" "Tulpar Manual"
+.SH NAME
+tulpar-files \- list the files of an installed package
+.SH SYNOPSIS
+.B tulpar files
+.RI [ options "] " name
+.br
+.B tulpar f
+.RI [ options "] " name
+.br
+.B tulpar \-f
+.RI [ options "] " name
+.SH DESCRIPTION
+Prints the absolute path of every file recorded for the installed
+package
+.IR name ,
+one per line.
+.SH OPTIONS
+.TP
+.BR \-d ", " \-\-dest " " \fIpath\fR
+Operate on the database of an alternate root.
+.TP
+.BR \-j ", " \-\-json
+Print the package name, version and file list as a JSON object instead of human-readable text. See
+.BR tulpar-json (7).
+.SH EXIT STATUS
+0 on success, 1 if the package is not installed.
+.SH SEE ALSO
+.BR tulpar (1),
+.BR tulpar-owns (1),
+.BR tulpar-verify (1),
+.BR tulpar-json (7)
