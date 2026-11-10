@@ -4,6 +4,8 @@ All notable changes to tulpar are documented in this file.
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-10
+
 ### Added
 
 - `verify --db` also checks the package database against itself and
