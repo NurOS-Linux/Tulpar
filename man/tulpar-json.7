@@ -112,7 +112,10 @@ one, ending with
 Empty for explicit packages and for orphans.
 .TP
 .B orphan
-Boolean, true if the package is a dependency that nothing requires.
+Boolean, true if the package is a dependency that nothing requires or that
+only unused packages require, the same set as
+.BR tulpar-orphans (1)
+reports.
 .SS stats
 One object with the integers
 .BR packages ", " explicit ", " dependencies ", " held ", " orphans " and " files .
