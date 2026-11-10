@@ -197,11 +197,19 @@ cmd_reinstall_run(int argc, char **argv, struct tulpar_config *cfg)
         cmd_warn_unsigned(set.items, set.count,
                           require_sig || cfg->require_signature);
 
-        for (size_t i = 0; i < set.count; i++)
-            trans_add_upgrade(trans, set.items[i]);
+        for (size_t i = 0; ok && i < set.count; i++)
+        {
+            if (trans_add_upgrade(trans, set.items[i]) != TRANS_OK)
+            {
+                ui_errorf(_("cannot queue %s: %s"), set.items[i]->meta->name,
+                          cmd_libapg_reason());
+                ok = false;
+            }
+        }
 
-        ok = cmd_run_transaction(trans, db, &dest, cfg, assume_yes, require_sig,
-                                 false, false, dry_run);
+        if (ok)
+            ok = cmd_run_transaction(trans, db, &dest, cfg, assume_yes,
+                                     require_sig, false, false, dry_run);
     }
 
     if (trans)
