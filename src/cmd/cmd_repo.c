@@ -244,7 +244,7 @@ run_change(const char *action, int argc, char **argv)
         return 1;
     }
 
-    if (access(file, W_OK) != 0)
+    if (access(file, F_OK) == 0 && access(file, W_OK) != 0)
     {
         ui_errorf(_("cannot modify %s"), file);
         ui_hint(_("run as root to change the system repository list"));
