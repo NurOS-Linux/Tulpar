@@ -159,3 +159,43 @@ test_repo_set_enabled_and_priority_preserve_other_lines(void)
     free(path);
     printf("test_repo_set_enabled_and_priority_preserve_other_lines: PASS\n");
 }
+
+void
+test_repo_add_reenables_and_long_lines_survive_edits(void)
+{
+    char *path = mktmp_path("repos-long");
+    char long_url[1600];
+    memcpy(long_url, "https://repo.example.com/", 25);
+    memset(long_url + 25, 'x', sizeof(long_url) - 26);
+    long_url[sizeof(long_url) - 1] = '\0';
+
+    char content[2400];
+    snprintf(content, sizeof(content),
+             "#disabled https://repo.example.com/off\n%s\n", long_url);
+    write_file_contents(path, content);
+
+    assert(repo_list_add(path, "https://repo.example.com/off"));
+    struct repo_list list = {0};
+    assert(repo_list_parse_file(path, &list));
+    assert(list.count == 2);
+    free_list(&list);
+
+    assert(repo_set_priority(path, long_url, 7));
+    assert(repo_set_enabled(path, "https://repo.example.com/off", false));
+
+    struct repo_entries entries = {0};
+    assert(repo_entries_parse_file(path, false, &entries));
+    assert(entries.count == 2);
+    assert(strcmp(entries.items[1].url, long_url) == 0);
+    assert(entries.items[1].priority == 7);
+    assert(!entries.items[0].enabled);
+    repo_entries_free(&entries);
+
+    char tmp_path[600];
+    snprintf(tmp_path, sizeof(tmp_path), "%s.tmp", path);
+    assert(access(tmp_path, F_OK) != 0);
+
+    unlink(path);
+    free(path);
+    printf("test_repo_add_reenables_and_long_lines_survive_edits: PASS\n");
+}

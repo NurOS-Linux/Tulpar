@@ -18,6 +18,7 @@ void test_repo_list_parse_file_missing(void);
 void test_repo_list_add_remove(void);
 void test_repo_list_parse_disabled_and_priority(void);
 void test_repo_set_enabled_and_priority_preserve_other_lines(void);
+void test_repo_add_reenables_and_long_lines_survive_edits(void);
 
 void test_config_defaults(void);
 void test_config_parse_file_overrides(void);

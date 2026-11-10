@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "repo.h"
 #include "../util/paths.h"
@@ -151,8 +152,9 @@ repo_entries_parse_file(const char *path, bool user_file,
     if (!f)
         return false;
 
-    char line[1024];
-    while (fgets(line, sizeof(line), f))
+    char *line = NULL;
+    size_t line_cap = 0;
+    while (getline(&line, &line_cap, f) >= 0)
     {
         char *url = NULL;
         bool enabled = true;
@@ -161,6 +163,7 @@ repo_entries_parse_file(const char *path, bool user_file,
             entries_push(out, url, enabled, priority, user_file);
     }
 
+    free(line);
     fclose(f);
     return true;
 }
@@ -260,21 +263,6 @@ repo_list_free(struct repo_list *list)
     free(list);
 }
 
-static bool
-repo_list_contains(const char *path, const char *url)
-{
-    struct repo_entries entries = {0};
-    if (!repo_entries_parse_file(path, false, &entries))
-        return false;
-
-    bool found = false;
-    for (int i = 0; i < entries.count && !found; i++)
-        found = strcmp(entries.items[i].url, url) == 0;
-
-    repo_entries_free(&entries);
-    return found;
-}
-
 static char *
 dirname_of(const char *path)
 {
@@ -295,8 +283,20 @@ dirname_of(const char *path)
 bool
 repo_list_add(const char *path, const char *url)
 {
-    if (repo_list_contains(path, url))
-        return true;
+    struct repo_entries existing = {0};
+    if (repo_entries_parse_file(path, false, &existing))
+    {
+        bool found = false;
+        bool disabled = false;
+        for (int i = 0; i < existing.count && !found; i++)
+        {
+            found = strcmp(existing.items[i].url, url) == 0;
+            disabled = found && !existing.items[i].enabled;
+        }
+        repo_entries_free(&existing);
+        if (found)
+            return disabled ? repo_set_enabled(path, url, true) : true;
+    }
 
     char *dir = dirname_of(path);
     if (dir)
@@ -322,33 +322,88 @@ enum edit_op
 };
 
 static bool
+append_text(char **out, size_t *len, size_t *cap, const char *text)
+{
+    size_t add = strlen(text);
+    if (*len + add + 1 > *cap)
+    {
+        size_t new_cap = *cap ? *cap : 4096;
+        while (*len + add + 1 > new_cap)
+            new_cap *= 2;
+        char *tmp = realloc(*out, new_cap);
+        if (!tmp)
+            return false;
+        *out = tmp;
+        *cap = new_cap;
+    }
+    memcpy(*out + *len, text, add + 1);
+    *len += add;
+    return true;
+}
+
+static char *
+rebuild_line(const char *url, bool enabled, int priority)
+{
+    size_t size = strlen(url) + 48;
+    char *line = malloc(size);
+    if (!line)
+        return NULL;
+    int n = snprintf(line, size, "%s%s", enabled ? "" : "#disabled ", url);
+    if (priority != REPO_DEFAULT_PRIORITY)
+        n += snprintf(line + n, size - (size_t)n, " priority=%d", priority);
+    snprintf(line + n, size - (size_t)n, "\n");
+    return line;
+}
+
+static bool
+write_atomically(const char *path, const char *data, size_t len)
+{
+    size_t tmp_size = strlen(path) + 8;
+    char *tmp = malloc(tmp_size);
+    if (!tmp)
+        return false;
+    snprintf(tmp, tmp_size, "%s.tmp", path);
+
+    FILE *f = fopen(tmp, "w");
+    bool ok = f && fwrite(data, 1, len, f) == len;
+    if (f && fclose(f) != 0)
+        ok = false;
+    if (ok && rename(tmp, path) != 0)
+        ok = false;
+    if (!ok)
+        unlink(tmp);
+    free(tmp);
+    return ok;
+}
+
+static bool
 edit_file(const char *path, const char *url, enum edit_op op, int value)
 {
     FILE *in = fopen(path, "r");
     if (!in)
         return false;
 
-    size_t cap = 4096;
+    char *out = NULL;
     size_t len = 0;
-    char *out = malloc(cap);
-    if (!out)
-    {
-        fclose(in);
-        return false;
-    }
-    out[0] = '\0';
-
+    size_t cap = 0;
     bool matched = false;
-    char line[1024];
-    while (fgets(line, sizeof(line), in))
+    bool ok = true;
+    char *line = NULL;
+    size_t line_cap = 0;
+
+    while (ok && getline(&line, &line_cap, in) >= 0)
     {
-        char copy[1024];
-        snprintf(copy, sizeof(copy), "%s", line);
+        char *copy = strdup(line);
+        if (!copy)
+        {
+            ok = false;
+            break;
+        }
 
         char *line_url = NULL;
         bool enabled = true;
         int priority = REPO_DEFAULT_PRIORITY;
-        char rebuilt[2200];
+        char *rebuilt = NULL;
         const char *emit = line;
 
         if (parse_line(copy, &line_url, &enabled, &priority) &&
@@ -363,48 +418,25 @@ edit_file(const char *path, const char *url, enum edit_op op, int value)
                     enabled = value != 0;
                 else
                     priority = value;
-
-                int n = snprintf(rebuilt, sizeof(rebuilt), "%s%s",
-                                 enabled ? "" : "#disabled ", line_url);
-                if (priority != REPO_DEFAULT_PRIORITY)
-                    n += snprintf(rebuilt + n, sizeof(rebuilt) - (size_t)n,
-                                  " priority=%d", priority);
-                snprintf(rebuilt + n, sizeof(rebuilt) - (size_t)n, "\n");
+                rebuilt = rebuild_line(line_url, enabled, priority);
                 emit = rebuilt;
+                if (!rebuilt)
+                    ok = false;
             }
         }
 
-        if (!emit)
-            continue;
-        size_t emit_len = strlen(emit);
-        if (len + emit_len + 1 > cap)
-        {
-            while (len + emit_len + 1 > cap)
-                cap *= 2;
-            char *tmp = realloc(out, cap);
-            if (!tmp)
-            {
-                free(out);
-                fclose(in);
-                return false;
-            }
-            out = tmp;
-        }
-        memcpy(out + len, emit, emit_len + 1);
-        len += emit_len;
+        if (ok && emit)
+            ok = append_text(&out, &len, &cap, emit);
+        free(rebuilt);
+        free(copy);
     }
+    free(line);
     fclose(in);
 
-    if (!matched)
-    {
-        free(out);
-        return false;
-    }
+    if (ok && matched && !out)
+        ok = append_text(&out, &len, &cap, "");
 
-    FILE *f = fopen(path, "w");
-    bool ok = f && fwrite(out, 1, len, f) == len;
-    if (f && fclose(f) != 0)
-        ok = false;
+    ok = ok && matched && write_atomically(path, out, len);
     free(out);
     return ok;
 }
