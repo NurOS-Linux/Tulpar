@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tulpar\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-10 06:53+0500\n"
+"POT-Creation-Date: 2026-11-10 20:43+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -327,7 +327,7 @@ msgstr ""
 msgid "Purge downloaded packages and metadata cache"
 msgstr ""
 
-#: src/cmd/cmd_clean.c:100 src/cmd/cmd_common.c:401 src/cmd/cmd_common.c:408
+#: src/cmd/cmd_clean.c:100 src/cmd/cmd_common.c:403 src/cmd/cmd_common.c:410
 msgid "aborted"
 msgstr ""
 
@@ -352,54 +352,59 @@ msgid "no further detail available"
 msgstr ""
 
 #: src/cmd/cmd_common.c:113
+#, c-format
+msgid "offline mode: no cached data for %s"
+msgstr ""
+
+#: src/cmd/cmd_common.c:115
 msgid "offline mode: remote repositories are not contacted"
 msgstr ""
 
-#: src/cmd/cmd_common.c:125
+#: src/cmd/cmd_common.c:127
 #, c-format
 msgid ""
 "repository %s no longer publishes a package index (repodata.json); using the "
 "cached copy"
 msgstr ""
 
-#: src/cmd/cmd_common.c:129
+#: src/cmd/cmd_common.c:131
 #, c-format
 msgid "repository %s does not publish a package index (repodata.json)"
 msgstr ""
 
-#: src/cmd/cmd_common.c:133
+#: src/cmd/cmd_common.c:135
 #, c-format
 msgid "cannot refresh the index of %s, using the cached copy: %s"
 msgstr ""
 
-#: src/cmd/cmd_common.c:137
+#: src/cmd/cmd_common.c:139
 #, c-format
 msgid "cannot reach repository %s: %s"
 msgstr ""
 
-#: src/cmd/cmd_common.c:154 src/cmd/cmd_common.c:159
+#: src/cmd/cmd_common.c:156 src/cmd/cmd_common.c:161
 msgid "Downloaded"
 msgstr ""
 
-#: src/cmd/cmd_common.c:179 src/cmd/cmd_common.c:414
+#: src/cmd/cmd_common.c:181 src/cmd/cmd_common.c:416
 msgid "failed to prepare target root directory structure"
 msgstr ""
 
-#: src/cmd/cmd_common.c:185
+#: src/cmd/cmd_common.c:187
 #, c-format
 msgid "no package database at %s"
 msgstr ""
 
-#: src/cmd/cmd_common.c:186
+#: src/cmd/cmd_common.c:188
 #, c-format
 msgid "nothing has been installed into %s yet"
 msgstr ""
 
-#: src/cmd/cmd_common.c:198
+#: src/cmd/cmd_common.c:200
 msgid "wait for the other package operation to finish, then try again"
 msgstr ""
 
-#: src/cmd/cmd_common.c:249
+#: src/cmd/cmd_common.c:251
 #, c-format
 msgid "%zu package has no signature and will be installed unverified: %s"
 msgid_plural ""
@@ -407,125 +412,125 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/cmd/cmd_common.c:256
+#: src/cmd/cmd_common.c:258
 #, c-format
 msgid "%zu package has a signature that could not be verified: %s"
 msgid_plural "%zu packages have signatures that could not be verified: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/cmd/cmd_common.c:263
+#: src/cmd/cmd_common.c:265
 msgid "pass --require-signature to refuse unverified packages"
 msgstr ""
 
-#: src/cmd/cmd_common.c:275
+#: src/cmd/cmd_common.c:277
 msgid "Upgrading"
 msgstr ""
 
-#: src/cmd/cmd_common.c:278
+#: src/cmd/cmd_common.c:280
 msgid "Removing"
 msgstr ""
 
-#: src/cmd/cmd_common.c:281
+#: src/cmd/cmd_common.c:283
 msgid "Installing"
 msgstr ""
 
-#: src/cmd/cmd_common.c:303
+#: src/cmd/cmd_common.c:305
 msgid ""
 "package scripts cannot be isolated on this system; set "
 "require_script_sandbox = false in tulpar.conf to run them without isolation"
 msgstr ""
 
-#: src/cmd/cmd_common.c:330
+#: src/cmd/cmd_common.c:332
 #, c-format
 msgid ""
 "the transaction needs about %s, but only %s is free on the target filesystem"
 msgstr ""
 
-#: src/cmd/cmd_common.c:333
+#: src/cmd/cmd_common.c:335
 msgid ""
 "the estimate is conservative; free some space, or continue if you expect it "
 "to be enough"
 msgstr ""
 
-#: src/cmd/cmd_common.c:335
+#: src/cmd/cmd_common.c:337
 msgid "Continue anyway?"
 msgstr ""
 
-#: src/cmd/cmd_common.c:373
+#: src/cmd/cmd_common.c:375
 msgid "remove the dependent packages too, or pass --nodeps to remove anyway"
 msgstr ""
 
-#: src/cmd/cmd_common.c:378
+#: src/cmd/cmd_common.c:380
 msgid "release a held package with 'tulpar unhold <name>'"
 msgstr ""
 
-#: src/cmd/cmd_common.c:381
+#: src/cmd/cmd_common.c:383
 msgid "circular dependency detected"
 msgstr ""
 
-#: src/cmd/cmd_common.c:384
+#: src/cmd/cmd_common.c:386
 #, c-format
 msgid "cannot resolve dependencies: %s"
 msgstr ""
 
-#: src/cmd/cmd_common.c:388
+#: src/cmd/cmd_common.c:390
 #, c-format
 msgid "failed to prepare the transaction: %s"
 msgstr ""
 
-#: src/cmd/cmd_common.c:406
+#: src/cmd/cmd_common.c:408
 msgid "Proceed with this transaction?"
 msgstr ""
 
-#: src/cmd/cmd_common.c:430
+#: src/cmd/cmd_common.c:432
 #, c-format
 msgid "signature verification failed: %s"
 msgstr ""
 
-#: src/cmd/cmd_common.c:432
+#: src/cmd/cmd_common.c:434
 msgid "import the signing key with 'tulpar key add <file>'"
 msgstr ""
 
-#: src/cmd/cmd_common.c:437
+#: src/cmd/cmd_common.c:439
 #, c-format
 msgid "installation failed: %s"
 msgstr ""
 
-#: src/cmd/cmd_common.c:438 src/cmd/cmd_common.c:450 src/cmd/cmd_common.c:457
+#: src/cmd/cmd_common.c:440 src/cmd/cmd_common.c:452 src/cmd/cmd_common.c:459
 msgid "changes made by this transaction were rolled back"
 msgstr ""
 
-#: src/cmd/cmd_common.c:441
+#: src/cmd/cmd_common.c:443
 msgid ""
 "free space on the target filesystem; packages are unpacked into a temporary "
 "directory first, which uses RAM when /tmp is a tmpfs"
 msgstr ""
 
-#: src/cmd/cmd_common.c:449
+#: src/cmd/cmd_common.c:451
 #, c-format
 msgid "cannot record the installation: %s"
 msgstr ""
 
-#: src/cmd/cmd_common.c:456
+#: src/cmd/cmd_common.c:458
 #, c-format
 msgid "removal failed: %s"
 msgstr ""
 
-#: src/cmd/cmd_common.c:462
+#: src/cmd/cmd_common.c:464
 #, c-format
 msgid "failed to commit the transaction: %s"
 msgstr ""
 
-#: src/cmd/cmd_common.c:472 src/cmd/cmd_common.c:476
+#: src/cmd/cmd_common.c:474 src/cmd/cmd_common.c:478
 msgid "Finished"
 msgstr ""
 
-#: src/cmd/cmd_common.c:472
+#: src/cmd/cmd_common.c:474
 msgid "dry run; no changes were made"
 msgstr ""
 
-#: src/cmd/cmd_common.c:477
+#: src/cmd/cmd_common.c:479
 #, c-format
 msgid "%zu operation in %.2fs"
 msgid_plural "%zu operations in %.2fs"
@@ -860,11 +865,11 @@ msgstr ""
 msgid "%d orphaned package(s) found"
 msgstr ""
 
-#: src/cmd/cmd_owns.c:92
+#: src/cmd/cmd_owns.c:189
 msgid "a file path is required"
 msgstr ""
 
-#: src/cmd/cmd_owns.c:132
+#: src/cmd/cmd_owns.c:229
 #, c-format
 msgid "no package owns %s"
 msgstr ""
@@ -891,6 +896,11 @@ msgstr ""
 
 #: src/cmd/cmd_reinstall.c:133
 msgid "a package name or file is required"
+msgstr ""
+
+#: src/cmd/cmd_reinstall.c:204
+#, c-format
+msgid "cannot queue %s: %s"
 msgstr ""
 
 #: src/cmd/cmd_remove.c:82
@@ -1161,35 +1171,40 @@ msgstr[1] ""
 msgid "reinstall the affected packages to restore their files"
 msgstr ""
 
-#: src/cmd/cmd_why.c:110
+#: src/cmd/cmd_why.c:121
 #, c-format
 msgid "%s was installed explicitly"
 msgstr ""
 
-#: src/cmd/cmd_why.c:113
+#: src/cmd/cmd_why.c:124
 msgid "also required by:"
 msgstr ""
 
-#: src/cmd/cmd_why.c:121
+#: src/cmd/cmd_why.c:132
 #, c-format
 msgid "%s is not required by any package"
 msgstr ""
 
-#: src/cmd/cmd_why.c:122
+#: src/cmd/cmd_why.c:133
 msgid "it is an orphan and can be removed with 'tulpar orphans'"
 msgstr ""
 
-#: src/cmd/cmd_why.c:127
+#: src/cmd/cmd_why.c:138
 #, c-format
 msgid "%s was installed as a dependency"
 msgstr ""
 
-#: src/cmd/cmd_why.c:128
+#: src/cmd/cmd_why.c:139
 msgid "required by:"
 msgstr ""
 
-#: src/cmd/cmd_why.c:134
+#: src/cmd/cmd_why.c:145
 msgid "chain:"
+msgstr ""
+
+#: src/cmd/cmd_why.c:151
+msgid ""
+"only unused packages require it, so it can be removed with 'tulpar orphans'"
 msgstr ""
 
 #: src/cmd/resolve.c:204

@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tulpar 0.5.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-10 06:53+0500\n"
-"PO-Revision-Date: 2026-11-10 12:00+0500\n"
+"POT-Creation-Date: 2026-11-10 20:43+0500\n"
+"PO-Revision-Date: 2026-11-10 15:00+0500\n"
 "Last-Translator: AnmiTaliDev <anmitalidev@nuros.org>\n"
 "Language-Team: Russian\n"
 "Language: ru\n"
@@ -78,7 +78,8 @@ msgstr "      --verbose           включить отладочный выво
 #: src/main.c:52
 #, c-format
 msgid "      --offline           never touch the network, use cached indexes\n"
-msgstr "      --offline           не обращаться к сети, использовать кэш индексов\n"
+msgstr ""
+"      --offline           не обращаться к сети, использовать кэш индексов\n"
 
 #: src/main.c:54
 #, c-format
@@ -331,7 +332,7 @@ msgstr "неожиданный аргумент: %s"
 msgid "Purge downloaded packages and metadata cache"
 msgstr "Очистить кэш скачанных пакетов и метаданных"
 
-#: src/cmd/cmd_clean.c:100 src/cmd/cmd_common.c:401 src/cmd/cmd_common.c:408
+#: src/cmd/cmd_clean.c:100 src/cmd/cmd_common.c:403 src/cmd/cmd_common.c:410
 msgid "aborted"
 msgstr "отменено"
 
@@ -357,10 +358,15 @@ msgid "no further detail available"
 msgstr "подробности недоступны"
 
 #: src/cmd/cmd_common.c:113
+#, c-format
+msgid "offline mode: no cached data for %s"
+msgstr "режим offline: для %s нет кэшированных данных"
+
+#: src/cmd/cmd_common.c:115
 msgid "offline mode: remote repositories are not contacted"
 msgstr "режим offline: удалённые репозитории не опрашиваются"
 
-#: src/cmd/cmd_common.c:125
+#: src/cmd/cmd_common.c:127
 #, c-format
 msgid ""
 "repository %s no longer publishes a package index (repodata.json); using the "
@@ -369,44 +375,44 @@ msgstr ""
 "репозиторий %s больше не публикует индекс пакетов (repodata.json); "
 "используется кэшированная копия"
 
-#: src/cmd/cmd_common.c:129
+#: src/cmd/cmd_common.c:131
 #, c-format
 msgid "repository %s does not publish a package index (repodata.json)"
 msgstr "репозиторий %s не публикует индекс пакетов (repodata.json)"
 
-#: src/cmd/cmd_common.c:133
+#: src/cmd/cmd_common.c:135
 #, c-format
 msgid "cannot refresh the index of %s, using the cached copy: %s"
 msgstr "не удалось обновить индекс %s, используется кэшированная копия: %s"
 
-#: src/cmd/cmd_common.c:137
+#: src/cmd/cmd_common.c:139
 #, c-format
 msgid "cannot reach repository %s: %s"
 msgstr "репозиторий %s недоступен: %s"
 
-#: src/cmd/cmd_common.c:154 src/cmd/cmd_common.c:159
+#: src/cmd/cmd_common.c:156 src/cmd/cmd_common.c:161
 msgid "Downloaded"
 msgstr "Загружено"
 
-#: src/cmd/cmd_common.c:179 src/cmd/cmd_common.c:414
+#: src/cmd/cmd_common.c:181 src/cmd/cmd_common.c:416
 msgid "failed to prepare target root directory structure"
 msgstr "не удалось подготовить структуру целевого корневого каталога"
 
-#: src/cmd/cmd_common.c:185
+#: src/cmd/cmd_common.c:187
 #, c-format
 msgid "no package database at %s"
 msgstr "база данных пакетов в %s отсутствует"
 
-#: src/cmd/cmd_common.c:186
+#: src/cmd/cmd_common.c:188
 #, c-format
 msgid "nothing has been installed into %s yet"
 msgstr "в %s ещё ничего не установлено"
 
-#: src/cmd/cmd_common.c:198
+#: src/cmd/cmd_common.c:200
 msgid "wait for the other package operation to finish, then try again"
 msgstr "дождитесь завершения другой операции с пакетами и повторите попытку"
 
-#: src/cmd/cmd_common.c:249
+#: src/cmd/cmd_common.c:251
 #, c-format
 msgid "%zu package has no signature and will be installed unverified: %s"
 msgid_plural ""
@@ -415,7 +421,7 @@ msgstr[0] "%zu пакет не подписан и будет установле
 msgstr[1] "%zu пакета не подписаны и будут установлены без проверки: %s"
 msgstr[2] "%zu пакетов не подписаны и будут установлены без проверки: %s"
 
-#: src/cmd/cmd_common.c:256
+#: src/cmd/cmd_common.c:258
 #, c-format
 msgid "%zu package has a signature that could not be verified: %s"
 msgid_plural "%zu packages have signatures that could not be verified: %s"
@@ -423,23 +429,23 @@ msgstr[0] "у %zu пакета не удалось проверить подпи
 msgstr[1] "у %zu пакетов не удалось проверить подписи: %s"
 msgstr[2] "у %zu пакетов не удалось проверить подписи: %s"
 
-#: src/cmd/cmd_common.c:263
+#: src/cmd/cmd_common.c:265
 msgid "pass --require-signature to refuse unverified packages"
 msgstr "укажите --require-signature, чтобы отклонять непроверенные пакеты"
 
-#: src/cmd/cmd_common.c:275
+#: src/cmd/cmd_common.c:277
 msgid "Upgrading"
 msgstr "Обновление"
 
-#: src/cmd/cmd_common.c:278
+#: src/cmd/cmd_common.c:280
 msgid "Removing"
 msgstr "Удаление"
 
-#: src/cmd/cmd_common.c:281
+#: src/cmd/cmd_common.c:283
 msgid "Installing"
 msgstr "Установка"
 
-#: src/cmd/cmd_common.c:303
+#: src/cmd/cmd_common.c:305
 msgid ""
 "package scripts cannot be isolated on this system; set "
 "require_script_sandbox = false in tulpar.conf to run them without isolation"
@@ -447,7 +453,7 @@ msgstr ""
 "скрипты пакетов нельзя изолировать в этой системе; задайте "
 "require_script_sandbox = false в tulpar.conf, чтобы запускать их без изоляции"
 
-#: src/cmd/cmd_common.c:330
+#: src/cmd/cmd_common.c:332
 #, c-format
 msgid ""
 "the transaction needs about %s, but only %s is free on the target filesystem"
@@ -455,7 +461,7 @@ msgstr ""
 "для транзакции нужно около %s, а на целевой файловой системе свободно только "
 "%s"
 
-#: src/cmd/cmd_common.c:333
+#: src/cmd/cmd_common.c:335
 msgid ""
 "the estimate is conservative; free some space, or continue if you expect it "
 "to be enough"
@@ -463,57 +469,57 @@ msgstr ""
 "оценка сделана с запасом; освободите место или продолжайте, если считаете, "
 "что его хватит"
 
-#: src/cmd/cmd_common.c:335
+#: src/cmd/cmd_common.c:337
 msgid "Continue anyway?"
 msgstr "Всё равно продолжить?"
 
-#: src/cmd/cmd_common.c:373
+#: src/cmd/cmd_common.c:375
 msgid "remove the dependent packages too, or pass --nodeps to remove anyway"
 msgstr ""
 "удалите также зависимые пакеты или укажите --nodeps, чтобы удалить "
 "принудительно"
 
-#: src/cmd/cmd_common.c:378
+#: src/cmd/cmd_common.c:380
 msgid "release a held package with 'tulpar unhold <name>'"
 msgstr "снимите блокировку командой 'tulpar unhold <имя>'"
 
-#: src/cmd/cmd_common.c:381
+#: src/cmd/cmd_common.c:383
 msgid "circular dependency detected"
 msgstr "обнаружена циклическая зависимость"
 
-#: src/cmd/cmd_common.c:384
+#: src/cmd/cmd_common.c:386
 #, c-format
 msgid "cannot resolve dependencies: %s"
 msgstr "не удалось разрешить зависимости: %s"
 
-#: src/cmd/cmd_common.c:388
+#: src/cmd/cmd_common.c:390
 #, c-format
 msgid "failed to prepare the transaction: %s"
 msgstr "не удалось подготовить транзакцию: %s"
 
-#: src/cmd/cmd_common.c:406
+#: src/cmd/cmd_common.c:408
 msgid "Proceed with this transaction?"
 msgstr "Продолжить выполнение транзакции?"
 
-#: src/cmd/cmd_common.c:430
+#: src/cmd/cmd_common.c:432
 #, c-format
 msgid "signature verification failed: %s"
 msgstr "проверка подписи не пройдена: %s"
 
-#: src/cmd/cmd_common.c:432
+#: src/cmd/cmd_common.c:434
 msgid "import the signing key with 'tulpar key add <file>'"
 msgstr "импортируйте ключ подписи командой 'tulpar key add <файл>'"
 
-#: src/cmd/cmd_common.c:437
+#: src/cmd/cmd_common.c:439
 #, c-format
 msgid "installation failed: %s"
 msgstr "ошибка установки: %s"
 
-#: src/cmd/cmd_common.c:438 src/cmd/cmd_common.c:450 src/cmd/cmd_common.c:457
+#: src/cmd/cmd_common.c:440 src/cmd/cmd_common.c:452 src/cmd/cmd_common.c:459
 msgid "changes made by this transaction were rolled back"
 msgstr "изменения этой транзакции отменены"
 
-#: src/cmd/cmd_common.c:441
+#: src/cmd/cmd_common.c:443
 msgid ""
 "free space on the target filesystem; packages are unpacked into a temporary "
 "directory first, which uses RAM when /tmp is a tmpfs"
@@ -522,30 +528,30 @@ msgstr ""
 "во временный каталог, который расходует оперативную память, если /tmp "
 "смонтирован как tmpfs"
 
-#: src/cmd/cmd_common.c:449
+#: src/cmd/cmd_common.c:451
 #, c-format
 msgid "cannot record the installation: %s"
 msgstr "не удалось записать установку в базу данных: %s"
 
-#: src/cmd/cmd_common.c:456
+#: src/cmd/cmd_common.c:458
 #, c-format
 msgid "removal failed: %s"
 msgstr "ошибка удаления: %s"
 
-#: src/cmd/cmd_common.c:462
+#: src/cmd/cmd_common.c:464
 #, c-format
 msgid "failed to commit the transaction: %s"
 msgstr "не удалось выполнить транзакцию: %s"
 
-#: src/cmd/cmd_common.c:472 src/cmd/cmd_common.c:476
+#: src/cmd/cmd_common.c:474 src/cmd/cmd_common.c:478
 msgid "Finished"
 msgstr "Готово"
 
-#: src/cmd/cmd_common.c:472
+#: src/cmd/cmd_common.c:474
 msgid "dry run; no changes were made"
 msgstr "пробный запуск; изменения не внесены"
 
-#: src/cmd/cmd_common.c:477
+#: src/cmd/cmd_common.c:479
 #, c-format
 msgid "%zu operation in %.2fs"
 msgid_plural "%zu operations in %.2fs"
@@ -619,6 +625,7 @@ msgid "rollback"
 msgstr "откат"
 
 #: src/cmd/cmd_history.c:76
+#, c-format
 msgid "invalid --since value: %s"
 msgstr "недопустимое значение --since: %s"
 
@@ -701,10 +708,12 @@ msgid "Versions"
 msgstr "Версии"
 
 #: src/cmd/cmd_info.c:185 src/cmd/cmd_reinstall.c:43
+#, c-format
 msgid "failed to read package %s: %s"
 msgstr "не удалось прочитать пакет %s: %s"
 
 #: src/cmd/cmd_info.c:194
+#, c-format
 msgid "archive, %s %s is installed"
 msgstr "архив, %s %s установлен"
 
@@ -870,6 +879,7 @@ msgid "Marked explicit"
 msgstr "Помечен как явный"
 
 #: src/cmd/cmd_mark.c:102
+#, c-format
 msgid "failed to mark %s (not installed?)"
 msgstr "не удалось пометить %s (не установлен?)"
 
@@ -882,11 +892,12 @@ msgstr "осиротевшие пакеты не найдены"
 msgid "%d orphaned package(s) found"
 msgstr "найдено осиротевших пакетов: %d"
 
-#: src/cmd/cmd_owns.c:92
+#: src/cmd/cmd_owns.c:189
 msgid "a file path is required"
 msgstr "требуется путь к файлу"
 
-#: src/cmd/cmd_owns.c:132
+#: src/cmd/cmd_owns.c:229
+#, c-format
 msgid "no package owns %s"
 msgstr "файл %s не принадлежит ни одному пакету"
 
@@ -897,6 +908,7 @@ msgid "%s is not installed"
 msgstr "%s не установлен"
 
 #: src/cmd/cmd_reinstall.c:58
+#, c-format
 msgid "%s in %s is not the installed version"
 msgstr "%s в %s не является установленной версией"
 
@@ -912,6 +924,10 @@ msgstr "%s %s не найден ни в одном настроенном реп
 #: src/cmd/cmd_reinstall.c:133
 msgid "a package name or file is required"
 msgstr "требуется имя пакета или файл"
+
+#: src/cmd/cmd_reinstall.c:204
+msgid "cannot queue %s: %s"
+msgstr "не удалось добавить %s в транзакцию: %s"
 
 #: src/cmd/cmd_remove.c:82
 #, c-format
@@ -968,6 +984,7 @@ msgid "repo %s was not found in %s"
 msgstr "репозиторий %s не найден в %s"
 
 #: src/cmd/cmd_repo.c:207
+#, c-format
 msgid "repo %s requires a URL%s"
 msgstr "repo %s требует URL%s"
 
@@ -976,14 +993,17 @@ msgid " and a number"
 msgstr " и число"
 
 #: src/cmd/cmd_repo.c:220
+#, c-format
 msgid "invalid priority: %s"
 msgstr "недопустимый приоритет: %s"
 
 #: src/cmd/cmd_repo.c:221
 msgid "use a whole number from 0 to 100000, lower is consulted first"
-msgstr "используйте целое число от 0 до 100000, меньшие значения опрашиваются первыми"
+msgstr ""
+"используйте целое число от 0 до 100000, меньшие значения опрашиваются первыми"
 
 #: src/cmd/cmd_repo.c:249
+#, c-format
 msgid "cannot modify %s"
 msgstr "не удалось изменить %s"
 
@@ -1004,6 +1024,7 @@ msgid "Disabled"
 msgstr "Отключён"
 
 #: src/cmd/cmd_repo.c:265
+#, c-format
 msgid "repository %s in %s"
 msgstr "репозиторий %s в %s"
 
@@ -1033,7 +1054,9 @@ msgstr "не удалось обновить %s: %s"
 msgid ""
 "repo requires a sub-action: add, remove, enable, disable, priority, list, "
 "update"
-msgstr "для repo нужна подкоманда: add, remove, enable, disable, priority, list, update"
+msgstr ""
+"для repo нужна подкоманда: add, remove, enable, disable, priority, list, "
+"update"
 
 #: src/cmd/cmd_repo.c:408
 #, c-format
@@ -1178,33 +1201,41 @@ msgstr[2] "%s: отсутствуют %d файлов"
 msgid "reinstall the affected packages to restore their files"
 msgstr "переустановите затронутые пакеты, чтобы восстановить их файлы"
 
-#: src/cmd/cmd_why.c:110
+#: src/cmd/cmd_why.c:121
+#, c-format
 msgid "%s was installed explicitly"
 msgstr "%s установлен явно"
 
-#: src/cmd/cmd_why.c:113
+#: src/cmd/cmd_why.c:124
 msgid "also required by:"
 msgstr "также требуется пакетам:"
 
-#: src/cmd/cmd_why.c:121
+#: src/cmd/cmd_why.c:132
+#, c-format
 msgid "%s is not required by any package"
 msgstr "%s не требуется ни одному пакету"
 
-#: src/cmd/cmd_why.c:122
+#: src/cmd/cmd_why.c:133
 msgid "it is an orphan and can be removed with 'tulpar orphans'"
 msgstr "это сирота, его можно удалить командой 'tulpar orphans'"
 
-#: src/cmd/cmd_why.c:127
+#: src/cmd/cmd_why.c:138
+#, c-format
 msgid "%s was installed as a dependency"
 msgstr "%s установлен как зависимость"
 
-#: src/cmd/cmd_why.c:128
+#: src/cmd/cmd_why.c:139
 msgid "required by:"
 msgstr "требуется пакетам:"
 
-#: src/cmd/cmd_why.c:134
+#: src/cmd/cmd_why.c:145
 msgid "chain:"
 msgstr "цепочка:"
+
+#: src/cmd/cmd_why.c:151
+msgid ""
+"only unused packages require it, so it can be removed with 'tulpar orphans'"
+msgstr "он нужен только неиспользуемым пакетам, поэтому его можно удалить командой 'tulpar orphans'"
 
 #: src/cmd/resolve.c:204
 #, c-format
