@@ -132,14 +132,17 @@ are no sections. See `tulpar.conf(5)` for the full list of keys
 ### Repositories
 
 The repository list is a plain text file, one URL per line, `#` for
-comments, no key/value syntax, no sections:
+comments, no sections. A URL may be followed by `priority=N` (lower is
+consulted first, default 100), and a line starting with `#disabled `
+keeps an entry in the file without using it:
 
 - `/etc/apg/repos` (system-wide)
 - `~/.config/apg/repos` (per-user addition, for managing personal
   repositories without root)
 
-Manage it with `tulpar repo add|remove|list|update` rather than
-editing it by hand if you'd rather not deal with the raw format.
+Manage it with `tulpar repo add|remove|enable|disable|priority|list|update`
+rather than editing it by hand if you'd rather not deal with the raw
+format.
 
 ### Cache
 
@@ -176,9 +179,15 @@ identical.
 | `hold` | `g` | Block a package from upgrade or removal |
 | `unhold` | `x` | Release a held package |
 | `history`, `audit`, `log` | `a` | Show past install/remove operations |
-| `repo add\|remove\|list\|update` | `e` | Manage configured repositories |
+| `repo add\|remove\|enable\|disable\|priority\|list\|update` | `e` | Manage configured repositories |
 | `download` | `w` | Fetch a package without installing it |
 | `key add\|list` | `k` | Manage the trusted signing keyring |
+| `owns` | `O` | Find the package that owns a file |
+| `files` | `f` | List the files of an installed package |
+| `why` | `W` | Explain why a package is installed |
+| `mark` | `m` | Mark a package as automatic or explicit |
+| `reinstall` | `R` | Reinstall installed packages |
+| `stats` | `t` | Show package database statistics |
 
 `-h`/`-V`/`-y`/`-j`/`-d`/`-q` are reserved globally for help, version,
 `--yes`, `--json`, `--dest`, and `--quiet`, so no command alias reuses
@@ -198,7 +207,9 @@ Full documentation for every command is available as a man page:
 `tulpar-upgrade(1)`, `tulpar-search(1)`, `tulpar-list(1)`,
 `tulpar-info(1)`, `tulpar-verify(1)`, `tulpar-orphans(1)`,
 `tulpar-hold(1)`, `tulpar-unhold(1)`, `tulpar-history(1)`,
-`tulpar-repo(1)`, `tulpar-download(1)`, `tulpar-key(1)`, and
+`tulpar-repo(1)`, `tulpar-download(1)`, `tulpar-key(1)`,
+`tulpar-owns(1)`, `tulpar-files(1)`, `tulpar-why(1)`, `tulpar-mark(1)`,
+`tulpar-reinstall(1)`, `tulpar-stats(1)`, `tulpar-json(7)`, and
 `tulpar.conf(5)`.
 
 ## License
