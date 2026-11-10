@@ -4,6 +4,7 @@ src/cli/ui.c
 src/cmd/cmd_clean.c
 src/cmd/cmd_common.c
 src/cmd/cmd_download.c
+src/cmd/cmd_files.c
 src/cmd/cmd_graph.c
 src/cmd/cmd_history.c
 src/cmd/cmd_hold.c
@@ -11,12 +12,17 @@ src/cmd/cmd_info.c
 src/cmd/cmd_install.c
 src/cmd/cmd_key.c
 src/cmd/cmd_list.c
+src/cmd/cmd_mark.c
 src/cmd/cmd_orphans.c
+src/cmd/cmd_owns.c
+src/cmd/cmd_reinstall.c
 src/cmd/cmd_remove.c
 src/cmd/cmd_repo.c
 src/cmd/cmd_rollback.c
 src/cmd/cmd_search.c
+src/cmd/cmd_stats.c
 src/cmd/cmd_upgrade.c
 src/cmd/cmd_verify.c
+src/cmd/cmd_why.c
 src/cmd/resolve.c
 src/util/paths.c
