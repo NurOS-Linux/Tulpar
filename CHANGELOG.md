@@ -4,6 +4,32 @@ All notable changes to tulpar are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- `tulpar help [command]` shows the usage of tulpar or of one command.
+
+### Changed
+
+- Without root the cache defaults to `$XDG_CACHE_HOME/apg`
+  (`~/.cache/apg`) instead of `/var/cache/apg`, so searching, downloading
+  and installing from repositories work for an unprivileged user.
+- `key list` prints the names of the trusted keys instead of pointing at
+  the keyring directory.
+
+### Fixed
+
+- An option that needs a value but got none, such as `--dest` at the end
+  of the command line, is reported as missing its value instead of as an
+  unknown option.
+- `history` says that no entries match the filters, rather than that
+  nothing is recorded, and `list --names --json` is rejected instead of
+  ignoring `--json`.
+- `hold`, `mark`, `upgrade` and `reinstall` use the same "package is not
+  installed" message as `remove`, and a package that is not found in the
+  repositories comes with a hint for the next step.
+- `repo` shows only the usage of the sub-action that was misused.
+- The orphan count uses the right plural form.
+
 ## [0.6.0] - 2026-11-10
 
 ### Added
