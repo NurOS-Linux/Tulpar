@@ -16,6 +16,14 @@
 #include "../repo/repodata.h"
 #include "../i18n.h"
 
+#define USAGE_ADD "tulpar repo add <url> [--user]"
+#define USAGE_REMOVE "tulpar repo remove <url> [--user]"
+#define USAGE_ENABLE "tulpar repo enable <url> [--user]"
+#define USAGE_DISABLE "tulpar repo disable <url> [--user]"
+#define USAGE_PRIORITY "tulpar repo priority <url> <number> [--user]"
+#define USAGE_LIST "tulpar repo list [--all] [--json]"
+#define USAGE_UPDATE "tulpar repo update"
+
 #define USAGE                                                                  \
     "tulpar repo add <url> [--user]\n"                                         \
     "       tulpar repo remove <url> [--user]\n"                               \
@@ -49,7 +57,7 @@ run_add(int argc, char **argv)
         }
         if (!end_of_options && arg_is_help(argv[i]))
         {
-            cmd_print_usage(USAGE);
+            cmd_print_usage(USAGE_ADD);
             return 0;
         }
         else if (!end_of_options && arg_is(argv[i], "user", '\0'))
@@ -61,13 +69,13 @@ run_add(int argc, char **argv)
             else
             {
                 ui_errorf(_("unexpected argument: %s"), argv[i]);
-                cmd_print_usage(USAGE);
+                cmd_print_usage(USAGE_ADD);
                 return 1;
             }
         }
         else
         {
-            cmd_unknown_option(argv[i], USAGE);
+            cmd_unknown_option(argv[i], USAGE_ADD);
             return 1;
         }
     }
@@ -75,7 +83,7 @@ run_add(int argc, char **argv)
     if (!url)
     {
         ui_error(_("repo add requires a URL"));
-        cmd_print_usage(USAGE);
+        cmd_print_usage(USAGE_ADD);
         return 1;
     }
 
@@ -112,7 +120,7 @@ run_remove(int argc, char **argv)
         }
         if (!end_of_options && arg_is_help(argv[i]))
         {
-            cmd_print_usage(USAGE);
+            cmd_print_usage(USAGE_REMOVE);
             return 0;
         }
         else if (!end_of_options && arg_is(argv[i], "user", '\0'))
@@ -124,13 +132,13 @@ run_remove(int argc, char **argv)
             else
             {
                 ui_errorf(_("unexpected argument: %s"), argv[i]);
-                cmd_print_usage(USAGE);
+                cmd_print_usage(USAGE_REMOVE);
                 return 1;
             }
         }
         else
         {
-            cmd_unknown_option(argv[i], USAGE);
+            cmd_unknown_option(argv[i], USAGE_REMOVE);
             return 1;
         }
     }
@@ -138,7 +146,7 @@ run_remove(int argc, char **argv)
     if (!url)
     {
         ui_error(_("repo remove requires a URL"));
-        cmd_print_usage(USAGE);
+        cmd_print_usage(USAGE_REMOVE);
         return 1;
     }
 
@@ -166,6 +174,9 @@ run_change(const char *action, int argc, char **argv)
     const char *url = NULL;
     const char *number = NULL;
     bool want_number = strcmp(action, "priority") == 0;
+    const char *usage = want_number                     ? USAGE_PRIORITY
+                        : strcmp(action, "enable") == 0 ? USAGE_ENABLE
+                                                        : USAGE_DISABLE;
     bool end_of_options = false;
 
     for (int i = 0; i < argc; i++)
@@ -177,7 +188,7 @@ run_change(const char *action, int argc, char **argv)
         }
         if (!end_of_options && arg_is_help(argv[i]))
         {
-            cmd_print_usage(USAGE);
+            cmd_print_usage(usage);
             return 0;
         }
         else if (!end_of_options && arg_is(argv[i], "user", '\0'))
@@ -191,13 +202,13 @@ run_change(const char *action, int argc, char **argv)
             else
             {
                 ui_errorf(_("unexpected argument: %s"), argv[i]);
-                cmd_print_usage(USAGE);
+                cmd_print_usage(usage);
                 return 1;
             }
         }
         else
         {
-            cmd_unknown_option(argv[i], USAGE);
+            cmd_unknown_option(argv[i], usage);
             return 1;
         }
     }
@@ -206,7 +217,7 @@ run_change(const char *action, int argc, char **argv)
     {
         ui_errorf(_("repo %s requires a URL%s"), action,
                   want_number ? _(" and a number") : "");
-        cmd_print_usage(USAGE);
+        cmd_print_usage(usage);
         return 1;
     }
 
@@ -372,7 +383,7 @@ cmd_repo_run(int argc, char **argv, struct tulpar_config *cfg)
         {
             if (arg_is_help(argv[i]))
             {
-                cmd_print_usage(USAGE);
+                cmd_print_usage(USAGE_LIST);
                 return 0;
             }
             else if (arg_is(argv[i], "all", 'a'))
@@ -381,7 +392,7 @@ cmd_repo_run(int argc, char **argv, struct tulpar_config *cfg)
                 json_output = true;
             else
             {
-                cmd_unknown_option(argv[i], USAGE);
+                cmd_unknown_option(argv[i], USAGE_LIST);
                 return 1;
             }
         }
@@ -393,12 +404,12 @@ cmd_repo_run(int argc, char **argv, struct tulpar_config *cfg)
         {
             if (arg_is_help(argv[i]))
             {
-                cmd_print_usage(USAGE);
+                cmd_print_usage(USAGE_UPDATE);
                 return 0;
             }
             else
             {
-                cmd_unknown_option(argv[i], USAGE);
+                cmd_unknown_option(argv[i], USAGE_UPDATE);
                 return 1;
             }
         }
