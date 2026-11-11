@@ -4,6 +4,8 @@ All notable changes to tulpar are documented in this file.
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-11
+
 ### Added
 
 - `tulpar help [command]` shows the usage of tulpar or of one command.
