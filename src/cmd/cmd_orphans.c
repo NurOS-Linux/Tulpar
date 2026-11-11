@@ -83,7 +83,9 @@ cmd_orphans_run(int argc, char **argv, struct tulpar_config *cfg)
         return 0;
     }
 
-    ui_warnf(_("%d orphaned package(s) found"), count);
+    ui_warnf(ngettext("%d orphaned package found", "%d orphaned packages found",
+                      (unsigned long)count),
+             count);
 
     struct apg_trans *trans = trans_new(db);
     if (!trans)
