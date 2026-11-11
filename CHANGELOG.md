@@ -7,6 +7,7 @@ All notable changes to tulpar are documented in this file.
 ### Added
 
 - `tulpar help [command]` shows the usage of tulpar or of one command.
+- German translation.
 
 ### Changed
 
