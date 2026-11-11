@@ -148,6 +148,26 @@ require_privilege(const struct dest_ctx *ctx)
 }
 
 char *
+home_cache_path(const char *rel)
+{
+    const char *xdg = getenv("XDG_CACHE_HOME");
+    if (xdg && xdg[0] != '\0')
+        return path_join(xdg, rel);
+
+    const char *home = getenv("HOME");
+    if (!home || home[0] == '\0')
+        return NULL;
+
+    char *cache_dir = path_join(home, ".cache");
+    if (!cache_dir)
+        return NULL;
+
+    char *out = path_join(cache_dir, rel);
+    free(cache_dir);
+    return out;
+}
+
+char *
 home_config_path(const char *rel)
 {
     const char *xdg = getenv("XDG_CONFIG_HOME");

@@ -24,6 +24,34 @@ test_config_defaults(void)
 }
 
 void
+test_config_default_cache_dir_follows_the_user(void)
+{
+    char *dir = mktmp_dir("cache-home");
+    char *old =
+        getenv("XDG_CACHE_HOME") ? strdup(getenv("XDG_CACHE_HOME")) : NULL;
+    setenv("XDG_CACHE_HOME", dir, 1);
+
+    struct tulpar_config *cfg = tulpar_config_defaults();
+    assert(cfg);
+    char expected[512];
+    if (geteuid() == 0)
+        snprintf(expected, sizeof(expected), "%s", "/var/cache/apg");
+    else
+        snprintf(expected, sizeof(expected), "%s/apg", dir);
+    assert(strcmp(cfg->cache_dir, expected) == 0);
+    tulpar_config_free(cfg);
+
+    if (old)
+        setenv("XDG_CACHE_HOME", old, 1);
+    else
+        unsetenv("XDG_CACHE_HOME");
+    free(old);
+    rmdir(dir);
+    free(dir);
+    printf("test_config_default_cache_dir_follows_the_user: PASS\n");
+}
+
+void
 test_config_parse_file_overrides(void)
 {
     char *path = mktmp_path("tulpar-conf");

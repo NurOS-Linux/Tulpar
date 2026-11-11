@@ -27,6 +27,7 @@ main(void)
     test_repo_add_reenables_and_long_lines_survive_edits();
 
     test_config_defaults();
+    test_config_default_cache_dir_follows_the_user();
     test_config_parse_file_overrides();
 
     test_plan_render_install_step();

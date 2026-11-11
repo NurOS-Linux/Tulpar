@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "config.h"
 #include "../util/paths.h"
@@ -35,7 +36,10 @@ tulpar_config_defaults(void)
     if (!cfg)
         return NULL;
 
-    cfg->cache_dir = strdup(TULPAR_CACHE_DIR);
+    if (geteuid() != 0)
+        cfg->cache_dir = home_cache_path("apg");
+    if (!cfg->cache_dir)
+        cfg->cache_dir = strdup(TULPAR_CACHE_DIR);
     cfg->db_dir = strdup(TULPAR_DB_DIR);
     cfg->log_file = strdup(TULPAR_LOG_FILE);
     cfg->repodata_ttl = TULPAR_REPODATA_TTL;

@@ -151,6 +151,10 @@ format.
   repository, refreshed automatically once `repodata_ttl` (default 900
   seconds) has elapsed, or on demand with `tulpar repo update`.
 
+Without root the cache lives in `$XDG_CACHE_HOME/apg` (`~/.cache/apg`)
+instead, so searching and downloading work without write access to
+`/var/cache/apg`. Set `cache_dir` in `tulpar.conf` to override either.
+
 ### Logging
 
 Plain syslog-style text lines, one per event, written to

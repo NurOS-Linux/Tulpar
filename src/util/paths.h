@@ -26,3 +26,4 @@ bool dest_ctx_prepare_tree(const struct dest_ctx *ctx);
 bool require_privilege(const struct dest_ctx *ctx);
 
 char *home_config_path(const char *rel);
+char *home_cache_path(const char *rel);

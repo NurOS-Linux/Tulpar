@@ -24,7 +24,13 @@ Two files are read, in order, and later values override earlier ones:
 .TP
 .B cache_dir
 Root of the local package and repodata cache. Default
-.IR /var/cache/apg .
+.I /var/cache/apg
+when running as root, and
+.I $XDG_CACHE_HOME/apg
+(or
+.IR ~/.cache/apg )
+otherwise, so that an unprivileged user can search and download
+without write access to the system cache.
 .TP
 .B db_dir
 Default package database directory used when
