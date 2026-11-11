@@ -143,7 +143,7 @@ cmd_upgrade_run(int argc, char **argv, struct tulpar_config *cfg)
         struct package *installed = db_get(db, target_name);
         if (!installed)
         {
-            ui_errorf(_("%s is not installed"), target_name);
+            ui_errorf(_("package %s is not installed"), target_name);
             repo_list_free(repos);
             db_close(db);
             dest_ctx_clear(&dest);

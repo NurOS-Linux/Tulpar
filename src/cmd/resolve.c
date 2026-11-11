@@ -890,6 +890,12 @@ resolve_install_closure(char *const *requested, size_t requested_count,
                 if (repos->count == 0)
                     ui_hint(_("no repositories are configured; add one with "
                               "'tulpar repo add <url>'"));
+                else if (http_is_offline())
+                    ui_hint(_("offline mode: packages cannot be looked up in "
+                              "the repositories"));
+                else
+                    ui_hint(_("check the name, or find it with 'tulpar search "
+                              "<query>'"));
                 free(roots);
                 return false;
             }

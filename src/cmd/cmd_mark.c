@@ -99,7 +99,13 @@ cmd_mark_run(int argc, char **argv, struct tulpar_config *cfg)
                       pos[i]);
         else
         {
-            ui_errorf(_("failed to mark %s (not installed?)"), pos[i]);
+            struct package *known = db_get(db, pos[i]);
+            if (!known)
+                ui_errorf(_("package %s is not installed"), pos[i]);
+            else
+                ui_errorf(_("failed to mark %s: %s"), pos[i],
+                          cmd_libapg_reason());
+            package_free(known);
             rc = 1;
         }
     }

@@ -101,6 +101,8 @@ cmd_download_run(int argc, char **argv, struct tulpar_config *cfg)
     if (!idx || idx->count == 0)
     {
         ui_errorf(_("package %s not found in any configured repository"), name);
+        ui_hint(_("check the name, or see 'tulpar repo list' for the "
+                  "configured repositories"));
         if (idx)
             repo_index_free(idx);
         repo_list_free(repos);

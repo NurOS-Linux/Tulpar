@@ -79,8 +79,15 @@ run_set_hold(int argc, char **argv, struct tulpar_config *cfg, bool held)
     if (ok)
         ui_status(held ? _("Held") : _("Released"), "%s", name);
     else
-        ui_errorf(_("failed to update hold state for %s (not installed?)"),
-                  name);
+    {
+        struct package *known = db_get(db, name);
+        if (!known)
+            ui_errorf(_("package %s is not installed"), name);
+        else
+            ui_errorf(_("failed to update hold state for %s: %s"), name,
+                      cmd_libapg_reason());
+        package_free(known);
+    }
 
     db_close(db);
     dest_ctx_clear(&dest);

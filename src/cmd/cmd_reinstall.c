@@ -47,7 +47,7 @@ load_replacement(struct db_handle *db, const char *arg,
         struct package *installed = db_get(db, pkg->meta->name);
         if (!installed)
         {
-            ui_errorf(_("%s is not installed"), pkg->meta->name);
+            ui_errorf(_("package %s is not installed"), pkg->meta->name);
             package_free(pkg);
             return NULL;
         }
@@ -67,7 +67,7 @@ load_replacement(struct db_handle *db, const char *arg,
     struct package *installed = db_get(db, arg);
     if (!installed)
     {
-        ui_errorf(_("%s is not installed"), arg);
+        ui_errorf(_("package %s is not installed"), arg);
         return NULL;
     }
 
@@ -75,8 +75,12 @@ load_replacement(struct db_handle *db, const char *arg,
     struct package *pkg = resolve_fetch_named(
         arg, VER_OP_EQ, installed->meta->version, repos, cfg, &failed);
     if (!pkg && !failed)
+    {
         ui_errorf(_("%s %s not found in any configured repo"), arg,
                   installed->meta->version);
+        ui_hint(_("pass the .apg file of this version to reinstall without a "
+                  "repository"));
+    }
     package_free(installed);
     return pkg;
 }
