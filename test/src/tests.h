@@ -12,6 +12,7 @@ void test_command_lookup_full_name(void);
 void test_command_lookup_short_alias(void);
 void test_command_lookup_synonyms_share_handler(void);
 void test_command_lookup_unknown(void);
+void test_option_takes_value_reads_the_usage_line(void);
 
 void test_repo_list_parse_file(void);
 void test_repo_list_parse_file_missing(void);

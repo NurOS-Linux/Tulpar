@@ -6,6 +6,7 @@
 
 #include "cli/args.h"
 #include "cli/dispatch.h"
+#include "cmd/cmd_common.h"
 #include "helpers.h"
 #include "tests.h"
 
@@ -125,4 +126,22 @@ test_command_lookup_unknown(void)
     assert(command_lookup("nonexistent") == NULL);
     assert(command_lookup("") == NULL);
     printf("test_command_lookup_unknown: PASS\n");
+}
+
+void
+test_option_takes_value_reads_the_usage_line(void)
+{
+    const char *usage =
+        "tulpar history [--dest <path>] [--json] [--package <name>] "
+        "[--since <spec>] [-o <file>]";
+
+    assert(cmd_option_takes_value("--dest", usage));
+    assert(cmd_option_takes_value("--since", usage));
+    assert(cmd_option_takes_value("-o", usage));
+    assert(!cmd_option_takes_value("--json", usage));
+    assert(!cmd_option_takes_value("--bogus", usage));
+    assert(!cmd_option_takes_value("--dest=x", usage));
+    assert(!cmd_option_takes_value("dest", usage));
+    assert(!cmd_option_takes_value("--name", usage));
+    printf("test_option_takes_value_reads_the_usage_line: PASS\n");
 }

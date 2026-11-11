@@ -18,6 +18,8 @@ void cmd_print_usage(const char *usage);
 
 void cmd_unknown_option(const char *arg, const char *usage);
 
+bool cmd_option_takes_value(const char *arg, const char *usage);
+
 const char *cmd_libapg_reason(void);
 
 struct package *cmd_parse_package(const char *path);

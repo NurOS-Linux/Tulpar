@@ -26,9 +26,32 @@ cmd_print_usage(const char *usage)
     printf(_("usage: %s\n"), usage);
 }
 
+bool
+cmd_option_takes_value(const char *arg, const char *usage)
+{
+    if (arg[0] != '-' || strchr(arg, '=') != NULL)
+        return false;
+
+    char pattern[80];
+    int n = snprintf(pattern, sizeof(pattern), "%s <", arg);
+    if (n < 0 || (size_t)n >= sizeof(pattern))
+        return false;
+
+    const char *hit = strstr(usage, pattern);
+    return hit && (hit == usage || hit[-1] == ' ' || hit[-1] == '[' ||
+                   hit[-1] == '(' || hit[-1] == '|');
+}
+
 void
 cmd_unknown_option(const char *arg, const char *usage)
 {
+    if (cmd_option_takes_value(arg, usage))
+    {
+        ui_errorf(_("option %s requires a value"), arg);
+        cmd_print_usage(usage);
+        return;
+    }
+
     ui_errorf(_("unknown option: %s"), arg);
 
     if (strncmp(arg, "--", 2) == 0)
