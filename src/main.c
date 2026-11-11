@@ -41,6 +41,9 @@ print_usage(void)
                _(g_commands[i].summary));
     }
 
+    printf("  %-12s     %s\n", "help",
+           _("show the usage of tulpar or of one command"));
+
     printf(_("\nglobal flags:\n"));
     printf(_("  -h, --help              show this help text\n"));
     printf(_("  -V, --version           show the tulpar version\n"));
