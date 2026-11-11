@@ -1,0 +1,1401 @@
+# German translations for tulpar package.
+# Copyright (C) 2026 AnmiTaliDev <anmitalidev@nuros.org>
+# This file is distributed under the same license as the tulpar package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: tulpar 0.6.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-11 05:57+0500\n"
+"PO-Revision-Date: 2026-11-11 18:00+0500\n"
+"Last-Translator: AnmiTaliDev <anmitalidev@nuros.org>\n"
+"Language-Team: German\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/main.c:24
+#, c-format
+msgid ""
+"usage: tulpar <command> [options] [args]\n"
+"\n"
+msgstr ""
+"Verwendung: tulpar <Befehl> [Optionen] [Argumente]\n"
+"\n"
+
+#: src/main.c:25
+#, c-format
+msgid "commands:\n"
+msgstr "Befehle:\n"
+
+#: src/main.c:45
+msgid "show the usage of tulpar or of one command"
+msgstr "zeigt die Hilfe zu tulpar oder zu einem Befehl"
+
+#: src/main.c:47
+#, c-format
+msgid ""
+"\n"
+"global flags:\n"
+msgstr ""
+"\n"
+"Globale Optionen:\n"
+
+#: src/main.c:48
+#, c-format
+msgid "  -h, --help              show this help text\n"
+msgstr "  -h, --help              diese Hilfe anzeigen\n"
+
+#: src/main.c:49
+#, c-format
+msgid "  -V, --version           show the tulpar version\n"
+msgstr "  -V, --version           die tulpar-Version anzeigen\n"
+
+#: src/main.c:50
+#, c-format
+msgid "  -y, --yes               assume yes on confirmation prompts\n"
+msgstr "  -y, --yes               Rückfragen mit Ja beantworten\n"
+
+#: src/main.c:51
+#, c-format
+msgid "  -j, --json              machine-readable output\n"
+msgstr "  -j, --json              maschinenlesbare Ausgabe\n"
+
+#: src/main.c:52
+#, c-format
+msgid "  -d, --dest <path>       operate against an alternate root\n"
+msgstr ""
+"  -d, --dest <Pfad>       auf einem alternativen Wurzelverzeichnis arbeiten\n"
+
+#: src/main.c:53
+#, c-format
+msgid "  -q, --quiet             suppress informational output\n"
+msgstr "  -q, --quiet             Informationsmeldungen unterdrücken\n"
+
+#: src/main.c:54
+#, c-format
+msgid "      --verbose           enable debug output\n"
+msgstr "      --verbose           Debug-Ausgabe einschalten\n"
+
+#: src/main.c:55
+#, c-format
+msgid "      --offline           never touch the network, use cached indexes\n"
+msgstr ""
+"      --offline           das Netzwerk nie benutzen, zwischengespeicherte "
+"Indizes verwenden\n"
+
+#: src/main.c:57
+#, c-format
+msgid "      --color <when>      colorize output: auto, always, never\n"
+msgstr "      --color <wann>      farbige Ausgabe: auto, always, never\n"
+
+#: src/main.c:94
+#, c-format
+msgid "tulpar %s\n"
+msgstr "tulpar %s\n"
+
+#: src/main.c:117 src/cmd/cmd_common.c:55
+#, c-format
+msgid "unknown option: %s"
+msgstr "unbekannte Option: %s"
+
+#: src/main.c:120
+#, c-format
+msgid "unknown command: %s"
+msgstr "unbekannter Befehl: %s"
+
+#: src/main.c:123 src/cmd/cmd_common.c:92
+#, c-format
+msgid "did you mean '%s'?"
+msgstr "Meinten Sie '%s'?"
+
+#: src/main.c:125
+msgid "run 'tulpar --help' to see the available commands"
+msgstr "'tulpar --help' zeigt die verfügbaren Befehle"
+
+#: src/main.c:151
+#, c-format
+msgid "invalid value for --color: %s"
+msgstr "ungültiger Wert für --color: %s"
+
+#: src/main.c:152
+msgid "use one of: auto, always, never"
+msgstr "verwenden Sie einen von: auto, always, never"
+
+#: src/main.c:170
+msgid "failed to initialise configuration"
+msgstr "die Konfiguration konnte nicht initialisiert werden"
+
+#: src/main.c:187
+msgid "could not open the log file, continuing without file logging"
+msgstr ""
+"die Logdatei konnte nicht geöffnet werden, es wird ohne Logdatei fortgefahren"
+
+#: src/cli/dispatch.c:35
+msgid "install one or more packages"
+msgstr "ein oder mehrere Pakete installieren"
+
+#: src/cli/dispatch.c:36 src/cli/dispatch.c:37
+msgid "remove an installed package"
+msgstr "ein installiertes Paket entfernen"
+
+#: src/cli/dispatch.c:38
+msgid "upgrade one or all installed packages"
+msgstr "ein oder alle installierten Pakete aktualisieren"
+
+#: src/cli/dispatch.c:40
+msgid "search local and remote package indexes"
+msgstr "lokale und entfernte Paketindizes durchsuchen"
+
+#: src/cli/dispatch.c:42
+msgid "list installed packages"
+msgstr "installierte Pakete auflisten"
+
+#: src/cli/dispatch.c:43 src/cli/dispatch.c:44
+msgid "show full metadata for a package"
+msgstr "vollständige Metadaten eines Pakets anzeigen"
+
+#: src/cli/dispatch.c:45
+msgid "verify installed package files"
+msgstr "Dateien installierter Pakete überprüfen"
+
+#: src/cli/dispatch.c:46 src/cli/dispatch.c:47
+msgid "list and remove orphaned packages"
+msgstr "verwaiste Pakete auflisten und entfernen"
+
+#: src/cli/dispatch.c:49
+msgid "block a package from upgrade/removal"
+msgstr "ein Paket vor Aktualisierung und Entfernung schützen"
+
+#: src/cli/dispatch.c:50
+msgid "release a held package"
+msgstr "den Schutz eines Pakets aufheben"
+
+#: src/cli/dispatch.c:51
+msgid "find the package that owns a file"
+msgstr "das Paket finden, dem eine Datei gehört"
+
+#: src/cli/dispatch.c:52
+msgid "list the files of an installed package"
+msgstr "die Dateien eines installierten Pakets auflisten"
+
+#: src/cli/dispatch.c:53
+msgid "explain why a package is installed"
+msgstr "erklären, warum ein Paket installiert ist"
+
+#: src/cli/dispatch.c:54
+msgid "mark a package as automatic or explicit"
+msgstr "ein Paket als automatisch oder explizit markieren"
+
+#: src/cli/dispatch.c:55
+msgid "reinstall installed packages"
+msgstr "installierte Pakete neu installieren"
+
+#: src/cli/dispatch.c:56
+msgid "show package database statistics"
+msgstr "Statistik der Paketdatenbank anzeigen"
+
+#: src/cli/dispatch.c:57 src/cli/dispatch.c:59 src/cli/dispatch.c:60
+msgid "show past install/remove operations"
+msgstr "frühere Installations- und Entfernungsvorgänge anzeigen"
+
+#: src/cli/dispatch.c:61
+msgid "manage configured repositories"
+msgstr "konfigurierte Repositories verwalten"
+
+#: src/cli/dispatch.c:62
+msgid "fetch a package without installing it"
+msgstr "ein Paket herunterladen, ohne es zu installieren"
+
+#: src/cli/dispatch.c:64
+msgid "manage the trusted signing keyring"
+msgstr "den Schlüsselbund vertrauenswürdiger Signaturschlüssel verwalten"
+
+#: src/cli/dispatch.c:65
+msgid "export the installed package dependency graph as DOT"
+msgstr "den Abhängigkeitsgraphen der installierten Pakete als DOT exportieren"
+
+#: src/cli/dispatch.c:67 src/cli/dispatch.c:69
+msgid "purge downloaded packages and metadata cache"
+msgstr "heruntergeladene Pakete und den Metadaten-Cache löschen"
+
+#: src/cli/dispatch.c:71 src/cli/dispatch.c:73
+msgid "undo the most recent package operation"
+msgstr "den letzten Paketvorgang rückgängig machen"
+
+#: src/cli/ui.c:205
+msgid "error:"
+msgstr "Fehler:"
+
+#: src/cli/ui.c:213
+msgid "warning:"
+msgstr "Warnung:"
+
+#: src/cli/ui.c:236
+msgid "debug:"
+msgstr "Debug:"
+
+#: src/cli/ui.c:323
+msgid "help:"
+msgstr "Hilfe:"
+
+#: src/cli/ui.c:336
+msgid "note:"
+msgstr "Hinweis:"
+
+#: src/cli/ui.c:361
+msgid "cannot ask for confirmation: standard input is not a terminal"
+msgstr "Bestätigung nicht möglich: Die Standardeingabe ist kein Terminal"
+
+#: src/cli/ui.c:363
+msgid "pass -y to proceed without a prompt"
+msgstr "mit -y ohne Rückfrage fortfahren"
+
+#: src/cli/ui.c:378 src/cli/ui.c:380
+msgid "[y/N]"
+msgstr "[j/N]"
+
+#: src/cli/ui.c:408
+#, c-format
+msgid "enter a number [1-%d]: "
+msgstr "Nummer eingeben [1-%d]: "
+
+#: src/cli/ui.c:419
+#, c-format
+msgid "invalid choice\n"
+msgstr "ungültige Auswahl\n"
+
+#: src/cli/ui.c:654 src/cmd/cmd_history.c:31
+msgid "install"
+msgstr "Installation"
+
+#: src/cli/ui.c:656
+msgid "upgrade"
+msgstr "Aktualisierung"
+
+#: src/cli/ui.c:658 src/cmd/cmd_history.c:33
+msgid "remove"
+msgstr "Entfernung"
+
+#: src/cli/ui.c:700
+msgid "nothing to do"
+msgstr "nichts zu tun"
+
+#: src/cli/ui.c:734 src/cli/ui.c:736 src/cmd/cmd_stats.c:113
+msgid "Packages"
+msgstr "Pakete"
+
+#: src/cli/ui.c:770
+#, c-format
+msgid "%zu to install"
+msgstr "%zu zu installieren"
+
+#: src/cli/ui.c:777
+#, c-format
+msgid "%zu to upgrade"
+msgstr "%zu zu aktualisieren"
+
+#: src/cli/ui.c:784
+#, c-format
+msgid "%zu to remove"
+msgstr "%zu zu entfernen"
+
+#: src/cli/ui.c:803
+#, c-format
+msgid "%s conflicts with installed package %s"
+msgstr "%s steht im Konflikt mit dem installierten Paket %s"
+
+#: src/cli/ui.c:811
+#, c-format
+msgid "file %s requested by %s is already owned by %s"
+msgstr "Die von %s angeforderte Datei %s gehört bereits %s"
+
+#: src/cli/ui.c:833
+#, c-format
+msgid "cannot remove %s: required by %s"
+msgstr "%s kann nicht entfernt werden: wird von %s benötigt"
+
+#: src/cli/ui.c:841
+#, c-format
+msgid "%s is held, %s blocked"
+msgstr "%s ist gesperrt, %s blockiert"
+
+#: src/cmd/cmd_clean.c:88 src/cmd/cmd_download.c:63 src/cmd/cmd_files.c:69
+#: src/cmd/cmd_graph.c:51 src/cmd/cmd_history.c:88 src/cmd/cmd_hold.c:43
+#: src/cmd/cmd_info.c:241 src/cmd/cmd_install.c:122 src/cmd/cmd_key.c:54
+#: src/cmd/cmd_list.c:70 src/cmd/cmd_orphans.c:53 src/cmd/cmd_repo.c:71
+#: src/cmd/cmd_repo.c:134 src/cmd/cmd_repo.c:204 src/cmd/cmd_rollback.c:58
+#: src/cmd/cmd_search.c:83 src/cmd/cmd_stats.c:65 src/cmd/cmd_upgrade.c:92
+#: src/cmd/cmd_verify.c:140 src/cmd/cmd_why.c:70
+#, c-format
+msgid "unexpected argument: %s"
+msgstr "unerwartetes Argument: %s"
+
+#: src/cmd/cmd_clean.c:96
+msgid "Purge downloaded packages and metadata cache"
+msgstr "Heruntergeladene Pakete und den Metadaten-Cache löschen"
+
+#: src/cmd/cmd_clean.c:100 src/cmd/cmd_common.c:426 src/cmd/cmd_common.c:433
+msgid "aborted"
+msgstr "abgebrochen"
+
+#: src/cmd/cmd_clean.c:122
+msgid "Cleaned"
+msgstr "Gelöscht"
+
+#: src/cmd/cmd_clean.c:123
+#, c-format
+msgid "%zu item from %s"
+msgid_plural "%zu items from %s"
+msgstr[0] "%zu Element aus %s"
+msgstr[1] "%zu Elemente aus %s"
+
+#: src/cmd/cmd_common.c:26
+#, c-format
+msgid "usage: %s\n"
+msgstr "Verwendung: %s\n"
+
+#: src/cmd/cmd_common.c:50
+#, c-format
+msgid "option %s requires a value"
+msgstr "Option %s benötigt einen Wert"
+
+#: src/cmd/cmd_common.c:102
+msgid "no further detail available"
+msgstr "keine weiteren Details verfügbar"
+
+#: src/cmd/cmd_common.c:136
+#, c-format
+msgid "offline mode: no cached data for %s"
+msgstr "Offline-Modus: keine zwischengespeicherten Daten für %s"
+
+#: src/cmd/cmd_common.c:138
+msgid "offline mode: remote repositories are not contacted"
+msgstr "Offline-Modus: entfernte Repositories werden nicht kontaktiert"
+
+#: src/cmd/cmd_common.c:150
+#, c-format
+msgid ""
+"repository %s no longer publishes a package index (repodata.json); using the "
+"cached copy"
+msgstr ""
+"Repository %s veröffentlicht keinen Paketindex (repodata.json) mehr; die "
+"zwischengespeicherte Kopie wird verwendet"
+
+#: src/cmd/cmd_common.c:154
+#, c-format
+msgid "repository %s does not publish a package index (repodata.json)"
+msgstr "Repository %s veröffentlicht keinen Paketindex (repodata.json)"
+
+#: src/cmd/cmd_common.c:158
+#, c-format
+msgid "cannot refresh the index of %s, using the cached copy: %s"
+msgstr ""
+"der Index von %s kann nicht aktualisiert werden, die zwischengespeicherte "
+"Kopie wird verwendet: %s"
+
+#: src/cmd/cmd_common.c:162
+#, c-format
+msgid "cannot reach repository %s: %s"
+msgstr "Repository %s ist nicht erreichbar: %s"
+
+#: src/cmd/cmd_common.c:179 src/cmd/cmd_common.c:184
+msgid "Downloaded"
+msgstr "Heruntergeladen"
+
+#: src/cmd/cmd_common.c:204 src/cmd/cmd_common.c:439
+msgid "failed to prepare target root directory structure"
+msgstr ""
+"die Verzeichnisstruktur des Zielsystems konnte nicht vorbereitet werden"
+
+#: src/cmd/cmd_common.c:210
+#, c-format
+msgid "no package database at %s"
+msgstr "keine Paketdatenbank unter %s"
+
+#: src/cmd/cmd_common.c:211
+#, c-format
+msgid "nothing has been installed into %s yet"
+msgstr "in %s wurde noch nichts installiert"
+
+#: src/cmd/cmd_common.c:223
+msgid "wait for the other package operation to finish, then try again"
+msgstr ""
+"warten Sie, bis der andere Paketvorgang beendet ist, und versuchen Sie es "
+"erneut"
+
+#: src/cmd/cmd_common.c:274
+#, c-format
+msgid "%zu package has no signature and will be installed unverified: %s"
+msgid_plural ""
+"%zu packages have no signature and will be installed unverified: %s"
+msgstr[0] "%zu Paket hat keine Signatur und wird ungeprüft installiert: %s"
+msgstr[1] ""
+"%zu Pakete haben keine Signatur und werden ungeprüft installiert: %s"
+
+#: src/cmd/cmd_common.c:281
+#, c-format
+msgid "%zu package has a signature that could not be verified: %s"
+msgid_plural "%zu packages have signatures that could not be verified: %s"
+msgstr[0] "%zu Paket hat eine Signatur, die nicht geprüft werden konnte: %s"
+msgstr[1] "%zu Pakete haben Signaturen, die nicht geprüft werden konnten: %s"
+
+#: src/cmd/cmd_common.c:288
+msgid "pass --require-signature to refuse unverified packages"
+msgstr "mit --require-signature werden ungeprüfte Pakete abgelehnt"
+
+#: src/cmd/cmd_common.c:300
+msgid "Upgrading"
+msgstr "Aktualisiere"
+
+#: src/cmd/cmd_common.c:303
+msgid "Removing"
+msgstr "Entferne"
+
+#: src/cmd/cmd_common.c:306
+msgid "Installing"
+msgstr "Installiere"
+
+#: src/cmd/cmd_common.c:328
+msgid ""
+"package scripts cannot be isolated on this system; set "
+"require_script_sandbox = false in tulpar.conf to run them without isolation"
+msgstr ""
+"Paketskripte können auf diesem System nicht isoliert werden; setzen Sie "
+"require_script_sandbox = false in tulpar.conf, um sie ohne Isolierung "
+"auszuführen"
+
+#: src/cmd/cmd_common.c:355
+#, c-format
+msgid ""
+"the transaction needs about %s, but only %s is free on the target filesystem"
+msgstr ""
+"die Transaktion benötigt etwa %s, aber auf dem Zieldateisystem sind nur %s "
+"frei"
+
+#: src/cmd/cmd_common.c:358
+msgid ""
+"the estimate is conservative; free some space, or continue if you expect it "
+"to be enough"
+msgstr ""
+"die Schätzung ist vorsichtig; schaffen Sie Platz oder fahren Sie fort, wenn "
+"Sie davon ausgehen, dass es reicht"
+
+#: src/cmd/cmd_common.c:360
+msgid "Continue anyway?"
+msgstr "Trotzdem fortfahren?"
+
+#: src/cmd/cmd_common.c:398
+msgid "remove the dependent packages too, or pass --nodeps to remove anyway"
+msgstr ""
+"entfernen Sie auch die abhängigen Pakete oder verwenden Sie --nodeps, um "
+"trotzdem zu entfernen"
+
+#: src/cmd/cmd_common.c:403
+msgid "release a held package with 'tulpar unhold <name>'"
+msgstr "geschützte Pakete geben Sie mit 'tulpar unhold <Name>' frei"
+
+#: src/cmd/cmd_common.c:406
+msgid "circular dependency detected"
+msgstr "zirkuläre Abhängigkeit erkannt"
+
+#: src/cmd/cmd_common.c:409
+#, c-format
+msgid "cannot resolve dependencies: %s"
+msgstr "Abhängigkeiten können nicht aufgelöst werden: %s"
+
+#: src/cmd/cmd_common.c:413
+#, c-format
+msgid "failed to prepare the transaction: %s"
+msgstr "die Transaktion konnte nicht vorbereitet werden: %s"
+
+#: src/cmd/cmd_common.c:431
+msgid "Proceed with this transaction?"
+msgstr "Mit dieser Transaktion fortfahren?"
+
+#: src/cmd/cmd_common.c:455
+#, c-format
+msgid "signature verification failed: %s"
+msgstr "Signaturprüfung fehlgeschlagen: %s"
+
+#: src/cmd/cmd_common.c:457
+msgid "import the signing key with 'tulpar key add <file>'"
+msgstr "importieren Sie den Signaturschlüssel mit 'tulpar key add <Datei>'"
+
+#: src/cmd/cmd_common.c:462
+#, c-format
+msgid "installation failed: %s"
+msgstr "Installation fehlgeschlagen: %s"
+
+#: src/cmd/cmd_common.c:463 src/cmd/cmd_common.c:475 src/cmd/cmd_common.c:482
+msgid "changes made by this transaction were rolled back"
+msgstr "die Änderungen dieser Transaktion wurden zurückgenommen"
+
+#: src/cmd/cmd_common.c:466
+msgid ""
+"free space on the target filesystem; packages are unpacked into a temporary "
+"directory first, which uses RAM when /tmp is a tmpfs"
+msgstr ""
+"schaffen Sie Platz auf dem Zieldateisystem; Pakete werden zuerst in ein "
+"temporäres Verzeichnis entpackt, was RAM belegt, wenn /tmp ein tmpfs ist"
+
+#: src/cmd/cmd_common.c:474
+#, c-format
+msgid "cannot record the installation: %s"
+msgstr "die Installation kann nicht aufgezeichnet werden: %s"
+
+#: src/cmd/cmd_common.c:481
+#, c-format
+msgid "removal failed: %s"
+msgstr "Entfernung fehlgeschlagen: %s"
+
+#: src/cmd/cmd_common.c:487
+#, c-format
+msgid "failed to commit the transaction: %s"
+msgstr "die Transaktion konnte nicht abgeschlossen werden: %s"
+
+#: src/cmd/cmd_common.c:497 src/cmd/cmd_common.c:501
+msgid "Finished"
+msgstr "Fertig"
+
+#: src/cmd/cmd_common.c:497
+msgid "dry run; no changes were made"
+msgstr "Probelauf; es wurden keine Änderungen vorgenommen"
+
+#: src/cmd/cmd_common.c:502
+#, c-format
+msgid "%zu operation in %.2fs"
+msgid_plural "%zu operations in %.2fs"
+msgstr[0] "%zu Vorgang in %.2fs"
+msgstr[1] "%zu Vorgänge in %.2fs"
+
+#: src/cmd/cmd_download.c:77
+msgid "download requires a package name"
+msgstr "download benötigt einen Paketnamen"
+
+#: src/cmd/cmd_download.c:103
+#, c-format
+msgid "package %s not found in any configured repository"
+msgstr "Paket %s wurde in keinem konfigurierten Repository gefunden"
+
+#: src/cmd/cmd_download.c:104
+msgid ""
+"check the name, or see 'tulpar repo list' for the configured repositories"
+msgstr ""
+"prüfen Sie den Namen oder sehen Sie mit 'tulpar repo list' die "
+"konfigurierten Repositories"
+
+#: src/cmd/cmd_download.c:128
+#, c-format
+msgid "no build of %s matches the requested criteria"
+msgstr "kein Build von %s entspricht den angegebenen Kriterien"
+
+#: src/cmd/cmd_download.c:146 src/cmd/resolve.c:182
+msgid "Downloading"
+msgstr "Lade herunter"
+
+#: src/cmd/cmd_download.c:162 src/cmd/resolve.c:188
+#, c-format
+msgid "cannot download %s: %s"
+msgstr "%s kann nicht heruntergeladen werden: %s"
+
+#: src/cmd/cmd_files.c:62 src/cmd/cmd_hold.c:57 src/cmd/cmd_mark.c:64
+#: src/cmd/cmd_why.c:63
+msgid "a package name is required"
+msgstr "ein Paketname ist erforderlich"
+
+#: src/cmd/cmd_files.c:90 src/cmd/cmd_graph.c:98 src/cmd/cmd_hold.c:85
+#: src/cmd/cmd_mark.c:104 src/cmd/cmd_reinstall.c:50 src/cmd/cmd_reinstall.c:70
+#: src/cmd/cmd_remove.c:170 src/cmd/cmd_upgrade.c:146 src/cmd/cmd_why.c:91
+#, c-format
+msgid "package %s is not installed"
+msgstr "Paket %s ist nicht installiert"
+
+#: src/cmd/cmd_graph.c:79 src/cmd/cmd_graph.c:129
+msgid "failed to allocate dependency graph"
+msgstr "der Abhängigkeitsgraph konnte nicht angelegt werden"
+
+#: src/cmd/cmd_graph.c:115
+#, c-format
+msgid "failed to resolve dependency graph for %s"
+msgstr "der Abhängigkeitsgraph für %s konnte nicht aufgelöst werden"
+
+#: src/cmd/cmd_graph.c:172
+msgid "failed to export the dependency graph"
+msgstr "der Abhängigkeitsgraph konnte nicht exportiert werden"
+
+#: src/cmd/cmd_graph.c:181
+#, c-format
+msgid "failed to open output file: %s"
+msgstr "die Ausgabedatei konnte nicht geöffnet werden: %s"
+
+#: src/cmd/cmd_graph.c:187
+msgid "Exported"
+msgstr "Exportiert"
+
+#: src/cmd/cmd_graph.c:187
+#, c-format
+msgid "dependency graph to %s"
+msgstr "Abhängigkeitsgraph nach %s"
+
+#: src/cmd/cmd_history.c:35
+msgid "rollback"
+msgstr "Rücknahme"
+
+#: src/cmd/cmd_history.c:76
+#, c-format
+msgid "invalid --since value: %s"
+msgstr "ungültiger Wert für --since: %s"
+
+#: src/cmd/cmd_history.c:77
+msgid "use 30m, 12h, 7d, 2w, YYYY-MM-DD or @<unix time>"
+msgstr "verwenden Sie 30m, 12h, 7d, 2w, JJJJ-MM-TT oder @<Unix-Zeit>"
+
+#: src/cmd/cmd_history.c:126
+msgid "no history recorded"
+msgstr "kein Verlauf aufgezeichnet"
+
+#: src/cmd/cmd_history.c:127
+msgid "no history entries match the filters"
+msgstr "keine Verlaufseinträge entsprechen den Filtern"
+
+#: src/cmd/cmd_history.c:150 src/cmd/cmd_history.c:151
+#: src/cmd/cmd_history.c:166
+msgid "failed"
+msgstr "fehlgeschlagen"
+
+#: src/cmd/cmd_hold.c:80 src/cmd/cmd_stats.c:114
+msgid "Held"
+msgstr "Gesperrt"
+
+#: src/cmd/cmd_hold.c:80
+msgid "Released"
+msgstr "Freigegeben"
+
+#: src/cmd/cmd_hold.c:87
+#, c-format
+msgid "failed to update hold state for %s: %s"
+msgstr "der Sperrstatus von %s konnte nicht geändert werden: %s"
+
+#: src/cmd/cmd_info.c:61 src/cmd/cmd_info.c:345
+msgid "not installed"
+msgstr "nicht installiert"
+
+#: src/cmd/cmd_info.c:90
+msgid "Status"
+msgstr "Status"
+
+#: src/cmd/cmd_info.c:90
+msgid "Type"
+msgstr "Typ"
+
+#: src/cmd/cmd_info.c:90
+msgid "Architecture"
+msgstr "Architektur"
+
+#: src/cmd/cmd_info.c:90
+msgid "Maintainer"
+msgstr "Betreuer"
+
+#: src/cmd/cmd_info.c:91
+msgid "License"
+msgstr "Lizenz"
+
+#: src/cmd/cmd_info.c:91
+msgid "Homepage"
+msgstr "Webseite"
+
+#: src/cmd/cmd_info.c:91
+msgid "Depends on"
+msgstr "Hängt ab von"
+
+#: src/cmd/cmd_info.c:91
+msgid "Provides"
+msgstr "Stellt bereit"
+
+#: src/cmd/cmd_info.c:92
+msgid "Conflicts"
+msgstr "Konflikte"
+
+#: src/cmd/cmd_info.c:92
+msgid "Replaces"
+msgstr "Ersetzt"
+
+#: src/cmd/cmd_info.c:92
+msgid "Required by"
+msgstr "Benötigt von"
+
+#: src/cmd/cmd_info.c:92
+msgid "Versions"
+msgstr "Versionen"
+
+#: src/cmd/cmd_info.c:185 src/cmd/cmd_reinstall.c:43
+#, c-format
+msgid "failed to read package %s: %s"
+msgstr "Paket %s konnte nicht gelesen werden: %s"
+
+#: src/cmd/cmd_info.c:194
+#, c-format
+msgid "archive, %s %s is installed"
+msgstr "Archiv, %s %s ist installiert"
+
+#: src/cmd/cmd_info.c:197
+msgid "archive, not installed"
+msgstr "Archiv, nicht installiert"
+
+#: src/cmd/cmd_info.c:255
+msgid "info requires a package name"
+msgstr "info benötigt einen Paketnamen"
+
+#: src/cmd/cmd_info.c:282
+msgid "installed explicitly"
+msgstr "explizit installiert"
+
+#: src/cmd/cmd_info.c:283
+msgid "installed as a dependency"
+msgstr "als Abhängigkeit installiert"
+
+#: src/cmd/cmd_info.c:284 src/cmd/cmd_list.c:169 src/cmd/cmd_list.c:170
+#: src/cmd/cmd_list.c:181
+msgid "held"
+msgstr "gesperrt"
+
+#: src/cmd/cmd_info.c:317
+#, c-format
+msgid "package %s not found in local database or remote repositories"
+msgstr ""
+"Paket %s wurde weder in der lokalen Datenbank noch in den entfernten "
+"Repositories gefunden"
+
+#: src/cmd/cmd_install.c:37
+msgid "Marked"
+msgstr "Markiert"
+
+#: src/cmd/cmd_install.c:37
+#, c-format
+msgid "%s as installed explicitly"
+msgstr "%s als explizit installiert"
+
+#: src/cmd/cmd_install.c:40
+#, c-format
+msgid "cannot mark %s as installed explicitly: %s"
+msgstr "%s kann nicht als explizit installiert markiert werden: %s"
+
+#: src/cmd/cmd_install.c:97
+#, c-format
+msgid "--provider requires name=package (got %s)"
+msgstr "--provider benötigt Name=Paket (erhalten: %s)"
+
+#: src/cmd/cmd_install.c:136
+msgid "install requires at least one package name or .apg file"
+msgstr "install benötigt mindestens einen Paketnamen oder eine .apg-Datei"
+
+#: src/cmd/cmd_install.c:144
+msgid "--sign requires exactly one local .apg file, URL, or git-url argument"
+msgstr ""
+"--sign benötigt genau eine lokale .apg-Datei, URL oder Git-URL als Argument"
+
+#: src/cmd/cmd_install.c:152 src/cmd/cmd_reinstall.c:146
+#: src/cmd/cmd_remove.c:147 src/cmd/cmd_rollback.c:67 src/cmd/cmd_upgrade.c:115
+msgid "failed to resolve destination root"
+msgstr "das Zielverzeichnis konnte nicht aufgelöst werden"
+
+#: src/cmd/cmd_install.c:164
+msgid "failed to prepare destination database directory"
+msgstr "das Datenbankverzeichnis des Ziels konnte nicht vorbereitet werden"
+
+#: src/cmd/cmd_install.c:202 src/cmd/cmd_reinstall.c:197
+#: src/cmd/cmd_upgrade.c:224
+msgid "Resolved"
+msgstr "Aufgelöst"
+
+#: src/cmd/cmd_install.c:203 src/cmd/cmd_reinstall.c:198
+#: src/cmd/cmd_upgrade.c:225
+#, c-format
+msgid "%zu package in %.2fs"
+msgid_plural "%zu packages in %.2fs"
+msgstr[0] "%zu Paket in %.2fs"
+msgstr[1] "%zu Pakete in %.2fs"
+
+#: src/cmd/cmd_install.c:225
+#, c-format
+msgid "failed to place signature from %s at %s"
+msgstr "die Signatur aus %s konnte nicht nach %s gelegt werden"
+
+#: src/cmd/cmd_install.c:243 src/cmd/cmd_orphans.c:93
+#: src/cmd/cmd_reinstall.c:191 src/cmd/cmd_remove.c:185
+#: src/cmd/cmd_rollback.c:143 src/cmd/cmd_upgrade.c:234
+msgid "failed to allocate transaction"
+msgstr "die Transaktion konnte nicht angelegt werden"
+
+#: src/cmd/cmd_key.c:68
+msgid "key add requires a path to the new public key"
+msgstr "key add benötigt den Pfad zum neuen öffentlichen Schlüssel"
+
+#: src/cmd/cmd_key.c:76
+#, c-format
+msgid "failed to load trusted keyring from %s"
+msgstr "der Schlüsselbund konnte nicht aus %s geladen werden"
+
+#: src/cmd/cmd_key.c:86
+msgid "Imported"
+msgstr "Importiert"
+
+#: src/cmd/cmd_key.c:86
+#, c-format
+msgid "key %s into %s"
+msgstr "Schlüssel %s nach %s"
+
+#: src/cmd/cmd_key.c:89
+msgid "key was not added; it must be endorsed by an already trusted key"
+msgstr ""
+"der Schlüssel wurde nicht hinzugefügt; er muss von einem bereits vertrauten "
+"Schlüssel beglaubigt sein"
+
+#: src/cmd/cmd_key.c:107
+#, c-format
+msgid "no trusted keys: %s does not exist"
+msgstr "keine vertrauenswürdigen Schlüssel: %s existiert nicht"
+
+#: src/cmd/cmd_key.c:137
+#, c-format
+msgid "no trusted keys in %s"
+msgstr "keine vertrauenswürdigen Schlüssel in %s"
+
+#: src/cmd/cmd_key.c:180
+msgid "unknown key subcommand; expected add or list"
+msgstr "unbekannter key-Unterbefehl; erwartet wird add oder list"
+
+#: src/cmd/cmd_list.c:84
+msgid "--names and --json cannot be combined"
+msgstr "--names und --json lassen sich nicht kombinieren"
+
+#: src/cmd/cmd_list.c:91
+msgid "--explicit and --deps cannot be combined"
+msgstr "--explicit und --deps lassen sich nicht kombinieren"
+
+#: src/cmd/cmd_list.c:138
+msgid "out of memory"
+msgstr "nicht genügend Speicher"
+
+#: src/cmd/cmd_list.c:152
+msgid "no installed packages matched"
+msgstr "keine passenden installierten Pakete"
+
+#: src/cmd/cmd_list.c:154
+msgid "no packages installed"
+msgstr "keine Pakete installiert"
+
+#: src/cmd/cmd_list.c:191
+#, c-format
+msgid "%zu package"
+msgid_plural "%zu packages"
+msgstr[0] "%zu Paket"
+msgstr[1] "%zu Pakete"
+
+#: src/cmd/cmd_mark.c:71
+msgid "exactly one of --auto or --explicit is required"
+msgstr "genau eine der Optionen --auto oder --explicit ist erforderlich"
+
+#: src/cmd/cmd_mark.c:98
+msgid "Marked auto"
+msgstr "Als automatisch markiert"
+
+#: src/cmd/cmd_mark.c:98
+msgid "Marked explicit"
+msgstr "Als explizit markiert"
+
+#: src/cmd/cmd_mark.c:106
+#, c-format
+msgid "failed to mark %s: %s"
+msgstr "%s konnte nicht markiert werden: %s"
+
+#: src/cmd/cmd_orphans.c:80
+msgid "no orphaned packages found"
+msgstr "keine verwaisten Pakete gefunden"
+
+#: src/cmd/cmd_orphans.c:86
+#, c-format
+msgid "%d orphaned package found"
+msgid_plural "%d orphaned packages found"
+msgstr[0] "%d verwaistes Paket gefunden"
+msgstr[1] "%d verwaiste Pakete gefunden"
+
+#: src/cmd/cmd_owns.c:189
+msgid "a file path is required"
+msgstr "ein Dateipfad ist erforderlich"
+
+#: src/cmd/cmd_owns.c:229
+#, c-format
+msgid "no package owns %s"
+msgstr "kein Paket besitzt %s"
+
+#: src/cmd/cmd_reinstall.c:58
+#, c-format
+msgid "%s in %s is not the installed version"
+msgstr "%s in %s ist nicht die installierte Version"
+
+#: src/cmd/cmd_reinstall.c:60
+msgid "use 'tulpar install' to change the version"
+msgstr "mit 'tulpar install' lässt sich die Version ändern"
+
+#: src/cmd/cmd_reinstall.c:79 src/cmd/cmd_upgrade.c:165
+#, c-format
+msgid "%s %s not found in any configured repo"
+msgstr "%s %s wurde in keinem konfigurierten Repository gefunden"
+
+#: src/cmd/cmd_reinstall.c:81
+msgid "pass the .apg file of this version to reinstall without a repository"
+msgstr ""
+"übergeben Sie die .apg-Datei dieser Version, um ohne Repository neu zu "
+"installieren"
+
+#: src/cmd/cmd_reinstall.c:137
+msgid "a package name or file is required"
+msgstr "ein Paketname oder eine Datei ist erforderlich"
+
+#: src/cmd/cmd_reinstall.c:208
+#, c-format
+msgid "cannot queue %s: %s"
+msgstr "%s kann nicht in die Transaktion aufgenommen werden: %s"
+
+#: src/cmd/cmd_remove.c:82
+#, c-format
+msgid "removing %s (--nodeps) although %s depends on it"
+msgstr "%s wird entfernt (--nodeps), obwohl %s davon abhängt"
+
+#: src/cmd/cmd_remove.c:84
+#, c-format
+msgid "%s may stop working"
+msgstr "%s funktioniert möglicherweise nicht mehr"
+
+#: src/cmd/cmd_remove.c:139
+msgid "remove requires at least one package name"
+msgstr "remove benötigt mindestens einen Paketnamen"
+
+#: src/cmd/cmd_repo.c:85
+msgid "repo add requires a URL"
+msgstr "repo add benötigt eine URL"
+
+#: src/cmd/cmd_repo.c:93 src/cmd/cmd_repo.c:156 src/cmd/cmd_repo.c:254
+msgid "could not determine a repo list file to write to"
+msgstr "es konnte keine Repository-Listendatei zum Schreiben bestimmt werden"
+
+#: src/cmd/cmd_repo.c:99
+msgid "Added"
+msgstr "Hinzugefügt"
+
+#: src/cmd/cmd_repo.c:99
+#, c-format
+msgid "repository %s to %s"
+msgstr "Repository %s zu %s"
+
+#: src/cmd/cmd_repo.c:101
+#, c-format
+msgid "failed to add repo to %s"
+msgstr "das Repository konnte nicht zu %s hinzugefügt werden"
+
+#: src/cmd/cmd_repo.c:148
+msgid "repo remove requires a URL"
+msgstr "repo remove benötigt eine URL"
+
+#: src/cmd/cmd_repo.c:162
+msgid "Removed"
+msgstr "Entfernt"
+
+#: src/cmd/cmd_repo.c:162
+#, c-format
+msgid "repository %s from %s"
+msgstr "Repository %s aus %s"
+
+#: src/cmd/cmd_repo.c:164 src/cmd/cmd_repo.c:278
+#, c-format
+msgid "repo %s was not found in %s"
+msgstr "Repository %s wurde in %s nicht gefunden"
+
+#: src/cmd/cmd_repo.c:218
+#, c-format
+msgid "repo %s requires a URL%s"
+msgstr "repo %s benötigt eine URL%s"
+
+#: src/cmd/cmd_repo.c:219
+msgid " and a number"
+msgstr " und eine Zahl"
+
+#: src/cmd/cmd_repo.c:231
+#, c-format
+msgid "invalid priority: %s"
+msgstr "ungültige Priorität: %s"
+
+#: src/cmd/cmd_repo.c:232
+msgid "use a whole number from 0 to 100000, lower is consulted first"
+msgstr ""
+"verwenden Sie eine ganze Zahl von 0 bis 100000, kleinere Werte werden zuerst "
+"abgefragt"
+
+#: src/cmd/cmd_repo.c:260
+#, c-format
+msgid "cannot modify %s"
+msgstr "%s kann nicht geändert werden"
+
+#: src/cmd/cmd_repo.c:261
+msgid "run as root to change the system repository list"
+msgstr "als root ausführen, um die systemweite Repository-Liste zu ändern"
+
+#: src/cmd/cmd_repo.c:273
+msgid "Prioritised"
+msgstr "Priorität gesetzt"
+
+#: src/cmd/cmd_repo.c:274
+msgid "Enabled"
+msgstr "Aktiviert"
+
+#: src/cmd/cmd_repo.c:275
+msgid "Disabled"
+msgstr "Deaktiviert"
+
+#: src/cmd/cmd_repo.c:276
+#, c-format
+msgid "repository %s in %s"
+msgstr "Repository %s in %s"
+
+#: src/cmd/cmd_repo.c:311
+msgid "no repositories configured"
+msgstr "keine Repositories konfiguriert"
+
+#: src/cmd/cmd_repo.c:322
+msgid "cannot update repository indexes in offline mode"
+msgstr "Repository-Indizes können im Offline-Modus nicht aktualisiert werden"
+
+#: src/cmd/cmd_repo.c:332
+msgid "Updated"
+msgstr "Aktualisiert"
+
+#: src/cmd/cmd_repo.c:332
+#, c-format
+msgid "index of %s"
+msgstr "Index von %s"
+
+#: src/cmd/cmd_repo.c:335
+#, c-format
+msgid "failed to update %s: %s"
+msgstr "%s konnte nicht aktualisiert werden: %s"
+
+#: src/cmd/cmd_repo.c:350
+msgid ""
+"repo requires a sub-action: add, remove, enable, disable, priority, list, "
+"update"
+msgstr ""
+"repo benötigt eine Aktion: add, remove, enable, disable, priority, list, "
+"update"
+
+#: src/cmd/cmd_repo.c:419
+#, c-format
+msgid "unknown repo sub-action: %s"
+msgstr "unbekannte repo-Aktion: %s"
+
+#: src/cmd/cmd_rollback.c:99
+msgid "no past successful operations to undo"
+msgstr "keine früheren erfolgreichen Vorgänge zum Rückgängigmachen"
+
+#: src/cmd/cmd_rollback.c:188
+#, c-format
+msgid "failed to re-fetch removed package %s for rollback"
+msgstr ""
+"das entfernte Paket %s konnte für die Rücknahme nicht erneut geladen werden"
+
+#: src/cmd/cmd_search.c:97
+msgid "search requires a query string"
+msgstr "search benötigt einen Suchbegriff"
+
+#: src/cmd/cmd_search.c:158
+#, c-format
+msgid "no packages match '%s'"
+msgstr "keine Pakete passen zu '%s'"
+
+#: src/cmd/cmd_search.c:185
+#, c-format
+msgid "Installed (%d)"
+msgstr "Installiert (%d)"
+
+#: src/cmd/cmd_search.c:201
+msgid "installed"
+msgstr "installiert"
+
+#: src/cmd/cmd_search.c:203
+#, c-format
+msgid "installed %s"
+msgstr "%s installiert"
+
+#: src/cmd/cmd_search.c:215
+#, c-format
+msgid "Available (%zu)"
+msgstr "Verfügbar (%zu)"
+
+#: src/cmd/cmd_stats.c:108
+msgid "failed to read database statistics"
+msgstr "die Datenbankstatistik konnte nicht gelesen werden"
+
+#: src/cmd/cmd_stats.c:113
+msgid "Explicit"
+msgstr "Explizit"
+
+#: src/cmd/cmd_stats.c:113
+msgid "Dependencies"
+msgstr "Abhängigkeiten"
+
+#: src/cmd/cmd_stats.c:114
+msgid "Orphans"
+msgstr "Verwaist"
+
+#: src/cmd/cmd_stats.c:114
+msgid "Files"
+msgstr "Dateien"
+
+#: src/cmd/cmd_upgrade.c:106
+msgid "--exclude only applies to a full upgrade (no target package)"
+msgstr ""
+"--exclude gilt nur für eine vollständige Aktualisierung (ohne Zielpaket)"
+
+#: src/cmd/cmd_upgrade.c:168 src/cmd/resolve.c:868
+#, c-format
+msgid "%s %s is already installed and up to date"
+msgstr "%s %s ist bereits installiert und aktuell"
+
+#: src/cmd/cmd_upgrade.c:213
+msgid "nothing to upgrade"
+msgstr "nichts zu aktualisieren"
+
+#: src/cmd/cmd_verify.c:26
+#, c-format
+msgid "%s: the package record cannot be read"
+msgstr "%s: der Paketeintrag kann nicht gelesen werden"
+
+#: src/cmd/cmd_verify.c:29
+#, c-format
+msgid "%s: the record is stored under another name (%s)"
+msgstr "%s: der Eintrag ist unter einem anderen Namen gespeichert (%s)"
+
+#: src/cmd/cmd_verify.c:33
+#, c-format
+msgid "%s: a file list exists but the package is not installed"
+msgstr "%s: eine Dateiliste existiert, aber das Paket ist nicht installiert"
+
+#: src/cmd/cmd_verify.c:37
+#, c-format
+msgid "%s: %s is listed but has no recorded owner"
+msgstr "%s: %s ist aufgelistet, hat aber keinen eingetragenen Besitzer"
+
+#: src/cmd/cmd_verify.c:40
+#, c-format
+msgid "%s: %s is listed but recorded as owned by %s"
+msgstr "%s: %s ist aufgelistet, aber als Eigentum von %s eingetragen"
+
+#: src/cmd/cmd_verify.c:44
+#, c-format
+msgid "%s: recorded as the owner of %s but not installed"
+msgstr "%s: als Besitzer von %s eingetragen, aber nicht installiert"
+
+#: src/cmd/cmd_verify.c:48
+#, c-format
+msgid "%s: recorded as the owner of %s but does not list it"
+msgstr "%s: als Besitzer von %s eingetragen, führt die Datei aber nicht auf"
+
+#: src/cmd/cmd_verify.c:52
+#, c-format
+msgid "%s: unknown database inconsistency"
+msgstr "%s: unbekannte Inkonsistenz der Datenbank"
+
+#: src/cmd/cmd_verify.c:65 src/cmd/cmd_verify.c:85
+msgid "Verified"
+msgstr "Geprüft"
+
+#: src/cmd/cmd_verify.c:65
+msgid "the package database is consistent"
+msgstr "die Paketdatenbank ist konsistent"
+
+#: src/cmd/cmd_verify.c:71
+msgid "reinstall the affected packages to rebuild their records"
+msgstr ""
+"installieren Sie die betroffenen Pakete neu, um ihre Einträge "
+"wiederherzustellen"
+
+#: src/cmd/cmd_verify.c:85
+msgid "all installed packages are intact"
+msgstr "alle installierten Pakete sind unversehrt"
+
+#: src/cmd/cmd_verify.c:95
+#, c-format
+msgid "%s: %d file is missing"
+msgid_plural "%s: %d files are missing"
+msgstr[0] "%s: %d Datei fehlt"
+msgstr[1] "%s: %d Dateien fehlen"
+
+#: src/cmd/cmd_verify.c:101
+msgid "reinstall the affected packages to restore their files"
+msgstr ""
+"installieren Sie die betroffenen Pakete neu, um ihre Dateien "
+"wiederherzustellen"
+
+#: src/cmd/cmd_why.c:121
+#, c-format
+msgid "%s was installed explicitly"
+msgstr "%s wurde explizit installiert"
+
+#: src/cmd/cmd_why.c:124
+msgid "also required by:"
+msgstr "wird außerdem benötigt von:"
+
+#: src/cmd/cmd_why.c:132
+#, c-format
+msgid "%s is not required by any package"
+msgstr "%s wird von keinem Paket benötigt"
+
+#: src/cmd/cmd_why.c:133
+msgid "it is an orphan and can be removed with 'tulpar orphans'"
+msgstr "es ist verwaist und kann mit 'tulpar orphans' entfernt werden"
+
+#: src/cmd/cmd_why.c:138
+#, c-format
+msgid "%s was installed as a dependency"
+msgstr "%s wurde als Abhängigkeit installiert"
+
+#: src/cmd/cmd_why.c:139
+msgid "required by:"
+msgstr "benötigt von:"
+
+#: src/cmd/cmd_why.c:145
+msgid "chain:"
+msgstr "Kette:"
+
+#: src/cmd/cmd_why.c:151
+msgid ""
+"only unused packages require it, so it can be removed with 'tulpar orphans'"
+msgstr ""
+"nur ungenutzte Pakete benötigen es, daher kann es mit 'tulpar orphans' "
+"entfernt werden"
+
+#: src/cmd/resolve.c:204
+#, c-format
+msgid "%s is not a valid package: %s"
+msgstr "%s ist kein gültiges Paket: %s"
+
+#: src/cmd/resolve.c:234
+#, c-format
+msgid "cannot fetch %s in offline mode"
+msgstr "%s kann im Offline-Modus nicht abgerufen werden"
+
+#: src/cmd/resolve.c:251
+#, c-format
+msgid "failed to create a temporary directory for %s"
+msgstr "für %s konnte kein temporäres Verzeichnis angelegt werden"
+
+#: src/cmd/resolve.c:285
+#, c-format
+msgid "failed to clone %s"
+msgstr "%s konnte nicht geklont werden"
+
+#: src/cmd/resolve.c:295
+#, c-format
+msgid "%s does not contain a metadata.json at its root"
+msgstr "%s enthält keine metadata.json im Wurzelverzeichnis"
+
+#: src/cmd/resolve.c:336
+#, c-format
+msgid "failed to archive the cloned repository at %s"
+msgstr "das geklonte Repository unter %s konnte nicht archiviert werden"
+
+#: src/cmd/resolve.c:344
+#, c-format
+msgid "%s did not produce a valid package: %s"
+msgstr "%s hat kein gültiges Paket erzeugt: %s"
+
+#: src/cmd/resolve.c:432
+#, c-format
+msgid ""
+"'%s' is provided by %d packages; use --provider %s=<package> to pick one"
+msgstr ""
+"'%s' wird von %d Paketen bereitgestellt; wählen Sie mit --provider "
+"%s=<Paket> eines aus"
+
+#: src/cmd/resolve.c:564
+#, c-format
+msgid "cannot download %s %s from %s: %s"
+msgstr "%s %s kann nicht von %s heruntergeladen werden: %s"
+
+#: src/cmd/resolve.c:574
+#, c-format
+msgid "%s %s from %s is not a valid package: %s"
+msgstr "%s %s von %s ist kein gültiges Paket: %s"
+
+#: src/cmd/resolve.c:665
+#, c-format
+msgid "skipping installation of %s (--nodeps)"
+msgstr "Installation von %s wird übersprungen (--nodeps)"
+
+#: src/cmd/resolve.c:667
+#, c-format
+msgid "%s depends on %s and may not work without it"
+msgstr "%s hängt von %s ab und funktioniert ohne es möglicherweise nicht"
+
+#: src/cmd/resolve.c:714
+#, c-format
+msgid "%s requires %s, which was not found in any configured repository"
+msgstr "%s benötigt %s, das in keinem konfigurierten Repository gefunden wurde"
+
+#: src/cmd/resolve.c:719 src/cmd/resolve.c:891
+msgid "no repositories are configured; add one with 'tulpar repo add <url>'"
+msgstr ""
+"es sind keine Repositories konfiguriert; fügen Sie eines mit 'tulpar repo "
+"add <URL>' hinzu"
+
+#: src/cmd/resolve.c:772
+#, c-format
+msgid "%s %s is already installed"
+msgstr "%s %s ist bereits installiert"
+
+#: src/cmd/resolve.c:775
+#, c-format
+msgid "skipping %s %s: the installed version %s is newer"
+msgstr "%s %s wird übersprungen: die installierte Version %s ist neuer"
+
+#: src/cmd/resolve.c:834 src/cmd/resolve.c:845
+#, c-format
+msgid "failed to install from %s"
+msgstr "Installation aus %s fehlgeschlagen"
+
+#: src/cmd/resolve.c:856
+#, c-format
+msgid "failed to read package archive %s: %s"
+msgstr "das Paketarchiv %s konnte nicht gelesen werden: %s"
+
+#: src/cmd/resolve.c:888
+#, c-format
+msgid "package %s not found in any configured repo"
+msgstr "Paket %s wurde in keinem konfigurierten Repository gefunden"
+
+#: src/cmd/resolve.c:894
+msgid "offline mode: packages cannot be looked up in the repositories"
+msgstr ""
+"Offline-Modus: Pakete lassen sich nicht in den Repositories nachschlagen"
+
+#: src/cmd/resolve.c:897
+msgid "check the name, or find it with 'tulpar search <query>'"
+msgstr ""
+"prüfen Sie den Namen oder suchen Sie das Paket mit 'tulpar search "
+"<Suchbegriff>'"
+
+#: src/cmd/resolve.c:994
+#, c-format
+msgid "dependency conflict: %s"
+msgstr "Abhängigkeitskonflikt: %s"
+
+#: src/cmd/resolve.c:999
+msgid "dependency conflict detected"
+msgstr "Abhängigkeitskonflikt erkannt"
+
+#: src/util/paths.c:144
+msgid "operation requires root privileges (try with sudo)"
+msgstr "der Vorgang erfordert Root-Rechte (versuchen Sie es mit sudo)"
