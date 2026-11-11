@@ -1,8 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // SPDX-FileCopyrightText: 2026 AnmiTaliDev <anmitalidev@nuros.org>
 
+#include <dirent.h>
+#include <limits.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include <apg/keyring.h>
 
@@ -89,10 +93,57 @@ run_add(int argc, char **argv)
 }
 
 static int
+compare_names(const void *a, const void *b)
+{
+    return strcmp(*(char *const *)a, *(char *const *)b);
+}
+
+static int
 run_list(void)
 {
-    printf(_("Trusted keyring directory: %s\n"), TULPAR_KEYRING_DIR);
-    ui_info(_("use your platform's file listing to inspect individual keys"));
+    DIR *dir = opendir(TULPAR_KEYRING_DIR);
+    if (!dir)
+    {
+        ui_infof(_("no trusted keys: %s does not exist"), TULPAR_KEYRING_DIR);
+        return 0;
+    }
+
+    char **names = NULL;
+    size_t count = 0;
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL)
+    {
+        if (entry->d_name[0] == '.')
+            continue;
+
+        char path[PATH_MAX];
+        struct stat st;
+        snprintf(path, sizeof(path), "%s/%s", TULPAR_KEYRING_DIR,
+                 entry->d_name);
+        if (stat(path, &st) != 0 || !S_ISREG(st.st_mode))
+            continue;
+
+        char **tmp = realloc(names, (count + 1) * sizeof(*names));
+        if (!tmp)
+            break;
+        names = tmp;
+        names[count] = strdup(entry->d_name);
+        if (names[count])
+            count++;
+    }
+    closedir(dir);
+
+    if (count == 0)
+        ui_infof(_("no trusted keys in %s"), TULPAR_KEYRING_DIR);
+    else
+        qsort(names, count, sizeof(*names), compare_names);
+
+    for (size_t i = 0; i < count; i++)
+    {
+        printf("%s\n", names[i]);
+        free(names[i]);
+    }
+    free(names);
     return 0;
 }
 
