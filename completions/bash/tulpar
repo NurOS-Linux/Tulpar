@@ -42,7 +42,7 @@ _tulpar()
 
     commands="install remove uninstall upgrade search list info show verify \
 orphans autoremove hold unhold history audit log repo download key graph clean \
-autoclean rollback undo owns files why mark reinstall stats"
+autoclean rollback undo owns files why mark reinstall stats help"
 
     if [ "$COMP_CWORD" -eq 1 ]; then
         COMPREPLY=($(compgen -W "$commands -h --help -V --version" -- "$cur"))

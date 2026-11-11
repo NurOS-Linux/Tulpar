@@ -3,7 +3,7 @@
 set -l tulpar_commands install remove uninstall upgrade search list info \
     show verify orphans autoremove hold unhold history audit log repo \
     download key graph clean autoclean rollback undo owns files why mark \
-    reinstall stats
+    reinstall stats help
 
 complete -c tulpar -f
 
@@ -54,6 +54,8 @@ complete -c tulpar -n "not __fish_seen_subcommand_from $tulpar_commands" \
     -a "reinstall" -d "reinstall installed packages"
 complete -c tulpar -n "not __fish_seen_subcommand_from $tulpar_commands" \
     -a "stats" -d "show package database statistics"
+complete -c tulpar -n "not __fish_seen_subcommand_from $tulpar_commands" \
+    -a "help" -d "show the usage of tulpar or of one command"
 
 function __tulpar_dest_args
     set -l tokens (commandline -opc)

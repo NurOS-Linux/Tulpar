@@ -35,6 +35,7 @@ _tulpar_commands()
         'mark:mark a package as automatic or explicit'
         'reinstall:reinstall installed packages'
         'stats:show package database statistics'
+        'help:show the usage of tulpar or of one command'
     )
     _describe 'command' commands
 }

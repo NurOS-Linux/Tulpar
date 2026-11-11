@@ -93,6 +93,19 @@ main(int argc, char **argv)
     }
 
     const char *token = normalize_command_token(argv[1]);
+    char *help_argv[] = {argv[0], argc > 2 ? argv[2] : NULL, "--help", NULL};
+    if (token && strcmp(token, "help") == 0)
+    {
+        if (argc == 2)
+        {
+            print_usage();
+            return 0;
+        }
+        argv = help_argv;
+        argc = 3;
+        token = normalize_command_token(argv[1]);
+    }
+
     const struct command *cmd = command_lookup(token);
     if (!cmd)
     {
