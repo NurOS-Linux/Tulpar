@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tulpar 0.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-10 20:43+0500\n"
-"PO-Revision-Date: 2026-11-10 15:00+0500\n"
+"POT-Creation-Date: 2026-11-11 05:57+0500\n"
+"PO-Revision-Date: 2026-11-11 15:00+0500\n"
 "Last-Translator: AnmiTaliDev <anmitalidev@nuros.org>\n"
 "Language-Team: Kazakh\n"
 "Language: kk\n"
@@ -30,7 +30,11 @@ msgstr ""
 msgid "commands:\n"
 msgstr "командалар:\n"
 
-#: src/main.c:44
+#: src/main.c:45
+msgid "show the usage of tulpar or of one command"
+msgstr "tulpar немесе бір команда бойынша анықтаманы көрсету"
+
+#: src/main.c:47
 #, c-format
 msgid ""
 "\n"
@@ -39,90 +43,90 @@ msgstr ""
 "\n"
 "жаһандық жалаушалар:\n"
 
-#: src/main.c:45
+#: src/main.c:48
 #, c-format
 msgid "  -h, --help              show this help text\n"
 msgstr "  -h, --help              осы анықтаманы көрсету\n"
 
-#: src/main.c:46
+#: src/main.c:49
 #, c-format
 msgid "  -V, --version           show the tulpar version\n"
 msgstr "  -V, --version           tulpar нұсқасын көрсету\n"
 
-#: src/main.c:47
+#: src/main.c:50
 #, c-format
 msgid "  -y, --yes               assume yes on confirmation prompts\n"
 msgstr "  -y, --yes               сұрауларды автоматты түрде растау\n"
 
-#: src/main.c:48
+#: src/main.c:51
 #, c-format
 msgid "  -j, --json              machine-readable output\n"
 msgstr "  -j, --json              машина оқи алатын форматта шығару\n"
 
-#: src/main.c:49
+#: src/main.c:52
 #, c-format
 msgid "  -d, --dest <path>       operate against an alternate root\n"
 msgstr "  -d, --dest <path>       басқа түбірде жұмыс істеу\n"
 
-#: src/main.c:50
+#: src/main.c:53
 #, c-format
 msgid "  -q, --quiet             suppress informational output\n"
 msgstr "  -q, --quiet             ақпараттық шығаруды басу\n"
 
-#: src/main.c:51
+#: src/main.c:54
 #, c-format
 msgid "      --verbose           enable debug output\n"
 msgstr "      --verbose           жөндеу шығысын қосу\n"
 
-#: src/main.c:52
+#: src/main.c:55
 #, c-format
 msgid "      --offline           never touch the network, use cached indexes\n"
 msgstr ""
 "      --offline           желіге қосылмау, индекстердің кэшін қолдану\n"
 
-#: src/main.c:54
+#: src/main.c:57
 #, c-format
 msgid "      --color <when>      colorize output: auto, always, never\n"
 msgstr "      --color <қашан>     түсті шығару: auto, always, never\n"
 
-#: src/main.c:91
+#: src/main.c:94
 #, c-format
 msgid "tulpar %s\n"
 msgstr "tulpar %s\n"
 
-#: src/main.c:101 src/cmd/cmd_common.c:32
+#: src/main.c:117 src/cmd/cmd_common.c:55
 #, c-format
 msgid "unknown option: %s"
 msgstr "беймәлім опция: %s"
 
-#: src/main.c:104
+#: src/main.c:120
 #, c-format
 msgid "unknown command: %s"
 msgstr "беймәлім команда: %s"
 
-#: src/main.c:107 src/cmd/cmd_common.c:69
+#: src/main.c:123 src/cmd/cmd_common.c:92
 #, c-format
 msgid "did you mean '%s'?"
 msgstr "'%s' деп айтқыңыз келді ме?"
 
-#: src/main.c:109
+#: src/main.c:125
 msgid "run 'tulpar --help' to see the available commands"
 msgstr "командалар тізімі: 'tulpar --help'"
 
-#: src/main.c:135
+#: src/main.c:151
 #, c-format
 msgid "invalid value for --color: %s"
 msgstr "--color үшін жарамсыз мән: %s"
 
-#: src/main.c:136
+#: src/main.c:152
 msgid "use one of: auto, always, never"
 msgstr "рұқсат етілген мәндер: auto, always, never"
 
-#: src/main.c:154
+#: src/main.c:170
 msgid "failed to initialise configuration"
 msgstr "баптауды бастау сәтсіз аяқталды"
 
-#: src/main.c:171
+#: src/main.c:187
 msgid "could not open the log file, continuing without file logging"
 msgstr "журнал файлын ашу мүмкін болмады, файлға жазбай жалғастырудамыз"
 
@@ -317,9 +321,9 @@ msgstr "%s ұсталған, %s бұғатталған"
 
 #: src/cmd/cmd_clean.c:88 src/cmd/cmd_download.c:63 src/cmd/cmd_files.c:69
 #: src/cmd/cmd_graph.c:51 src/cmd/cmd_history.c:88 src/cmd/cmd_hold.c:43
-#: src/cmd/cmd_info.c:241 src/cmd/cmd_install.c:122 src/cmd/cmd_key.c:50
-#: src/cmd/cmd_list.c:70 src/cmd/cmd_orphans.c:53 src/cmd/cmd_repo.c:63
-#: src/cmd/cmd_repo.c:126 src/cmd/cmd_repo.c:193 src/cmd/cmd_rollback.c:58
+#: src/cmd/cmd_info.c:241 src/cmd/cmd_install.c:122 src/cmd/cmd_key.c:54
+#: src/cmd/cmd_list.c:70 src/cmd/cmd_orphans.c:53 src/cmd/cmd_repo.c:71
+#: src/cmd/cmd_repo.c:134 src/cmd/cmd_repo.c:204 src/cmd/cmd_rollback.c:58
 #: src/cmd/cmd_search.c:83 src/cmd/cmd_stats.c:65 src/cmd/cmd_upgrade.c:92
 #: src/cmd/cmd_verify.c:140 src/cmd/cmd_why.c:70
 #, c-format
@@ -330,7 +334,7 @@ msgstr "күтпеген аргумент: %s"
 msgid "Purge downloaded packages and metadata cache"
 msgstr "Жүктелген дестелер мен метадеректер кэшін тазалау"
 
-#: src/cmd/cmd_clean.c:100 src/cmd/cmd_common.c:403 src/cmd/cmd_common.c:410
+#: src/cmd/cmd_clean.c:100 src/cmd/cmd_common.c:426 src/cmd/cmd_common.c:433
 msgid "aborted"
 msgstr "тоқтатылды"
 
@@ -350,20 +354,24 @@ msgstr[1] "%zu элемент, %s ішінен"
 msgid "usage: %s\n"
 msgstr "қолданылуы: %s\n"
 
-#: src/cmd/cmd_common.c:79
+#: src/cmd/cmd_common.c:50
+msgid "option %s requires a value"
+msgstr "%s параметріне мән қажет"
+
+#: src/cmd/cmd_common.c:102
 msgid "no further detail available"
 msgstr "толығырақ ақпарат жоқ"
 
-#: src/cmd/cmd_common.c:113
+#: src/cmd/cmd_common.c:136
 #, c-format
 msgid "offline mode: no cached data for %s"
 msgstr "offline режимі: %s үшін кэштелген деректер жоқ"
 
-#: src/cmd/cmd_common.c:115
+#: src/cmd/cmd_common.c:138
 msgid "offline mode: remote repositories are not contacted"
 msgstr "offline режимі: қашықтағы репозиторийлерге сұрау жіберілмейді"
 
-#: src/cmd/cmd_common.c:127
+#: src/cmd/cmd_common.c:150
 #, c-format
 msgid ""
 "repository %s no longer publishes a package index (repodata.json); using the "
@@ -372,44 +380,44 @@ msgstr ""
 "%s репозиторийі енді дестелер индексін (repodata.json) жарияламайды; кэштегі "
 "көшірме қолданылады"
 
-#: src/cmd/cmd_common.c:131
+#: src/cmd/cmd_common.c:154
 #, c-format
 msgid "repository %s does not publish a package index (repodata.json)"
 msgstr "%s репозиторийі дестелер индексін (repodata.json) жарияламайды"
 
-#: src/cmd/cmd_common.c:135
+#: src/cmd/cmd_common.c:158
 #, c-format
 msgid "cannot refresh the index of %s, using the cached copy: %s"
 msgstr "%s индексін жаңарту мүмкін болмады, кэштегі көшірме қолданылады: %s"
 
-#: src/cmd/cmd_common.c:139
+#: src/cmd/cmd_common.c:162
 #, c-format
 msgid "cannot reach repository %s: %s"
 msgstr "%s репозиторийіне қол жеткізу мүмкін емес: %s"
 
-#: src/cmd/cmd_common.c:156 src/cmd/cmd_common.c:161
+#: src/cmd/cmd_common.c:179 src/cmd/cmd_common.c:184
 msgid "Downloaded"
 msgstr "Жүктелді"
 
-#: src/cmd/cmd_common.c:181 src/cmd/cmd_common.c:416
+#: src/cmd/cmd_common.c:204 src/cmd/cmd_common.c:439
 msgid "failed to prepare target root directory structure"
 msgstr "мақсатты түбірлік бума құрылымын дайындау сәтсіз аяқталды"
 
-#: src/cmd/cmd_common.c:187
+#: src/cmd/cmd_common.c:210
 #, c-format
 msgid "no package database at %s"
 msgstr "%s ішінде дестелер дерекқоры жоқ"
 
-#: src/cmd/cmd_common.c:188
+#: src/cmd/cmd_common.c:211
 #, c-format
 msgid "nothing has been installed into %s yet"
 msgstr "%s ішіне әлі ештеңе орнатылмаған"
 
-#: src/cmd/cmd_common.c:200
+#: src/cmd/cmd_common.c:223
 msgid "wait for the other package operation to finish, then try again"
 msgstr "басқа десте операциясының аяқталуын күтіп, қайталап көріңіз"
 
-#: src/cmd/cmd_common.c:251
+#: src/cmd/cmd_common.c:274
 #, c-format
 msgid "%zu package has no signature and will be installed unverified: %s"
 msgid_plural ""
@@ -417,31 +425,31 @@ msgid_plural ""
 msgstr[0] "%zu дестенің қолтаңбасы жоқ, ол тексерусіз орнатылады: %s"
 msgstr[1] "%zu дестенің қолтаңбасы жоқ, олар тексерусіз орнатылады: %s"
 
-#: src/cmd/cmd_common.c:258
+#: src/cmd/cmd_common.c:281
 #, c-format
 msgid "%zu package has a signature that could not be verified: %s"
 msgid_plural "%zu packages have signatures that could not be verified: %s"
 msgstr[0] "%zu дестенің қолтаңбасын тексеру мүмкін болмады: %s"
 msgstr[1] "%zu дестенің қолтаңбаларын тексеру мүмкін болмады: %s"
 
-#: src/cmd/cmd_common.c:265
+#: src/cmd/cmd_common.c:288
 msgid "pass --require-signature to refuse unverified packages"
 msgstr ""
 "тексерілмеген дестелерден бас тарту үшін --require-signature көрсетіңіз"
 
-#: src/cmd/cmd_common.c:277
+#: src/cmd/cmd_common.c:300
 msgid "Upgrading"
 msgstr "Жаңарту"
 
-#: src/cmd/cmd_common.c:280
+#: src/cmd/cmd_common.c:303
 msgid "Removing"
 msgstr "Өшіру"
 
-#: src/cmd/cmd_common.c:283
+#: src/cmd/cmd_common.c:306
 msgid "Installing"
 msgstr "Орнату"
 
-#: src/cmd/cmd_common.c:305
+#: src/cmd/cmd_common.c:328
 msgid ""
 "package scripts cannot be isolated on this system; set "
 "require_script_sandbox = false in tulpar.conf to run them without isolation"
@@ -449,13 +457,13 @@ msgstr ""
 "бұл жүйеде деске скрипттерін оқшаулау мүмкін емес; оларды оқшаулаусыз іске "
 "қосу үшін tulpar.conf ішінде require_script_sandbox = false деп орнатыңыз"
 
-#: src/cmd/cmd_common.c:332
+#: src/cmd/cmd_common.c:355
 #, c-format
 msgid ""
 "the transaction needs about %s, but only %s is free on the target filesystem"
 msgstr "транзакцияға шамамен %s қажет, ал мақсатты файлдық жүйеде тек %s бос"
 
-#: src/cmd/cmd_common.c:335
+#: src/cmd/cmd_common.c:358
 msgid ""
 "the estimate is conservative; free some space, or continue if you expect it "
 "to be enough"
@@ -463,57 +471,57 @@ msgstr ""
 "бағалау үлкен қормен жасалған; орын босатыңыз немесе жеткілікті деп "
 "есептесеңіз жалғастырыңыз"
 
-#: src/cmd/cmd_common.c:337
+#: src/cmd/cmd_common.c:360
 msgid "Continue anyway?"
 msgstr "Бәрібір жалғастыру керек пе?"
 
-#: src/cmd/cmd_common.c:375
+#: src/cmd/cmd_common.c:398
 msgid "remove the dependent packages too, or pass --nodeps to remove anyway"
 msgstr ""
 "тәуелді дестелерді де өшіріңіз немесе мәжбүрлеп өшіру үшін --nodeps "
 "көрсетіңіз"
 
-#: src/cmd/cmd_common.c:380
+#: src/cmd/cmd_common.c:403
 msgid "release a held package with 'tulpar unhold <name>'"
 msgstr "бұғатты 'tulpar unhold <атауы>' командасымен алыңыз"
 
-#: src/cmd/cmd_common.c:383
+#: src/cmd/cmd_common.c:406
 msgid "circular dependency detected"
 msgstr "тұйықталған тәуелділік табылды"
 
-#: src/cmd/cmd_common.c:386
+#: src/cmd/cmd_common.c:409
 #, c-format
 msgid "cannot resolve dependencies: %s"
 msgstr "тәуелділіктерді шешу мүмкін болмады: %s"
 
-#: src/cmd/cmd_common.c:390
+#: src/cmd/cmd_common.c:413
 #, c-format
 msgid "failed to prepare the transaction: %s"
 msgstr "транзакцияны дайындау мүмкін болмады: %s"
 
-#: src/cmd/cmd_common.c:408
+#: src/cmd/cmd_common.c:431
 msgid "Proceed with this transaction?"
 msgstr "Осы транзакцияны орындауды жалғастыру керек пе?"
 
-#: src/cmd/cmd_common.c:432
+#: src/cmd/cmd_common.c:455
 #, c-format
 msgid "signature verification failed: %s"
 msgstr "қолтаңбаны тексеру сәтсіз аяқталды: %s"
 
-#: src/cmd/cmd_common.c:434
+#: src/cmd/cmd_common.c:457
 msgid "import the signing key with 'tulpar key add <file>'"
 msgstr "қолтаңба кілтін 'tulpar key add <файл>' командасымен импорттаңыз"
 
-#: src/cmd/cmd_common.c:439
+#: src/cmd/cmd_common.c:462
 #, c-format
 msgid "installation failed: %s"
 msgstr "орнату сәтсіз аяқталды: %s"
 
-#: src/cmd/cmd_common.c:440 src/cmd/cmd_common.c:452 src/cmd/cmd_common.c:459
+#: src/cmd/cmd_common.c:463 src/cmd/cmd_common.c:475 src/cmd/cmd_common.c:482
 msgid "changes made by this transaction were rolled back"
 msgstr "осы транзакцияның өзгерістері кері қайтарылды"
 
-#: src/cmd/cmd_common.c:443
+#: src/cmd/cmd_common.c:466
 msgid ""
 "free space on the target filesystem; packages are unpacked into a temporary "
 "directory first, which uses RAM when /tmp is a tmpfs"
@@ -521,30 +529,30 @@ msgstr ""
 "мақсатты файлдық жүйеде орын босатыңыз; дестелер алдымен уақытша каталогқа "
 "ашылады, /tmp tmpfs болса, ол жедел жадты пайдаланады"
 
-#: src/cmd/cmd_common.c:451
+#: src/cmd/cmd_common.c:474
 #, c-format
 msgid "cannot record the installation: %s"
 msgstr "орнатуды дерекқорға жазу мүмкін болмады: %s"
 
-#: src/cmd/cmd_common.c:458
+#: src/cmd/cmd_common.c:481
 #, c-format
 msgid "removal failed: %s"
 msgstr "өшіру сәтсіз аяқталды: %s"
 
-#: src/cmd/cmd_common.c:464
+#: src/cmd/cmd_common.c:487
 #, c-format
 msgid "failed to commit the transaction: %s"
 msgstr "транзакцияны орындау мүмкін болмады: %s"
 
-#: src/cmd/cmd_common.c:474 src/cmd/cmd_common.c:478
+#: src/cmd/cmd_common.c:497 src/cmd/cmd_common.c:501
 msgid "Finished"
 msgstr "Дайын"
 
-#: src/cmd/cmd_common.c:474
+#: src/cmd/cmd_common.c:497
 msgid "dry run; no changes were made"
 msgstr "сынақ іске қосу; өзгерістер енгізілмеді"
 
-#: src/cmd/cmd_common.c:479
+#: src/cmd/cmd_common.c:502
 #, c-format
 msgid "%zu operation in %.2fs"
 msgid_plural "%zu operations in %.2fs"
@@ -560,16 +568,21 @@ msgstr "жүктеп алу үшін десте аты қажет"
 msgid "package %s not found in any configured repository"
 msgstr "%s дестесі бірде-бір бапталған репозиторийде табылмады"
 
-#: src/cmd/cmd_download.c:126
+#: src/cmd/cmd_download.c:104
+msgid ""
+"check the name, or see 'tulpar repo list' for the configured repositories"
+msgstr "атауды тексеріңіз немесе бапталған репозиторийлерді 'tulpar repo list' арқылы қараңыз"
+
+#: src/cmd/cmd_download.c:128
 #, c-format
 msgid "no build of %s matches the requested criteria"
 msgstr "%s дестесінің ешбір нұсқасы сұралған талаптарға сәйкес келмейді"
 
-#: src/cmd/cmd_download.c:144 src/cmd/resolve.c:182
+#: src/cmd/cmd_download.c:146 src/cmd/resolve.c:182
 msgid "Downloading"
 msgstr "Жүктеу"
 
-#: src/cmd/cmd_download.c:160 src/cmd/resolve.c:188
+#: src/cmd/cmd_download.c:162 src/cmd/resolve.c:188
 #, c-format
 msgid "cannot download %s: %s"
 msgstr "%s жүктеу мүмкін болмады: %s"
@@ -579,8 +592,9 @@ msgstr "%s жүктеу мүмкін болмады: %s"
 msgid "a package name is required"
 msgstr "десте аты қажет"
 
-#: src/cmd/cmd_files.c:90 src/cmd/cmd_graph.c:98 src/cmd/cmd_remove.c:170
-#: src/cmd/cmd_why.c:91
+#: src/cmd/cmd_files.c:90 src/cmd/cmd_graph.c:98 src/cmd/cmd_hold.c:85
+#: src/cmd/cmd_mark.c:104 src/cmd/cmd_reinstall.c:50 src/cmd/cmd_reinstall.c:70
+#: src/cmd/cmd_remove.c:170 src/cmd/cmd_upgrade.c:146 src/cmd/cmd_why.c:91
 #, c-format
 msgid "package %s is not installed"
 msgstr "%s дестесі орнатылмаған"
@@ -629,8 +643,12 @@ msgstr "30m, 12h, 7d, 2w, YYYY-MM-DD немесе @<unix-уақыт> қолда�
 msgid "no history recorded"
 msgstr "тарих бос"
 
-#: src/cmd/cmd_history.c:149 src/cmd/cmd_history.c:150
-#: src/cmd/cmd_history.c:165
+#: src/cmd/cmd_history.c:127
+msgid "no history entries match the filters"
+msgstr "сүзгілерге сәйкес тарих жазбалары жоқ"
+
+#: src/cmd/cmd_history.c:150 src/cmd/cmd_history.c:151
+#: src/cmd/cmd_history.c:166
 msgid "failed"
 msgstr "сәтсіз"
 
@@ -642,10 +660,9 @@ msgstr "Бұғатталды"
 msgid "Released"
 msgstr "Босатылды"
 
-#: src/cmd/cmd_hold.c:82
-#, c-format
-msgid "failed to update hold state for %s (not installed?)"
-msgstr "%s ұстау күйін жаңарту сәтсіз аяқталды (орнатылмаған ба?)"
+#: src/cmd/cmd_hold.c:87
+msgid "failed to update hold state for %s: %s"
+msgstr "%s бұғаттау күйін жаңарту мүмкін болмады: %s"
 
 #: src/cmd/cmd_info.c:61 src/cmd/cmd_info.c:345
 msgid "not installed"
@@ -725,8 +742,8 @@ msgstr "қолмен орнатылған"
 msgid "installed as a dependency"
 msgstr "тәуелділік ретінде орнатылған"
 
-#: src/cmd/cmd_info.c:284 src/cmd/cmd_list.c:162 src/cmd/cmd_list.c:163
-#: src/cmd/cmd_list.c:174
+#: src/cmd/cmd_info.c:284 src/cmd/cmd_list.c:169 src/cmd/cmd_list.c:170
+#: src/cmd/cmd_list.c:181
 msgid "held"
 msgstr "бұғатталған"
 
@@ -766,7 +783,7 @@ msgstr ""
 "--sign тек бір аргументті талап етеді: жергілікті .apg файлы, URL немесе git-"
 "url"
 
-#: src/cmd/cmd_install.c:152 src/cmd/cmd_reinstall.c:142
+#: src/cmd/cmd_install.c:152 src/cmd/cmd_reinstall.c:146
 #: src/cmd/cmd_remove.c:147 src/cmd/cmd_rollback.c:67 src/cmd/cmd_upgrade.c:115
 msgid "failed to resolve destination root"
 msgstr "мақсатты түбірді анықтау сәтсіз аяқталды"
@@ -775,12 +792,12 @@ msgstr "мақсатты түбірді анықтау сәтсіз аяқтал
 msgid "failed to prepare destination database directory"
 msgstr "мақсатты түбірде дерекқор каталогын дайындау мүмкін болмады"
 
-#: src/cmd/cmd_install.c:202 src/cmd/cmd_reinstall.c:193
+#: src/cmd/cmd_install.c:202 src/cmd/cmd_reinstall.c:197
 #: src/cmd/cmd_upgrade.c:224
 msgid "Resolved"
 msgstr "Шешілді"
 
-#: src/cmd/cmd_install.c:203 src/cmd/cmd_reinstall.c:194
+#: src/cmd/cmd_install.c:203 src/cmd/cmd_reinstall.c:198
 #: src/cmd/cmd_upgrade.c:225
 #, c-format
 msgid "%zu package in %.2fs"
@@ -793,64 +810,68 @@ msgstr[1] "%zu десте, %.2f с"
 msgid "failed to place signature from %s at %s"
 msgstr "%s қолтаңбасын %s ішіне орналастыру мүмкін болмады"
 
-#: src/cmd/cmd_install.c:243 src/cmd/cmd_orphans.c:91
-#: src/cmd/cmd_reinstall.c:187 src/cmd/cmd_remove.c:185
+#: src/cmd/cmd_install.c:243 src/cmd/cmd_orphans.c:93
+#: src/cmd/cmd_reinstall.c:191 src/cmd/cmd_remove.c:185
 #: src/cmd/cmd_rollback.c:143 src/cmd/cmd_upgrade.c:234
 msgid "failed to allocate transaction"
 msgstr "транзакция үшін жад бөлу сәтсіз аяқталды"
 
-#: src/cmd/cmd_key.c:64
+#: src/cmd/cmd_key.c:68
 msgid "key add requires a path to the new public key"
 msgstr "key add үшін жаңа ашық кілтке жол қажет"
 
-#: src/cmd/cmd_key.c:72
+#: src/cmd/cmd_key.c:76
 #, c-format
 msgid "failed to load trusted keyring from %s"
 msgstr "%s ішінен сенімді кілттер байламын жүктеу сәтсіз аяқталды"
 
-#: src/cmd/cmd_key.c:82
+#: src/cmd/cmd_key.c:86
 msgid "Imported"
 msgstr "Импортталды"
 
-#: src/cmd/cmd_key.c:82
+#: src/cmd/cmd_key.c:86
 #, c-format
 msgid "key %s into %s"
 msgstr "%s кілті %s ішіне"
 
-#: src/cmd/cmd_key.c:85
+#: src/cmd/cmd_key.c:89
 msgid "key was not added; it must be endorsed by an already trusted key"
 msgstr "кілт қосылмады; ол сенімді кілтпен расталуы тиіс"
 
-#: src/cmd/cmd_key.c:94
+#: src/cmd/cmd_key.c:107
 #, c-format
-msgid "Trusted keyring directory: %s\n"
-msgstr "Сенімді кілттер каталогы: %s\n"
+msgid "no trusted keys: %s does not exist"
+msgstr "сенімді кілттер жоқ: %s жоқ"
 
-#: src/cmd/cmd_key.c:95
-msgid "use your platform's file listing to inspect individual keys"
-msgstr "жеке кілттерді көру үшін платформаңыздың файлдық құралдарын қолданыңыз"
+#: src/cmd/cmd_key.c:137
+msgid "no trusted keys in %s"
+msgstr "%s ішінде сенімді кілттер жоқ"
 
-#: src/cmd/cmd_key.c:129
+#: src/cmd/cmd_key.c:180
 msgid "unknown key subcommand; expected add or list"
 msgstr "беймәлім key ішкі командасы; add немесе list күтіледі"
 
 #: src/cmd/cmd_list.c:84
+msgid "--names and --json cannot be combined"
+msgstr "--names және --json бірге қолданыла алмайды"
+
+#: src/cmd/cmd_list.c:91
 msgid "--explicit and --deps cannot be combined"
 msgstr "--explicit және --deps бірге қолданыла алмайды"
 
-#: src/cmd/cmd_list.c:131
+#: src/cmd/cmd_list.c:138
 msgid "out of memory"
 msgstr "жад жеткіліксіз"
 
-#: src/cmd/cmd_list.c:145
+#: src/cmd/cmd_list.c:152
 msgid "no installed packages matched"
 msgstr "сәйкес орнатылған пакеттер жоқ"
 
-#: src/cmd/cmd_list.c:147
+#: src/cmd/cmd_list.c:154
 msgid "no packages installed"
 msgstr "орнатылған дестелер жоқ"
 
-#: src/cmd/cmd_list.c:184
+#: src/cmd/cmd_list.c:191
 #, c-format
 msgid "%zu package"
 msgid_plural "%zu packages"
@@ -869,10 +890,9 @@ msgstr "Автоматты деп белгіленді"
 msgid "Marked explicit"
 msgstr "Айқын деп белгіленді"
 
-#: src/cmd/cmd_mark.c:102
-#, c-format
-msgid "failed to mark %s (not installed?)"
-msgstr "%s белгілеу мүмкін болмады (орнатылмаған?)"
+#: src/cmd/cmd_mark.c:106
+msgid "failed to mark %s: %s"
+msgstr "%s белгілеу мүмкін болмады: %s"
 
 #: src/cmd/cmd_orphans.c:80
 msgid "no orphaned packages found"
@@ -880,8 +900,10 @@ msgstr "иесіз дестелер табылмады"
 
 #: src/cmd/cmd_orphans.c:86
 #, c-format
-msgid "%d orphaned package(s) found"
-msgstr "%d иесіз десте(лер) табылды"
+msgid "%d orphaned package found"
+msgid_plural "%d orphaned packages found"
+msgstr[0] "%d жетім пакет табылды"
+msgstr[1] "%d жетім пакет табылды"
 
 #: src/cmd/cmd_owns.c:189
 msgid "a file path is required"
@@ -892,12 +914,6 @@ msgstr "файл жолы қажет"
 msgid "no package owns %s"
 msgstr "%s файлы ешбір пакетке тиесілі емес"
 
-#: src/cmd/cmd_reinstall.c:50 src/cmd/cmd_reinstall.c:70
-#: src/cmd/cmd_upgrade.c:146
-#, c-format
-msgid "%s is not installed"
-msgstr "%s орнатылмаған"
-
 #: src/cmd/cmd_reinstall.c:58
 #, c-format
 msgid "%s in %s is not the installed version"
@@ -907,16 +923,21 @@ msgstr "%s ішіндегі %s орнатылған нұсқа емес"
 msgid "use 'tulpar install' to change the version"
 msgstr "нұсқаны өзгерту үшін 'tulpar install' қолданыңыз"
 
-#: src/cmd/cmd_reinstall.c:78 src/cmd/cmd_upgrade.c:165
+#: src/cmd/cmd_reinstall.c:79 src/cmd/cmd_upgrade.c:165
 #, c-format
 msgid "%s %s not found in any configured repo"
 msgstr "%s %s бапталған репозиторийлердің ешқайсысында табылмады"
 
-#: src/cmd/cmd_reinstall.c:133
+#: src/cmd/cmd_reinstall.c:81
+msgid "pass the .apg file of this version to reinstall without a repository"
+msgstr "репозиторийсіз қайта орнату үшін осы нұсқаның .apg файлын беріңіз"
+
+#: src/cmd/cmd_reinstall.c:137
 msgid "a package name or file is required"
 msgstr "пакет атауы немесе файл қажет"
 
-#: src/cmd/cmd_reinstall.c:204
+#: src/cmd/cmd_reinstall.c:208
+#, c-format
 msgid "cannot queue %s: %s"
 msgstr "%s транзакцияға қосу мүмкін болмады: %s"
 
@@ -934,114 +955,114 @@ msgstr "%s жұмысын тоқтатуы мүмкін"
 msgid "remove requires at least one package name"
 msgstr "remove үшін кемінде бір десте аты қажет"
 
-#: src/cmd/cmd_repo.c:77
+#: src/cmd/cmd_repo.c:85
 msgid "repo add requires a URL"
 msgstr "repo add үшін URL қажет"
 
-#: src/cmd/cmd_repo.c:85 src/cmd/cmd_repo.c:148 src/cmd/cmd_repo.c:243
+#: src/cmd/cmd_repo.c:93 src/cmd/cmd_repo.c:156 src/cmd/cmd_repo.c:254
 msgid "could not determine a repo list file to write to"
 msgstr "жазу үшін репозиторийлер тізімі файлын анықтау мүмкін болмады"
 
-#: src/cmd/cmd_repo.c:91
+#: src/cmd/cmd_repo.c:99
 msgid "Added"
 msgstr "Қосылды"
 
-#: src/cmd/cmd_repo.c:91
+#: src/cmd/cmd_repo.c:99
 #, c-format
 msgid "repository %s to %s"
 msgstr "%s репозиторийі %s ішіне"
 
-#: src/cmd/cmd_repo.c:93
+#: src/cmd/cmd_repo.c:101
 #, c-format
 msgid "failed to add repo to %s"
 msgstr "репозиторийді %s ішіне қосу мүмкін болмады"
 
-#: src/cmd/cmd_repo.c:140
+#: src/cmd/cmd_repo.c:148
 msgid "repo remove requires a URL"
 msgstr "repo remove үшін URL қажет"
 
-#: src/cmd/cmd_repo.c:154
+#: src/cmd/cmd_repo.c:162
 msgid "Removed"
 msgstr "Өшірілді"
 
-#: src/cmd/cmd_repo.c:154
+#: src/cmd/cmd_repo.c:162
 #, c-format
 msgid "repository %s from %s"
 msgstr "%s репозиторийі %s ішінен"
 
-#: src/cmd/cmd_repo.c:156 src/cmd/cmd_repo.c:267
+#: src/cmd/cmd_repo.c:164 src/cmd/cmd_repo.c:278
 #, c-format
 msgid "repo %s was not found in %s"
 msgstr "%s репозиторийі %s ішінде табылмады"
 
-#: src/cmd/cmd_repo.c:207
+#: src/cmd/cmd_repo.c:218
 #, c-format
 msgid "repo %s requires a URL%s"
 msgstr "repo %s URL талап етеді%s"
 
-#: src/cmd/cmd_repo.c:208
+#: src/cmd/cmd_repo.c:219
 msgid " and a number"
 msgstr " және сан"
 
-#: src/cmd/cmd_repo.c:220
+#: src/cmd/cmd_repo.c:231
 #, c-format
 msgid "invalid priority: %s"
 msgstr "жарамсыз басымдық: %s"
 
-#: src/cmd/cmd_repo.c:221
+#: src/cmd/cmd_repo.c:232
 msgid "use a whole number from 0 to 100000, lower is consulted first"
 msgstr ""
 "0-ден 100000-ға дейінгі бүтін санды қолданыңыз, кішісі бірінші сұралады"
 
-#: src/cmd/cmd_repo.c:249
+#: src/cmd/cmd_repo.c:260
 #, c-format
 msgid "cannot modify %s"
 msgstr "%s өзгерту мүмкін болмады"
 
-#: src/cmd/cmd_repo.c:250
+#: src/cmd/cmd_repo.c:261
 msgid "run as root to change the system repository list"
 msgstr "жүйелік репозиторийлер тізімін өзгерту үшін root ретінде іске қосыңыз"
 
-#: src/cmd/cmd_repo.c:262
+#: src/cmd/cmd_repo.c:273
 msgid "Prioritised"
 msgstr "Басымдық орнатылды"
 
-#: src/cmd/cmd_repo.c:263
+#: src/cmd/cmd_repo.c:274
 msgid "Enabled"
 msgstr "Қосылды"
 
-#: src/cmd/cmd_repo.c:264
+#: src/cmd/cmd_repo.c:275
 msgid "Disabled"
 msgstr "Өшірілді"
 
-#: src/cmd/cmd_repo.c:265
+#: src/cmd/cmd_repo.c:276
 #, c-format
 msgid "repository %s in %s"
 msgstr "%s репозиторийі %s ішінде"
 
-#: src/cmd/cmd_repo.c:300
+#: src/cmd/cmd_repo.c:311
 msgid "no repositories configured"
 msgstr "репозиторийлер бапталмаған"
 
-#: src/cmd/cmd_repo.c:311
+#: src/cmd/cmd_repo.c:322
 msgid "cannot update repository indexes in offline mode"
 msgstr "offline режимінде репозиторий индекстерін жаңартуға болмайды"
 
-#: src/cmd/cmd_repo.c:321
+#: src/cmd/cmd_repo.c:332
 msgid "Updated"
 msgstr "Жаңартылды"
 
-#: src/cmd/cmd_repo.c:321
+#: src/cmd/cmd_repo.c:332
 #, c-format
 msgid "index of %s"
 msgstr "%s индексі"
 
-#: src/cmd/cmd_repo.c:324
+#: src/cmd/cmd_repo.c:335
 #, c-format
 msgid "failed to update %s: %s"
 msgstr "%s жаңарту мүмкін болмады: %s"
 
-#: src/cmd/cmd_repo.c:339
+#: src/cmd/cmd_repo.c:350
 msgid ""
 "repo requires a sub-action: add, remove, enable, disable, priority, list, "
 "update"
@@ -1049,7 +1070,7 @@ msgstr ""
 "repo үшін ішкі команда қажет: add, remove, enable, disable, priority, list, "
 "update"
 
-#: src/cmd/cmd_repo.c:408
+#: src/cmd/cmd_repo.c:419
 #, c-format
 msgid "unknown repo sub-action: %s"
 msgstr "беймәлім repo ішкі командасы: %s"
@@ -1225,7 +1246,9 @@ msgstr "тізбек:"
 #: src/cmd/cmd_why.c:151
 msgid ""
 "only unused packages require it, so it can be removed with 'tulpar orphans'"
-msgstr "ол тек пайдаланылмайтын пакеттерге қажет, сондықтан оны 'tulpar orphans' арқылы жоюға болады"
+msgstr ""
+"ол тек пайдаланылмайтын пакеттерге қажет, сондықтан оны 'tulpar orphans' "
+"арқылы жоюға болады"
 
 #: src/cmd/resolve.c:204
 #, c-format
@@ -1326,15 +1349,39 @@ msgstr "%s десте мұрағатын оқу мүмкін болмады: %s"
 msgid "package %s not found in any configured repo"
 msgstr "%s дестесі бірде-бір бапталған репозиторийде табылмады"
 
-#: src/cmd/resolve.c:988
+#: src/cmd/resolve.c:894
+msgid "offline mode: packages cannot be looked up in the repositories"
+msgstr "offline режимі: пакеттерді репозиторийлерден іздеуге болмайды"
+
+#: src/cmd/resolve.c:897
+msgid "check the name, or find it with 'tulpar search <query>'"
+msgstr "атауды тексеріңіз немесе пакетті 'tulpar search <сұраныс>' арқылы табыңыз"
+
+#: src/cmd/resolve.c:994
 #, c-format
 msgid "dependency conflict: %s"
 msgstr "тәуелділіктер қақтығысы: %s"
 
-#: src/cmd/resolve.c:993
+#: src/cmd/resolve.c:999
 msgid "dependency conflict detected"
 msgstr "тәуелділіктер қақтығысы табылды"
 
 #: src/util/paths.c:144
 msgid "operation requires root privileges (try with sudo)"
 msgstr "әрекетке root құқықтары қажет (sudo көріңіз)"
+
+#, c-format
+#~ msgid "Trusted keyring directory: %s\n"
+#~ msgstr "Сенімді кілттер каталогы: %s\n"
+
+#~ msgid "use your platform's file listing to inspect individual keys"
+#~ msgstr ""
+#~ "жеке кілттерді көру үшін платформаңыздың файлдық құралдарын қолданыңыз"
+
+#, c-format
+#~ msgid "failed to mark %s (not installed?)"
+#~ msgstr "%s белгілеу мүмкін болмады (орнатылмаған?)"
+
+#, c-format
+#~ msgid "%s is not installed"
+#~ msgstr "%s орнатылмаған"
