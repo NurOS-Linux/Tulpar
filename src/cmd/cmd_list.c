@@ -79,6 +79,13 @@ cmd_list_run(int argc, char **argv, struct tulpar_config *cfg)
         }
     }
 
+    if (names_only && json_output)
+    {
+        ui_error(_("--names and --json cannot be combined"));
+        cmd_print_usage(USAGE);
+        return 1;
+    }
+
     if (only_explicit && only_deps)
     {
         ui_error(_("--explicit and --deps cannot be combined"));

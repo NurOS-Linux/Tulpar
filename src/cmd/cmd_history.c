@@ -123,7 +123,8 @@ cmd_history_run(int argc, char **argv, struct tulpar_config *cfg)
     }
     else if (count == 0)
     {
-        ui_info(_("no history recorded"));
+        ui_info(all_count == 0 ? _("no history recorded")
+                               : _("no history entries match the filters"));
     }
     else
     {
